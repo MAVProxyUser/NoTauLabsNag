@@ -26,6 +26,7 @@ package org.openpilot_nonag.androidgcs;
 import org.openpilot_nonag.uavtalk.UAVObject;
 
 import android.os.Bundle;
+import android.util.Log;
 
 import com.google.android.gms.maps.GoogleMap;
 //import com.google.android.gms.maps.MapFragment;
@@ -36,6 +37,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 //import com.google.android.maps.GeoPoint;
 import com.google.android.gms.maps.model.LatLng; // replaces GeoPoint
 import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import android.app.Activity;
 
 public class UAVLocation extends ObjectManagerActivity
 {
@@ -58,6 +61,23 @@ public class UAVLocation extends ObjectManagerActivity
 		mapFrag = ((MapFragment) getFragmentManager().findFragmentById(R.id.map_view));
 		mMap = mapFrag.getMap();
 		mMap.setMyLocationEnabled(true);
+		mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+		//mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+		//mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+		//mMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
+
+                //mapFrag.onCreate(savedInstanceState);
+//		registerForContextMenu(mapFrag);
+
+		mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+                        @Override
+                        public void onMapLongClick(LatLng arg0) {
+                                Log.d(TAG, "Click");
+                                // Animating to the touched position
+                		mMap.animateCamera(CameraUpdateFactory.newLatLng(arg0));
+                	}
+		});
+
     }
 
 	@Override
@@ -110,7 +130,7 @@ public class UAVLocation extends ObjectManagerActivity
 		return new LatLng((int) (lat * 1e6), (int) (lon * 1e6));
 	}
 
-
+	// https://developers.google.com/maps/documentation/android/marker
 	/**
 	 * Called whenever any objects subscribed to via registerObjects
 	 * update the marker location for home and the UAV

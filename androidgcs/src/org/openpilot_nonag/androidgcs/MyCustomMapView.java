@@ -8,6 +8,8 @@ import java.util.TimerTask;
 import android.support.v4.app.Fragment;
 import com.google.android.gms.maps.model.LatLng; // replaces GeoPoint
 import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import android.content.Context;
 import android.util.AttributeSet;
@@ -33,39 +35,6 @@ private LatLng lastMapCenter;
  
 private Timer longpressTimer = new Timer();
 private MyCustomMapView.OnLongpressListener longpressListener;
-
- 
-public MyCustomMapView(Context context, String apiKey) 
-{
-//    super(context, apiKey);
-}
-
-public MyCustomMapView(Context context, AttributeSet attrs) 
-{
-//    super(context, attrs);
-}
-
-public MyCustomMapView(Context context, AttributeSet attrs, int defStyle) 
-{
-//    super(context, attrs, defStyle);
-}
-
-public void setOnLongpressListener(MyCustomMapView.OnLongpressListener listener) 
-{
-    longpressListener = listener;
-}
-
-/**
- * This method is called every time user touches the map,
- * drags a finger on the map, or removes finger from the map.
- */
-// @Override
-public boolean onTouchEvent(MotionEvent event) {
-    handleLongpress(event);
-     
-//    return super.onTouchEvent(event);
-	return true;
-}
 
 /**
  * This method takes MotionEvents and decides whether or not

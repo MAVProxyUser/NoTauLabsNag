@@ -597,6 +597,10 @@ public class HidUAVTalk extends TelemetryTask {
 				Log.e(TAG, "Dropped data.  Size:" + size + " data length: " + dat.length);
 				return false;
 			}
+			else
+			{
+				Log.e(TAG, "Legit data.  Size:" + size + " data length: " + dat.length);
+			}
 
 			// Place data at the end of the buffer
 			synchronized(buf) {
