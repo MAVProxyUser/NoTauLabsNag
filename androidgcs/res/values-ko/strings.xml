@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+	<string name="app_name">오픈파일럿 지상통제장치(OpenPilot GCS Home)</string>
+	<string name="object_browser_name">브라우저</string>
+	<string name="controller_name">제어 장치</string>
+	<string name="pfd_name">PFD(Primary Flight Display)</string>
+        <string name="location_name">지도</string>
+	<string name="logger_name">로깅</string>
+	
+	<string name="menu_item_settings">설정</string>
+	<string name="menu_item_connect">연결</string>
+	<string name="menu_item_disconnect">연결끊기</string>
+	
+	<string name="preference_title">설정</string>
+	<string name="preference_checkbox_autoconnect">자동으로 연결</string>
+	<string name="preference_checkbox_connection_type">연결 유형</string>
+	<string name="preference_checkbox_bluetooth">블루투스</string>
+	<string name="preference_connection_method_summary">연결 방법을 선택합니다</string>
+	
+	<string name="compass_name">나침반</string>
+	<string name="cardinal_north">북</string>
+	<string name="cardinal_east">동</string>
+	<string name="cardinal_south">남</string>
+	<string name="cardinal_west">서</string>
+	<string name="connected">연결됨</string>
+	<string name="update_button">업데이트</string>
+	<string name="save_button">저장</string>
+	<string name="send_button">전송</string>
+	<string name="manual_control_values_">수동 제어 값 :</string>
+	<string name="number_of_objects">객체 수</string>
+	<string name="number_of_bytes">바이트 수</string>
+	<string name="alarms">알람</string>
+	<string name="txrate">송신 속도(TxRate) :</string>
+	<string name="rxrate">수신 속도(RxRate) :</string>
+	<string name="latitude">위도:</string>
+	<string name="longitude">경도:</string>
+	<string name="altitude">고도 :</string>
+	<string name="tuning">조정</string>
+	<string name="apply">적용</string>
+	<string name="save">저장</string>
+	<string name="settings">설정</string>
+	<string name="data">데이터</string>
+	<string name="edit">수정</string>
+	<string name="load">불러오기</string>
+</resources>

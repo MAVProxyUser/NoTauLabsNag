@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+	<string name="app_name">OpenPilot GCS-Startseite</string>
+	<string name="object_browser_name">Browser</string>
+	<string name="controller_name">Controller</string>
+	<string name="pfd_name">PFD</string>
+        <string name="location_name">Karte</string>
+	<string name="logger_name">Protokollierung</string>
+	
+	<string name="menu_item_settings">Einstellungen</string>
+	<string name="menu_item_connect">Verbinden</string>
+	<string name="menu_item_disconnect">Verbindung trennen</string>
+	
+	<string name="preference_title">Einstellungen</string>
+	<string name="preference_checkbox_autoconnect">Automatisch verbinden</string>
+	<string name="preference_checkbox_connection_type">Verbindungstyp</string>
+	<string name="preference_checkbox_bluetooth">Bluetooth</string>
+	<string name="preference_connection_method_summary">Verbindungsmethode wählen</string>
+	
+	<string name="compass_name">Kompass</string>
+	<string name="cardinal_north">N</string>
+	<string name="cardinal_east">O</string>
+	<string name="cardinal_south">S</string>
+	<string name="cardinal_west">W</string>
+	<string name="connected">Verbunden</string>
+	<string name="update_button">Aktualisieren</string>
+	<string name="save_button">Speichern</string>
+	<string name="send_button">Senden</string>
+	<string name="manual_control_values_">Manuelle Steuerwerte</string>
+	<string name="number_of_objects">Anzahl der Objekte</string>
+	<string name="number_of_bytes">Anzahl der Bytes</string>
+	<string name="alarms">Alarme</string>
+	<string name="txrate">Übertragungsrate:</string>
+	<string name="rxrate">Empfangsrate:</string>
+	<string name="latitude">Breitengrad:</string>
+	<string name="longitude">Längengrad:</string>
+	<string name="altitude">Höhe:</string>
+	<string name="tuning">Feineinstellung</string>
+	<string name="apply">Anwenden</string>
+	<string name="save">Speichern</string>
+	<string name="settings">Einstellungen</string>
+	<string name="data">Daten</string>
+	<string name="edit">Bearbeiten</string>
+	<string name="load">Laden</string>
+</resources>

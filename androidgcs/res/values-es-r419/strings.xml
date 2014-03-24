@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+	<string name="app_name"> Inicio OpenPilot GCS</string>
+	<string name="object_browser_name">Navegador</string>
+	<string name="controller_name">Controlador</string>
+	<string name="pfd_name">PFD</string>
+        <string name="location_name">Mapa</string>
+	<string name="logger_name">Iniciar Sesión</string>
+	
+	<string name="menu_item_settings">Configuración</string>
+	<string name="menu_item_connect">Conectar</string>
+	<string name="menu_item_disconnect">Desconectar</string>
+	
+	<string name="preference_title">Configuración</string>
+	<string name="preference_checkbox_autoconnect">Conecte automáticamente</string>
+	<string name="preference_checkbox_connection_type">Tipo de conexión</string>
+	<string name="preference_checkbox_bluetooth">Bluetooth</string>
+	<string name="preference_connection_method_summary">Seleccione el método de conexión</string>
+	
+	<string name="compass_name">Compás</string>
+	<string name="cardinal_north">N</string>
+	<string name="cardinal_east">E</string>
+	<string name="cardinal_south">S</string>
+	<string name="cardinal_west">O</string>
+	<string name="connected">Conectado</string>
+	<string name="update_button">Actualizar</string>
+	<string name="save_button">Guardar</string>
+	<string name="send_button">Enviar</string>
+	<string name="manual_control_values_">Valores de los controles manuales:</string>
+	<string name="number_of_objects">Número de objetos</string>
+	<string name="number_of_bytes">Número de bytes</string>
+	<string name="alarms">Alarmas</string>
+	<string name="txrate">TxRate:</string>
+	<string name="rxrate">RxRate:</string>
+	<string name="latitude">Latitud:</string>
+	<string name="longitude">Longitud:</string>
+	<string name="altitude">Altitud:</string>
+	<string name="tuning">Afinación</string>
+	<string name="apply">Aplicar</string>
+	<string name="save">Guardar</string>
+	<string name="settings">Configuración</string>
+	<string name="data">Datos</string>
+	<string name="edit">Editar</string>
+	<string name="load">Cargar</string>
+</resources>

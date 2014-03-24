@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+	<string name="app_name">Página Inicial do OpenPilot GCS</string>
+	<string name="object_browser_name">Navegador</string>
+	<string name="controller_name">Controlador</string>
+	<string name="pfd_name">PFD (Ecrã de Vôo Primário)</string>
+        <string name="location_name">Mapa</string>
+	<string name="logger_name">Registro</string>
+	
+	<string name="menu_item_settings">Configurações</string>
+	<string name="menu_item_connect">Conectar</string>
+	<string name="menu_item_disconnect">Desconectar</string>
+	
+	<string name="preference_title">Configurações</string>
+	<string name="preference_checkbox_autoconnect">Conectar Automaticamente</string>
+	<string name="preference_checkbox_connection_type">Tipo de Conexão</string>
+	<string name="preference_checkbox_bluetooth">Bluetooth</string>
+	<string name="preference_connection_method_summary">Selecione o método de conexão</string>
+	
+	<string name="compass_name">Bússola</string>
+	<string name="cardinal_north">N</string>
+	<string name="cardinal_east">L</string>
+	<string name="cardinal_south">S</string>
+	<string name="cardinal_west">O</string>
+	<string name="connected">Conectado</string>
+	<string name="update_button">Atualizar</string>
+	<string name="save_button">Salvar</string>
+	<string name="send_button">Enviar</string>
+	<string name="manual_control_values_">Valores de controle manuais:</string>
+	<string name="number_of_objects">Número de objetos</string>
+	<string name="number_of_bytes">Número de bytes</string>
+	<string name="alarms">Alarmes</string>
+	<string name="txrate">TxRate:</string>
+	<string name="rxrate">RxRate:</string>
+	<string name="latitude">Latitude:</string>
+	<string name="longitude">Longitude:</string>
+	<string name="altitude">Altitude:</string>
+	<string name="tuning">Sintonização</string>
+	<string name="apply">Aplicar</string>
+	<string name="save">Salvar</string>
+	<string name="settings">Configurações</string>
+	<string name="data">Dados</string>
+	<string name="edit">Editar</string>
+	<string name="load">Carregar</string>
+</resources>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+	<string name="app_name">OpenPilot GCS ホーム</string>
+	<string name="object_browser_name">ブラウザ</string>
+	<string name="controller_name">コントローラー</string>
+	<string name="pfd_name">PFD</string>
+        <string name="location_name">マップ</string>
+	<string name="logger_name">ログイン中</string>
+	
+	<string name="menu_item_settings">設定</string>
+	<string name="menu_item_connect">接続</string>
+	<string name="menu_item_disconnect">接続解除</string>
+	
+	<string name="preference_title">設定</string>
+	<string name="preference_checkbox_autoconnect">自動で接続</string>
+	<string name="preference_checkbox_connection_type">接続タイプ</string>
+	<string name="preference_checkbox_bluetooth">Bluetooth</string>
+	<string name="preference_connection_method_summary">接続方法を選択</string>
+	
+	<string name="compass_name">コンパス</string>
+	<string name="cardinal_north">北</string>
+	<string name="cardinal_east">東</string>
+	<string name="cardinal_south">南</string>
+	<string name="cardinal_west">西</string>
+	<string name="connected">接続されました</string>
+	<string name="update_button">アップデート</string>
+	<string name="save_button">保存</string>
+	<string name="send_button">送信</string>
+	<string name="manual_control_values_">マニュアルコントロール数値</string>
+	<string name="number_of_objects">オブジェクトの数</string>
+	<string name="number_of_bytes">バイト数</string>
+	<string name="alarms">ｱﾗｰﾑ</string>
+	<string name="txrate">Txレート</string>
+	<string name="rxrate">Rxレート</string>
+	<string name="latitude">緯度</string>
+	<string name="longitude">経度</string>
+	<string name="altitude">高度</string>
+	<string name="tuning">調整</string>
+	<string name="apply">適用</string>
+	<string name="save">保存</string>
+	<string name="settings">設定</string>
+	<string name="data">データ</string>
+	<string name="edit">編集</string>
+	<string name="load">ロード</string>
+</resources>

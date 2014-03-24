@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+	<string name="app_name">OpenPilot GCS Главная</string>
+	<string name="object_browser_name">Браузер</string>
+	<string name="controller_name">Контроллер</string>
+	<string name="pfd_name">Основной пилотажный дисплей</string>
+        <string name="location_name">Карта</string>
+	<string name="logger_name">Регистрация</string>
+	
+	<string name="menu_item_settings">Настройки</string>
+	<string name="menu_item_connect">Подключить</string>
+	<string name="menu_item_disconnect">Отключить</string>
+	
+	<string name="preference_title">Настройки</string>
+	<string name="preference_checkbox_autoconnect">Автоматическое подключение</string>
+	<string name="preference_checkbox_connection_type">Тип соединения</string>
+	<string name="preference_checkbox_bluetooth">Bluetooth</string>
+	<string name="preference_connection_method_summary">Выбрать метод соединения</string>
+	
+	<string name="compass_name">Компас</string>
+	<string name="cardinal_north">С</string>
+	<string name="cardinal_east">В</string>
+	<string name="cardinal_south">Ю</string>
+	<string name="cardinal_west">З</string>
+	<string name="connected">Подключено</string>
+	<string name="update_button">Обновление</string>
+	<string name="save_button">Сохранить</string>
+	<string name="send_button">Отправить</string>
+	<string name="manual_control_values_">Значения, контролируемые вручную:</string>
+	<string name="number_of_objects">Количество объектов</string>
+	<string name="number_of_bytes">Количество байт</string>
+	<string name="alarms">Предупреждения</string>
+	<string name="txrate">Скорость передачи:</string>
+	<string name="rxrate">Скорость приема:</string>
+	<string name="latitude">Широта:</string>
+	<string name="longitude">Долгота:</string>
+	<string name="altitude">Высота:</string>
+	<string name="tuning">Настройка</string>
+	<string name="apply">Применить</string>
+	<string name="save">Сохранить</string>
+	<string name="settings">Настройки</string>
+	<string name="data">Данные</string>
+	<string name="edit">Редактировать</string>
+	<string name="load">Загрузить</string>
+</resources>

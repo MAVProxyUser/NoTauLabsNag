@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+    <string-array name="connectTypeArray">
+    <item>没有</item>
+    <item>蓝牙</item>
+    <item>网络</item>
+    <item>人机接口设备</item>
+  </string-array>
+    <string-array name="connectTypeValues">
+    <item>0</item>
+    <item>2</item>
+    <item>3</item>
+    <item>4</item>
+  </string-array>
+    <string-array name="controllerTypeArray">
+    <item>模式1</item>
+    <item>模式2</item>
+  </string-array>
+    <string-array name="controllerTypeValues">
+    <item>1</item>
+    <item>2</item>
+  </string-array>
+</resources>

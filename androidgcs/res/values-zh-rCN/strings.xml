@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+	<string name="app_name">OpenPilot GCS之家</string>
+	<string name="object_browser_name">浏览器</string>
+	<string name="controller_name">控制器</string>
+	<string name="pfd_name">主飞行显示器</string>
+        <string name="location_name">地图</string>
+	<string name="logger_name">登陆中</string>
+	
+	<string name="menu_item_settings">设置</string>
+	<string name="menu_item_connect">连接</string>
+	<string name="menu_item_disconnect">断开</string>
+	
+	<string name="preference_title">设置</string>
+	<string name="preference_checkbox_autoconnect">自动连接</string>
+	<string name="preference_checkbox_connection_type">连接类型</string>
+	<string name="preference_checkbox_bluetooth">蓝牙</string>
+	<string name="preference_connection_method_summary">选择连接方式</string>
+	
+	<string name="compass_name">指南针</string>
+	<string name="cardinal_north">北</string>
+	<string name="cardinal_east">东</string>
+	<string name="cardinal_south">南</string>
+	<string name="cardinal_west">西</string>
+	<string name="connected">已连接</string>
+	<string name="update_button">更新</string>
+	<string name="save_button">保存</string>
+	<string name="send_button">发送</string>
+	<string name="manual_control_values_">手动控制值：</string>
+	<string name="number_of_objects">对象的数量</string>
+	<string name="number_of_bytes">字节数</string>
+	<string name="alarms">警报</string>
+	<string name="txrate">传输速率</string>
+	<string name="rxrate">接收速率</string>
+	<string name="latitude">纬度：</string>
+	<string name="longitude">经度：</string>
+	<string name="altitude">海拔高度</string>
+	<string name="tuning">调试中</string>
+	<string name="apply">应用</string>
+	<string name="save">保存</string>
+	<string name="settings">设置</string>
+	<string name="data">数据</string>
+	<string name="edit">编辑</string>
+	<string name="load">加载</string>
+</resources>

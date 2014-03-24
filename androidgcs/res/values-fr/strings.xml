@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+	<string name="app_name">Accueil OpenPilot GCS</string>
+	<string name="object_browser_name">Navigateur</string>
+	<string name="controller_name">Contrôleur</string>
+	<string name="pfd_name">PFD - écran de vol principal</string>
+        <string name="location_name">Carte</string>
+	<string name="logger_name">Connexion</string>
+	
+	<string name="menu_item_settings">Paramètres</string>
+	<string name="menu_item_connect">Connecter</string>
+	<string name="menu_item_disconnect">Déconnecter</string>
+	
+	<string name="preference_title">Paramètres</string>
+	<string name="preference_checkbox_autoconnect">Connexion automatique</string>
+	<string name="preference_checkbox_connection_type">Type de connexion</string>
+	<string name="preference_checkbox_bluetooth">Bluetooth</string>
+	<string name="preference_connection_method_summary">Sélectionnez la méthode de connexion</string>
+	
+	<string name="compass_name">Boussole</string>
+	<string name="cardinal_north">N</string>
+	<string name="cardinal_east">E</string>
+	<string name="cardinal_south">S</string>
+	<string name="cardinal_west">O</string>
+	<string name="connected">Connecté</string>
+	<string name="update_button">Mettre à jour</string>
+	<string name="save_button">Enregistrer</string>
+	<string name="send_button">Envoyer</string>
+	<string name="manual_control_values_">Valeurs de commande manuelle :</string>
+	<string name="number_of_objects">Nombre d\'objets</string>
+	<string name="number_of_bytes">Nombre d\'octets</string>
+	<string name="alarms">Alarmes</string>
+	<string name="txrate">Taux de transmission :</string>
+	<string name="rxrate">Vitesse de rotation :</string>
+	<string name="latitude">Latitude :</string>
+	<string name="longitude">Longitude :</string>
+	<string name="altitude">Altitude :</string>
+	<string name="tuning">Réglage</string>
+	<string name="apply">Appliquer</string>
+	<string name="save">Enregistrer</string>
+	<string name="settings">Paramètres</string>
+	<string name="data">Données</string>
+	<string name="edit">Modifier</string>
+	<string name="load">Chargement</string>
+</resources>
