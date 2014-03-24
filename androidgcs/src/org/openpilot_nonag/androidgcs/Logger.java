@@ -66,11 +66,15 @@ public class Logger extends ObjectManagerActivity {
 
 		File root = Environment.getExternalStorageDirectory();
 
+		// Make the directory if it doesn't exist
+		File logDirectory = new File(root, "/OpenPilotFuckYeah");
+		logDirectory.mkdirs();
+
 		Date d = new Date();
 		String date = (new SimpleDateFormat("yyyyMMdd_hhmmss")).format(d);
-		String fileName = "/logs/logs_" + date + ".opl";
+		String fileName = "logs_" + date + ".opl";
 
-		file = new File(root, fileName);
+		file = new File(logDirectory, fileName);
 		if (DEBUG) Log.d(TAG, "Trying for file: " + file.getAbsolutePath());
 		try {
 			if (root.canWrite()){

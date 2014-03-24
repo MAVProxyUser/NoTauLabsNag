@@ -496,6 +496,8 @@ androidgcs: uavobjects_java uavo-collections_java
 		--target "Google Inc.:Google APIs:$(GOOGLE_API_VERSION)" \
 		--name androidgcs \
 		--path ./androidgcs
+	$(V1) ant -f ./androidgcs/google-play-services_lib/build.xml \
+		$(ANT_QUIET) debug
 	$(V1) $(ANT) -f ./androidgcs/build.xml \
 		$(ANT_QUIET) \
 		-Dout.dir="../$(call toprel, $(ANDROIDGCS_OUT_DIR)/bin)" \
@@ -526,7 +528,8 @@ androidgcs_install: $(ANDROIDGCS_OUT_DIR)/bin/androidgcs-$(ANDROIDGCS_BUILD_CONF
 #UAVO_GIT_VERSIONS := 5e14f53 # 12.10.2
 #UAVO_GIT_VERSIONS := 85c222e # 14.01
 #UAVO_GIT_VERSIONS := b58620c # ???
-UAVO_GIT_VERSIONS := c267d73 # 13.06.04
+#UAVO_GIT_VERSIONS := c267d73 # 13.06.04
+UAVO_GIT_VERSIONS := 5e14f53 b58620c c267d73
 
 # All versions includes also the current source tree UAVO hash
 UAVO_ALL_VERSIONS := $(UAVO_GIT_VERSIONS) srctree

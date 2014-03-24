@@ -54,13 +54,13 @@ public class HomePage extends ObjectManagerActivity {
 			}
 		});
 
-		Button location = (Button) findViewById(R.id.launch_location);
-		location.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View arg0) {
-				startActivity(new Intent(HomePage.this, UAVLocation.class));
-			}
-		});
+                Button location = (Button) findViewById(R.id.launch_location);
+                location.setOnClickListener(new OnClickListener() {
+                        @Override
+                        public void onClick(View arg0) {
+                                startActivity(new Intent(HomePage.this, UAVLocation.class));
+                        }
+                });
 
 		Button controller = (Button) findViewById(R.id.launch_controller);
 		controller.setOnClickListener(new OnClickListener() {
@@ -83,22 +83,6 @@ public class HomePage extends ObjectManagerActivity {
 			@Override
 			public void onClick(View arg0) {
 				startActivity(new Intent(HomePage.this, SystemAlarmActivity.class));
-			}
-		});
-
-		Button tester = (Button) findViewById(R.id.launch_tester);
-		tester.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View arg0) {
-				startActivity(new Intent(HomePage.this, FragmentTester.class));
-			}
-		});
-
-		Button osgViewer = (Button) findViewById(R.id.launch_osgViewer);
-		osgViewer.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View arg0) {
-				startActivity(new Intent(HomePage.this, OsgViewer.class));
 			}
 		});
 
