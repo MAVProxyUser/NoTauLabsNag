@@ -1,5 +1,0 @@
-/* Linux styles */
-
-QToolTip {
-    color: black;
- }

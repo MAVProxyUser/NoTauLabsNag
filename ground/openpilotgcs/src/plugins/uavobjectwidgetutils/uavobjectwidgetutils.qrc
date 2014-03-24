@@ -1,5 +1,0 @@
-<RCC>
-    <qresource prefix="/uavobjectwidgetutils">
-        <file>images/curve-bg.svg</file>
-    </qresource>
-</RCC>

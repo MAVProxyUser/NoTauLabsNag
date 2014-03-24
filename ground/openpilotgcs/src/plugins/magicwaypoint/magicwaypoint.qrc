@@ -1,5 +1,0 @@
-<RCC>
-    <qresource prefix="/magicwaypoint">
-        <file>images/positionfield.svg</file>
-    </qresource>
-</RCC>

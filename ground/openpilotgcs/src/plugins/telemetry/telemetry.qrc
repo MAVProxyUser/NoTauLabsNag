@@ -1,5 +1,0 @@
-<RCC>
-    <qresource prefix="/telemetry">
-        <file>images/tx-rx.svg</file>
-    </qresource>
-</RCC>
