@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+	<string name="app_name">PilotAutomatico GCS schermata iniziale</string>
+	<string name="object_browser_name">Browser</string>
+	<string name="controller_name">Controller</string>
+	<string name="pfd_name">PFD</string>
+        <string name="location_name">Mappa</string>
+	<string name="logger_name">Registrazione</string>
+	
+	<string name="menu_item_settings">Impostazioni</string>
+	<string name="menu_item_connect">Connettersi</string>
+	<string name="menu_item_disconnect">Disconnettersi</string>
+	
+	<string name="preference_title">Impostazioni</string>
+	<string name="preference_checkbox_autoconnect">Connettersi automaticamente</string>
+	<string name="preference_checkbox_connection_type">Tipo di connessione</string>
+	<string name="preference_checkbox_bluetooth">Bluetooth</string>
+	<string name="preference_connection_method_summary">Selezionare il metodo di connessione</string>
+	
+	<string name="compass_name">Bussola</string>
+	<string name="cardinal_north">N</string>
+	<string name="cardinal_east">E</string>
+	<string name="cardinal_south">S</string>
+	<string name="cardinal_west">W</string>
+	<string name="connected">Connesso</string>
+	<string name="update_button">Aggiornare</string>
+	<string name="save_button">Salvare</string>
+	<string name="send_button">Inviare</string>
+	<string name="manual_control_values_">Valori di controllo manuali:</string>
+	<string name="number_of_objects">Numero di oggetti</string>
+	<string name="number_of_bytes">Numero di byte</string>
+	<string name="alarms">Segnale d\'allarme</string>
+	<string name="txrate">TxRate:</string>
+	<string name="rxrate">RxRate:</string>
+	<string name="latitude">Latitudine:</string>
+	<string name="longitude">Longitudine:</string>
+	<string name="altitude">Altitudine:</string>
+	<string name="tuning">Ottimizzazione</string>
+	<string name="apply">Applicare</string>
+	<string name="save">Salvare</string>
+	<string name="settings">Impostazioni</string>
+	<string name="data">Dati</string>
+	<string name="edit">Modificare</string>
+	<string name="load">Caricare</string>
+</resources>
