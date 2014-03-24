@@ -28,12 +28,14 @@ import org.openpilot_nonag.uavtalk.UAVObject;
 import android.os.Bundle;
 
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
+//import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.maps.GeoPoint;
+//import com.google.android.maps.GeoPoint;
+import com.google.android.gms.maps.model.LatLng; // replaces GeoPoint
+import com.google.android.gms.maps.MapFragment;
 
 public class UAVLocation extends ObjectManagerActivity
 {
@@ -47,8 +49,8 @@ public class UAVLocation extends ObjectManagerActivity
 	private Marker mUavMarker;
 	private Marker mHomeMarker;
 
-    GeoPoint homeLocation;
-    GeoPoint uavLocation;
+    LatLng homeLocation;
+    LatLng uavLocation;
 
     @Override public void onCreate(Bundle icicle) {
 		super.onCreate(icicle);
@@ -77,14 +79,14 @@ public class UAVLocation extends ObjectManagerActivity
 		}
 	}
 
-	private GeoPoint getUavLocation() {
+	private LatLng getUavLocation() {
 		UAVObject pos = objMngr.getObject("PositionActual");
 		if (pos == null)
-			return new GeoPoint(0,0);
+			return new LatLng(0,0);
 
 		UAVObject home = objMngr.getObject("HomeLocation");
 		if (home == null)
-			return new GeoPoint(0,0);
+			return new LatLng(0,0);
 
 		double lat, lon, alt;
 		lat = home.getField("Latitude").getDouble() / 10.0e6;
@@ -105,7 +107,7 @@ public class UAVLocation extends ObjectManagerActivity
 		lat = lat + (NED0 / T0) * 180.0 / Math.PI;
 		lon = lon + (NED1 / T1) * 180.0 / Math.PI;
 
-		return new GeoPoint((int) (lat * 1e6), (int) (lon * 1e6));
+		return new LatLng((int) (lat * 1e6), (int) (lon * 1e6));
 	}
 
 
@@ -113,37 +115,37 @@ public class UAVLocation extends ObjectManagerActivity
 	 * Called whenever any objects subscribed to via registerObjects
 	 * update the marker location for home and the UAV
 	 */
-//	@Override
-//	protected void objectUpdated(UAVObject obj) {
-//		if (obj == null)
-//			return;
-//		if (obj.getName().compareTo("HomeLocation") == 0) {
-//			Double lat = obj.getField("Latitude").getDouble() / 10;
-//			Double lon = obj.getField("Longitude").getDouble() / 10;
-//			homeLocation = new GeoPoint(lat.intValue(), lon.intValue());
-//			if (mHomeMarker == null) {
-//				mHomeMarker = mMap.addMarker(new MarkerOptions()
-//			       .position(new LatLng(homeLocation.getLatitudeE6() / 1e6, homeLocation.getLongitudeE6() / 1e6))
-//			       .title("UAV")
-//			       .snippet("Fly fly fly")
-//			       .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_home)));
-//			} else {
-//				mHomeMarker.setPosition((new LatLng(homeLocation.getLatitudeE6() / 1e6, homeLocation.getLongitudeE6() / 1e6)));
-//			}
-//		} else if (obj.getName().compareTo("PositionActual") == 0) {
-//			uavLocation = getUavLocation();
-//			if (mUavMarker == null) {
-//				mUavMarker = mMap.addMarker(new MarkerOptions()
-//			       .position(new LatLng(uavLocation.getLatitudeE6() / 1e6, uavLocation.getLongitudeE6() / 1e6))
-//			       .title("UAV")
-//			       .snippet("Fly fly fly")
-//			       .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_uav)));
-//			} else {
-//				mUavMarker.setPosition((new LatLng(uavLocation.getLatitudeE6() / 1e6, uavLocation.getLongitudeE6() / 1e6)));
-//			}
-//		}
-//	}
-//
+	@Override
+	protected void objectUpdated(UAVObject obj) {
+		if (obj == null)
+			return;
+		if (obj.getName().compareTo("HomeLocation") == 0) {
+			Double lat = obj.getField("Latitude").getDouble() / 10;
+			Double lon = obj.getField("Longitude").getDouble() / 10;
+			homeLocation = new LatLng(lat.intValue(), lon.intValue());
+			if (mHomeMarker == null) {
+				mHomeMarker = mMap.addMarker(new MarkerOptions()
+			       .position(new LatLng(homeLocation.latitude, homeLocation.longitude))
+			       .title("UAV")
+			       .snippet("Fly fly fly")
+			       .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_home)));
+			} else {
+				mHomeMarker.setPosition((new LatLng(homeLocation.latitude, homeLocation.longitude)));
+			}
+		} else if (obj.getName().compareTo("PositionActual") == 0) {
+			uavLocation = getUavLocation();
+			if (mUavMarker == null) {
+				mUavMarker = mMap.addMarker(new MarkerOptions()
+			       .position(new LatLng(uavLocation.latitude, uavLocation.longitude))
+			       .title("UAV")
+			       .snippet("Fly fly fly")
+			       .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_uav)));
+			} else {
+				mUavMarker.setPosition((new LatLng(uavLocation.latitude, uavLocation.longitude)));
+			}
+		}
+	}
+
 
 }
 
