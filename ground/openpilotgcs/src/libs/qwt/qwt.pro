@@ -1,0 +1,17 @@
+################################################################
+# Qwt Widget Library
+# Copyright (C) 1997   Josef Wilgen
+# Copyright (C) 2002   Uwe Rathmann
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the Qwt License, Version 1.0
+################################################################
+
+include( qwtconfig.pri )
+
+TEMPLATE = subdirs
+
+# disable all warnings (no need for warnings as qwt sources are imported)
+CONFIG += warn_off
+
+SUBDIRS = src
