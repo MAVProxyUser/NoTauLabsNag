@@ -3,9 +3,10 @@ package org.openpilot_nonag.androidgcs;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import com.google.android.maps.GeoPoint;
+//import com.google.android.maps.GeoPoint;
 //import com.google.android.maps.MapFragment;
 import android.support.v4.app.Fragment;
+import com.google.android.gms.maps.model.LatLng; // replaces GeoPoint
 import com.google.android.gms.maps.MapFragment;
 
 import android.content.Context;
@@ -16,7 +17,7 @@ public class MyCustomMapView extends MapFragment {
     
     // Define the interface we will interact with from our Map
 public interface OnLongpressListener {
-    public void onLongpress(MapFragment view, GeoPoint longpressLocation);
+    public void onLongpress(MapFragment view, LatLng longpressLocation);
 }
  
 /**
@@ -28,7 +29,7 @@ static final int LONGPRESS_THRESHOLD = 500;
  * Keep a record of the center of the map, to know if the map
  * has been panned.
  */
-private GeoPoint lastMapCenter;
+private LatLng lastMapCenter;
  
 private Timer longpressTimer = new Timer();
 private MyCustomMapView.OnLongpressListener longpressListener;

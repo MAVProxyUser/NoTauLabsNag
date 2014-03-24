@@ -53,9 +53,9 @@ public class UAVLocation extends ObjectManagerActivity
     @Override public void onCreate(Bundle icicle) {
 		super.onCreate(icicle);
 		setContentView(R.layout.map_layout);
-//		mapFrag = ((MapFragment) getFragmentManager().findFragmentById(R.id.map));
-//		mMap = mapFrag.getMap();
-//		mMap.setMyLocationEnabled(true);
+		mapFrag = ((MapFragment) getFragmentManager().findFragmentById(R.id.map_view));
+		mMap = mapFrag.getMap();
+		mMap.setMyLocationEnabled(true);
     }
 
 	@Override
