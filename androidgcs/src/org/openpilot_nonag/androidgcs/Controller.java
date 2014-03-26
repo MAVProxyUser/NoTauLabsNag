@@ -49,7 +49,7 @@ import com.MobileAnarchy.Android.Widgets.Joystick.JoystickView;
 public class Controller extends ObjectManagerActivity {
 	private final String TAG = "Controller";
 
-	private final boolean DEBUG = false;
+	private final boolean DEBUG = true;
 
 	private final int THROTTLE_CHANNEL = 0;
 	private final int ROLL_CHANNEL = 1;
@@ -81,7 +81,8 @@ public class Controller extends ObjectManagerActivity {
 		@Override
 		public void update(Observable observable, Object data) {
 			// Once we have updated settings we can active the GCS receiver mode
-			if (DEBUG) Log.d(TAG,"Got update from settings");
+			//if (DEBUG) 
+			Log.d(TAG,"Got update from settings");
 			UAVDataObject manualControlSettings = (UAVDataObject) objMngr.getObject("ManualControlSettings");
 			if(manualControlSettings != null) {
 				manualControlSettings.removeUpdatedObserver(this);
@@ -94,7 +95,8 @@ public class Controller extends ObjectManagerActivity {
 	void onOPConnected() {
 		super.onOPConnected();
 
-		if (DEBUG) Log.d(TAG, "onOPConnected()");
+		//if (DEBUG) 
+		Log.d(TAG, "onOPConnected()");
 
 		DualJoystickView joystick = (DualJoystickView) findViewById(R.id.dualjoystickView);
 		joystick.setMovementConstraint(JoystickView.CONSTRAIN_BOX);
