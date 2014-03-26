@@ -4,3 +4,4 @@ fi
 cp -rfv ./* ../OpenPilot/
 cd ../OpenPilot
 make androidgcs 
+mv ../OpenPilot/build/androidgcs/bin/androidgcs-release.apk . 
