@@ -85,6 +85,27 @@ public class Controller extends ObjectManagerActivity {
    public boolean onKeyDown(int i, KeyEvent keyevent)
     {
         Log.d("onKeyDown Keycode", String.valueOf(i));
+	if (i == 108)
+		Log.d("keypress:", "Start Button");
+	if (i == 96)
+		Log.d("keypress:", "A Button");
+	if (i == 4)
+		Log.d("keypress:", "Back Button");
+	if (i == 97)
+		Log.d("keypress:", "B Button");
+	if (i == 100)
+		Log.d("keypress:", "Y Button");
+	if (i == 99)
+		Log.d("keypress:", "X Button");
+	if (i == 106)
+		Log.d("keypress:", "Left Thumb Click");
+	if (i == 107)
+		Log.d("keypress:", "Right Thumb Click");
+	if (i == 102)
+		Log.d("keypress:", "Left Bumper");
+	if (i == 103)
+		Log.d("keypress:", "Right Bumper");
+	
 	return true;
     }
 
