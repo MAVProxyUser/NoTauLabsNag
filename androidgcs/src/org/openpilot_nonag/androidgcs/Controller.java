@@ -46,6 +46,9 @@ import com.MobileAnarchy.Android.Widgets.Joystick.DualJoystickView;
 import com.MobileAnarchy.Android.Widgets.Joystick.JoystickMovedListener;
 import com.MobileAnarchy.Android.Widgets.Joystick.JoystickView;
 
+import android.view.*;
+import android.widget.*;
+
 public class Controller extends ObjectManagerActivity {
 	private final String TAG = "Controller";
 
@@ -76,6 +79,43 @@ public class Controller extends ObjectManagerActivity {
 		setContentView(R.layout.controller);
 		manualView = (TextView) findViewById(R.id.manualControlValues);
 	}
+
+   // Use this for NVIDIA Shield input. 
+   @Override
+   public boolean onKeyDown(int i, KeyEvent keyevent)
+    {
+        Log.d("onKeyDown Keycode", String.valueOf(i));
+	return true;
+    }
+
+   // Use this for NVIDIA Shield input. 
+   @Override
+   public boolean onKeyUp(int i, KeyEvent keyevent)
+    {
+        Log.d("onKeyUp Keycode", String.valueOf(i));
+	return true;
+    }
+
+   // Use this for NVIDIA Shield input. 
+   @Override
+    public boolean onGenericMotionEvent(MotionEvent motionevent)
+    {
+        float f = motionevent.getActionMasked();
+        Log.d("onGenericMotionEvent Keycode", String.valueOf((new StringBuilder("MotionEvent Action =")).append(f).append("\nx: ").append(motionevent.getAxisValue(0)).append("\ny: ").append(motionevent.getAxisValue(1)).append("\nz: ").append(motionevent.getAxisValue(11)).append("\nRx: ").append(motionevent.getAxisValue(12)).append("  LTrigger: ").append(motionevent.getAxisValue(17)).append("\nRy: ").append(motionevent.getAxisValue(13)).append("  RTrigger: ").append(motionevent.getAxisValue(18)).append("\nRz: ").append(motionevent.getAxisValue(14)).append("\nHat X: ").append(motionevent.getAxisValue(15)).append("\nHat Y: ").append(motionevent.getAxisValue(16)).toString()));
+        boolean flag;
+        boolean flag1;
+        if(motionevent.getAxisValue(15) != 0.0F)
+            flag = true;
+        else
+            flag = false;
+        if(motionevent.getAxisValue(16) != 0.0F)
+            flag1 = true;
+        else
+            flag1 = false;
+
+//        if(!(flag | flag1))
+	return true;	
+   }
 
 	Observer settingsUpdated = new Observer() {
 		@Override
