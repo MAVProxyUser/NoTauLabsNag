@@ -46,7 +46,9 @@ http://git.openpilot.org/changelog/OpenPilot?showid=8b94f101073b69f9f097c164a978
 A series of *unofficial* statements from TauLabs members has been collected below:
 "why should peabody release anything to the scum that slandered him so viciously. So you can take credit for bringing 
 Android Legacy back to OP?" - Alpackin
+
 (response) "you all are transparant and open right?" - Friends of OpenPilot that dislike Nag Screens 
+
 "f**k you" - Alpackin
 
 "You sure the code you are looking isn't on branch next?
@@ -56,9 +58,11 @@ android GCS, I think I read on their forum that it is almost ready." - guilhermi
 "The code for the legacy OP versions is separate and has been deleted from their(OpenPilot) repository (although worth 
 noting it was entirely written by me). I made a modification that added the message in the legacy app letting people 
 know where to find updates and didn't bother publishing that change." - Peabody124 (TauLabs)
+
 "As stated before, OpenPilot support for Android GCS is not a Tau Labs product. We can't control the openness of something 
 that is not under the control of the Tau Labs governing body. Everything that falls under control of the Tau Labs governing 
 body is perfectly in sync with our stated mission and motto." - Buzz Carlson (TauLabs)
+
 "You say that peabody124 controls that app and I have no reason to doubt you. But you saying that peabody124 controls that 
 app, and peabody124 is a member of Tau Labs, therefore Tau Labs controls that app is a logical fallacy." - Buzz Carlson (TauLabs)
 
