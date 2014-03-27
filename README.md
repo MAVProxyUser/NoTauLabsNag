@@ -45,11 +45,11 @@ http://git.openpilot.org/changelog/OpenPilot?showid=8b94f101073b69f9f097c164a978
 
 A series of *unofficial* statements from TauLabs members has been collected below:
 "why should peabody release anything to the scum that slandered him so viciously. So you can take credit for bringing 
-Android Legacy back to OP?" - Alpackin
+Android Legacy back to OP?" - Alpackin (TauLabs)
 
 (response) "you all are transparant and open right?" - Friends of OpenPilot that dislike Nag Screens 
 
-"f**k you" - Alpackin
+"f**k you" - Alpackin (TauLabs)
 
 "You sure the code you are looking isn't on branch next?
 EDIT: ok you are right it isn't, I think peabody124 will have no problem in pushing it, or you can wait for the OP 
