@@ -3,6 +3,6 @@ if [ ! -d "../OpenPilot/" ]; then
 fi
 cp -rfv ./* ../OpenPilot/
 cd ../OpenPilot
-make androidgcs 
+make androidgcs V=1
 mv ../OpenPilot/build/androidgcs/bin/androidgcs-release.apk . 
 adb install -r androidgcs-release.apk
