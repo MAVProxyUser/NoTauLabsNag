@@ -29,6 +29,7 @@ import org.openpilot_nonag.androidgcs.fragments.PFD;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.LinearLayout;
+import android.content.ContentResolver;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -51,7 +52,7 @@ public class PfdActivity extends ObjectManagerActivity {
 				LinearLayout.LayoutParams.WRAP_CONTENT));
 		layout.setId(0x101);
 		{
-//			FragmentTransaction fragmentTransaction = getSupportFragmentManager()
+//			FragmentTransaction fragmentTransaction = this.getContentResolver().getSupportFragmentManager()
 //					.beginTransaction();
 //			fragmentTransaction.add(0x101, new PFD());
 //			fragmentTransaction.commit();

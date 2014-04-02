@@ -31,7 +31,10 @@ import org.openpilot_nonag.uavtalk.UAVObject;
 import org.openpilot_nonag.uavtalk.UAVObjectManager;
 
 import android.app.Activity;
-import android.app.Fragment;
+//import android.app.Fragment;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentTransaction;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -98,7 +101,7 @@ public class ObjectManagerFragment extends Fragment {
 	 * each fragment.
 	 */
 	protected void registerObjectUpdates(UAVObject object) {
-		((ObjectManagerActivity) getActivity()).registerObjectUpdates(object, this);
+//		((ObjectManagerActivity) getFragmentActivity()).registerObjectUpdates(object, this);
 	}
 
 }
