@@ -60,7 +60,11 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.TextView;
 
-public abstract class ObjectManagerActivity extends Activity {
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentTransaction;
+
+public abstract class ObjectManagerActivity extends FragmentActivity {
 
 	private final String TAG = "ObjectManagerActivity";
 	private static int LOGLEVEL = 0;

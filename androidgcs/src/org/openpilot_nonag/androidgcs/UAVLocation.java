@@ -42,6 +42,7 @@ import android.app.Activity;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
+import com.google.android.gms.maps.SupportMapFragment;
 
 public class UAVLocation extends ObjectManagerActivity
 {
@@ -51,7 +52,8 @@ public class UAVLocation extends ObjectManagerActivity
 	private static boolean DEBUG = LOGLEVEL > 0;
 
 	private GoogleMap mMap;
-	private MapFragment mapFrag;
+//	private MapFragment mapFrag;
+	private SupportMapFragment mapFrag;
 	private Marker mUavMarker;
 	private Marker mHomeMarker;
 
@@ -62,6 +64,9 @@ public class UAVLocation extends ObjectManagerActivity
 		super.onCreate(icicle);
 		setContentView(R.layout.map_layout);
 //		mapFrag = ((MapFragment) getSupportFragmentManager().findFragmentById(R.id.map_view));
+
+		mapFrag = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map_view));
+
 		mMap = mapFrag.getMap();
 		mMap.setMyLocationEnabled(true);
 		mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
@@ -69,7 +74,7 @@ public class UAVLocation extends ObjectManagerActivity
 		//mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
 		//mMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
 
-                //mapFrag.onCreate(savedInstanceState);
+//                mapFrag.onCreate(savedInstanceState);
 //		registerForContextMenu(mapFrag);
 
 		mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
