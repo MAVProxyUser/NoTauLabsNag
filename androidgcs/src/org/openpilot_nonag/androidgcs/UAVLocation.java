@@ -67,6 +67,8 @@ public class UAVLocation extends ObjectManagerActivity
 
 		mapFrag = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map_view));
 
+// something wrong *here*
+
 		mMap = mapFrag.getMap();
 		mMap.setMyLocationEnabled(true);
 		mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
