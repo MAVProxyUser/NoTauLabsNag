@@ -52,10 +52,10 @@ public class PfdActivity extends ObjectManagerActivity {
 				LinearLayout.LayoutParams.WRAP_CONTENT));
 		layout.setId(0x101);
 		{
-//			FragmentTransaction fragmentTransaction = this.getContentResolver().getSupportFragmentManager()
-//					.beginTransaction();
-//			fragmentTransaction.add(0x101, new PFD());
-//			fragmentTransaction.commit();
+//			FragmentTransaction fragmentTransaction = this.getContentResolver().getSupportFragmentManager().beginTransaction();
+			FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+			fragmentTransaction.add(0x101, new PFD());
+			fragmentTransaction.commit();
 		}
 		return layout;
 	}
