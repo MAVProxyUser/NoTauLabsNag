@@ -5,15 +5,9 @@
  * should not be modified by hand.
  */
 
-package org.openpilot_nonag.androidgcs;
+package android.support.v7.gridlayout;
 
 public final class R {
-    public static final class array {
-        public static final int connectTypeArray=0x7f070000;
-        public static final int connectTypeValues=0x7f070001;
-        public static final int controllerTypeArray=0x7f070002;
-        public static final int controllerTypeValues=0x7f070003;
-    }
     public static final class attr {
         /** 
         When set to alignMargins, causes alignment to take place between the outer
@@ -38,7 +32,7 @@ public final class R {
             </td></tr>
 </table>
          */
-        public static final int alignmentMode=0x7f010004;
+        public static int alignmentMode=0x7f010004;
         /**  The maximum number of columns to create when automatically positioning children. 
          <p>Must be an integer value, such as "<code>100</code>".
 <p>This may also be a reference to a resource (in the form
@@ -47,7 +41,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int columnCount=0x7f010002;
+        public static int columnCount=0x7f010002;
         /** 
         When set to true, forces column boundaries to appear in the same order
         as column indices.
@@ -61,7 +55,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int columnOrderPreserved=0x7f010006;
+        public static int columnOrderPreserved=0x7f010006;
         /** 
         The column boundary delimiting the left of the group of cells
         occupied by this view.
@@ -73,7 +67,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int layout_column=0x7f010009;
+        public static int layout_column=0x7f010009;
         /** 
         The column span: the difference between the right and left
         boundaries delimiting the group of cells occupied by this view.
@@ -87,7 +81,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int layout_columnSpan=0x7f01000a;
+        public static int layout_columnSpan=0x7f01000a;
         /** 
         Gravity specifies how a component should be placed in its group of cells.
         The default is LEFT | BASELINE.
@@ -125,7 +119,7 @@ containing a value of this type.
 <tr><td><code>end</code></td><td>0x00800005</td><td> Push object to the end of its container, not changing its size. </td></tr>
 </table>
          */
-        public static final int layout_gravity=0x7f01000b;
+        public static int layout_gravity=0x7f01000b;
         /**  END MarginLayout layoutparams 
 
         The row boundary delimiting the top of the group of cells
@@ -138,7 +132,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int layout_row=0x7f010007;
+        public static int layout_row=0x7f010007;
         /** 
         The row span: the difference between the bottom and top
         boundaries delimiting the group of cells occupied by this view.
@@ -152,15 +146,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int layout_rowSpan=0x7f010008;
-        /** <p>Must be a floating point value, such as "<code>1.2</code>".
-<p>This may also be a reference to a resource (in the form
-"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
-theme attribute (in the form
-"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
-containing a value of this type.
-         */
-        public static final int max_value=0x7f01000d;
+        public static int layout_rowSpan=0x7f010008;
         /** 
               support versions. All attributes not present in ViewGroup/View are
               redefined in the support library namespace.
@@ -185,7 +171,7 @@ containing a value of this type.
 <tr><td><code>vertical</code></td><td>1</td><td> Defines a vertical widget. </td></tr>
 </table>
          */
-        public static final int orientation=0x7f010000;
+        public static int orientation=0x7f010000;
         /**  The maximum number of rows to create when automatically positioning children. 
          <p>Must be an integer value, such as "<code>100</code>".
 <p>This may also be a reference to a resource (in the form
@@ -194,7 +180,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int rowCount=0x7f010001;
+        public static int rowCount=0x7f010001;
         /** 
         When set to true, forces row boundaries to appear in the same order
         as row indices.
@@ -208,15 +194,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int rowOrderPreserved=0x7f010005;
-        /** <p>Must be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
-<p>This may also be a reference to a resource (in the form
-"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
-theme attribute (in the form
-"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
-containing a value of this type.
-         */
-        public static final int setting_name=0x7f01000c;
+        public static int rowOrderPreserved=0x7f010005;
         /** 
         When set to true, tells GridLayout to use default margins when none are specified
         in a view's layout parameters.
@@ -230,199 +208,32 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int useDefaultMargins=0x7f010003;
-    }
-    public static final class color {
-        public static final int background_color=0x7f080000;
-        public static final int marker_color=0x7f080001;
-        public static final int text_color=0x7f080002;
+        public static int useDefaultMargins=0x7f010003;
     }
     public static final class dimen {
         /**  The default gap between components in a layout. 
          */
-        public static final int default_gap=0x7f060000;
-    }
-    public static final class drawable {
-        public static final int browser_icon=0x7f020000;
-        public static final int ic_alarms=0x7f020001;
-        public static final int ic_browser=0x7f020002;
-        public static final int ic_controller=0x7f020003;
-        public static final int ic_home=0x7f020004;
-        public static final int ic_logging=0x7f020005;
-        public static final int ic_logo=0x7f020006;
-        public static final int ic_map=0x7f020007;
-        public static final int ic_pfd=0x7f020008;
-        public static final int ic_telemetry=0x7f020009;
-        public static final int ic_tuning=0x7f02000a;
-        public static final int ic_uav=0x7f02000b;
-        public static final int icon=0x7f02000c;
-        public static final int im_pfd_fixed=0x7f02000d;
-        public static final int im_pfd_horizon=0x7f02000e;
-        public static final int im_pfd_reticule=0x7f02000f;
-        public static final int map_positioner_background=0x7f020010;
-        public static final int map_positioner_poi=0x7f020011;
-        public static final int map_positioner_uav=0x7f020012;
-        public static final int map_positioner_waypoint=0x7f020013;
+        public static int default_gap=0x7f030000;
     }
     public static final class id {
-        public static final int TextViewX1=0x7f050015;
-        public static final int TextViewX2=0x7f050016;
-        public static final int TextViewY1=0x7f050017;
-        public static final int TextViewY2=0x7f050018;
-        public static final int alignBounds=0x7f050002;
-        public static final int alignMargins=0x7f050003;
-        public static final int altitude=0x7f050028;
-        public static final int altitude_slider=0x7f050025;
-        public static final int applyBtn=0x7f050046;
-        public static final int attitude_view=0x7f050035;
-        public static final int bottom=0x7f050005;
-        public static final int center=0x7f05000c;
-        public static final int center_horizontal=0x7f05000a;
-        public static final int center_vertical=0x7f050008;
-        public static final int clip_horizontal=0x7f05000f;
-        public static final int clip_vertical=0x7f05000e;
-        public static final int dataCheck=0x7f05002c;
-        public static final int dualjoystickView=0x7f050014;
-        public static final int editButton=0x7f05002f;
-        public static final int end=0x7f050011;
-        public static final int fill=0x7f05000d;
-        public static final int fill_horizontal=0x7f05000b;
-        public static final int fill_vertical=0x7f050009;
-        public static final int horizontal=0x7f050000;
-        public static final int latitude=0x7f050027;
-        public static final int launch_alarms=0x7f05001d;
-        public static final int launch_controller=0x7f05001b;
-        public static final int launch_location=0x7f05001f;
-        public static final int launch_logger=0x7f05001c;
-        public static final int launch_object_browser=0x7f050019;
-        public static final int launch_pfd=0x7f05001a;
-        public static final int launch_tuning=0x7f05001e;
-        public static final int left=0x7f050006;
-        public static final int linearLayout1=0x7f05002a;
-        public static final int linearLayout2=0x7f050049;
-        public static final int linearLayout3=0x7f050048;
-        public static final int logger_number_of_bytes=0x7f050023;
-        public static final int logger_number_of_bytes_title=0x7f050022;
-        public static final int logger_number_of_objects=0x7f050021;
-        public static final int logger_number_of_objects_title=0x7f050020;
-        public static final int longitude=0x7f050026;
-        public static final int manualControlValues=0x7f050013;
-        public static final int map_view=0x7f050024;
-        public static final int mapview=0x7f050029;
-        public static final int menuItemProgress=0x7f050056;
-        public static final int menu_connect=0x7f050054;
-        public static final int menu_disconnect=0x7f050055;
-        public static final int menu_settings=0x7f050053;
-        public static final int object_edit_save_button=0x7f050034;
-        public static final int object_edit_send_button=0x7f050033;
-        public static final int object_edit_view=0x7f050032;
-        public static final int object_information=0x7f05002e;
-        public static final int object_list=0x7f05002d;
-        public static final int object_load_button=0x7f050030;
-        public static final int pfd=0x7f050037;
-        public static final int pitchKp=0x7f050045;
-        public static final int pitchRateKi=0x7f050043;
-        public static final int pitchRateKp=0x7f050041;
-        public static final int poi1=0x7f05004f;
-        public static final int poi2=0x7f050050;
-        public static final int progressBar3=0x7f050038;
-        public static final int right=0x7f050007;
-        public static final int rollKp=0x7f050044;
-        public static final int rollRateKi=0x7f050042;
-        public static final int rollRateKp=0x7f050040;
-        public static final int saveBtn=0x7f050047;
-        public static final int scrollView1=0x7f050031;
-        public static final int searchProgressWrapper=0x7f05003a;
-        public static final int settingsCheck=0x7f05002b;
-        public static final int start=0x7f050010;
-        public static final int surfaceGLES=0x7f05004a;
-        public static final int system_alarms_fragment_field=0x7f050039;
-        public static final int telemetryWidgetStatus=0x7f05003f;
-        public static final int telemetry_stats_rx_rate=0x7f05003c;
-        public static final int telemetry_stats_rx_rate_label=0x7f05003b;
-        public static final int telemetry_stats_tx_rate=0x7f05003e;
-        public static final int telemetry_stats_tx_rate_label=0x7f05003d;
-        public static final int textView1=0x7f050012;
-        public static final int top=0x7f050004;
-        public static final int uiButtonCenter=0x7f05004d;
-        public static final int uiButtonChangeNavigation=0x7f05004e;
-        public static final int uiButtonLight=0x7f05004c;
-        public static final int uiNavigation=0x7f05004b;
-        public static final int vertical=0x7f050001;
-        public static final int view1=0x7f050051;
-        public static final int view2=0x7f050052;
-        public static final int viewer=0x7f050036;
-    }
-    public static final class layout {
-        public static final int controller=0x7f030000;
-        public static final int dualjoystick=0x7f030001;
-        public static final int gcs_home=0x7f030002;
-        public static final int logger=0x7f030003;
-        public static final int map_layout=0x7f030004;
-        public static final int map_positioner=0x7f030005;
-        public static final int mycustommapview=0x7f030006;
-        public static final int object_browser=0x7f030007;
-        public static final int object_editor=0x7f030008;
-        public static final int object_view=0x7f030009;
-        public static final int pfd=0x7f03000a;
-        public static final int system_alarms=0x7f03000b;
-        public static final int system_alarms_fragment=0x7f03000c;
-        public static final int telemetry_stats=0x7f03000d;
-        public static final int telemetry_widget=0x7f03000e;
-        public static final int tuning=0x7f03000f;
-        public static final int ui_layout_gles=0x7f030010;
-    }
-    public static final class menu {
-        public static final int map_menu=0x7f0a0000;
-        public static final int options_menu=0x7f0a0001;
-        public static final int status_menu=0x7f0a0002;
-    }
-    public static final class string {
-        public static final int alarms=0x7f09001a;
-        public static final int altitude=0x7f09001f;
-        public static final int app_name=0x7f090000;
-        public static final int apply=0x7f090021;
-        public static final int cardinal_east=0x7f090010;
-        public static final int cardinal_north=0x7f09000f;
-        public static final int cardinal_south=0x7f090011;
-        public static final int cardinal_west=0x7f090012;
-        public static final int compass_name=0x7f09000e;
-        public static final int connected=0x7f090013;
-        public static final int controller_name=0x7f090002;
-        public static final int data=0x7f090024;
-        public static final int edit=0x7f090025;
-        public static final int latitude=0x7f09001d;
-        public static final int load=0x7f090026;
-        public static final int location_name=0x7f090004;
-        public static final int logger_name=0x7f090005;
-        public static final int longitude=0x7f09001e;
-        public static final int manual_control_values_=0x7f090017;
-        public static final int menu_item_connect=0x7f090007;
-        public static final int menu_item_disconnect=0x7f090008;
-        public static final int menu_item_settings=0x7f090006;
-        public static final int number_of_bytes=0x7f090019;
-        public static final int number_of_objects=0x7f090018;
-        public static final int object_browser_name=0x7f090001;
-        public static final int pfd_name=0x7f090003;
-        public static final int preference_checkbox_autoconnect=0x7f09000a;
-        public static final int preference_checkbox_bluetooth=0x7f09000c;
-        public static final int preference_checkbox_connection_type=0x7f09000b;
-        public static final int preference_connection_method_summary=0x7f09000d;
-        public static final int preference_title=0x7f090009;
-        public static final int rxrate=0x7f09001c;
-        public static final int save=0x7f090022;
-        public static final int save_button=0x7f090015;
-        public static final int send_button=0x7f090016;
-        public static final int settings=0x7f090023;
-        public static final int tuning=0x7f090020;
-        public static final int txrate=0x7f09001b;
-        public static final int update_button=0x7f090014;
-    }
-    public static final class xml {
-        public static final int controller_preferences=0x7f040000;
-        public static final int device_filter=0x7f040001;
-        public static final int preferences=0x7f040002;
-        public static final int telemetry_widget_info=0x7f040003;
+        public static int alignBounds=0x7f020002;
+        public static int alignMargins=0x7f020003;
+        public static int bottom=0x7f020005;
+        public static int center=0x7f02000c;
+        public static int center_horizontal=0x7f02000a;
+        public static int center_vertical=0x7f020008;
+        public static int clip_horizontal=0x7f02000f;
+        public static int clip_vertical=0x7f02000e;
+        public static int end=0x7f020011;
+        public static int fill=0x7f02000d;
+        public static int fill_horizontal=0x7f02000b;
+        public static int fill_vertical=0x7f020009;
+        public static int horizontal=0x7f020000;
+        public static int left=0x7f020006;
+        public static int right=0x7f020007;
+        public static int start=0x7f020010;
+        public static int top=0x7f020004;
+        public static int vertical=0x7f020001;
     }
     public static final class styleable {
         /** Attributes that can be used with a GridLayout.
@@ -431,20 +242,20 @@ containing a value of this type.
            <colgroup align="left" />
            <colgroup align="left" />
            <tr><th>Attribute</th><th>Description</th></tr>
-           <tr><td><code>{@link #GridLayout_alignmentMode org.openpilot_nonag.androidgcs:alignmentMode}</code></td><td>
+           <tr><td><code>{@link #GridLayout_alignmentMode android.support.v7.gridlayout:alignmentMode}</code></td><td>
         When set to alignMargins, causes alignment to take place between the outer
         boundary of a view, as defined by its margins.</td></tr>
-           <tr><td><code>{@link #GridLayout_columnCount org.openpilot_nonag.androidgcs:columnCount}</code></td><td> The maximum number of columns to create when automatically positioning children.</td></tr>
-           <tr><td><code>{@link #GridLayout_columnOrderPreserved org.openpilot_nonag.androidgcs:columnOrderPreserved}</code></td><td>
+           <tr><td><code>{@link #GridLayout_columnCount android.support.v7.gridlayout:columnCount}</code></td><td> The maximum number of columns to create when automatically positioning children.</td></tr>
+           <tr><td><code>{@link #GridLayout_columnOrderPreserved android.support.v7.gridlayout:columnOrderPreserved}</code></td><td>
         When set to true, forces column boundaries to appear in the same order
         as column indices.</td></tr>
-           <tr><td><code>{@link #GridLayout_orientation org.openpilot_nonag.androidgcs:orientation}</code></td><td>
+           <tr><td><code>{@link #GridLayout_orientation android.support.v7.gridlayout:orientation}</code></td><td>
               support versions.</td></tr>
-           <tr><td><code>{@link #GridLayout_rowCount org.openpilot_nonag.androidgcs:rowCount}</code></td><td> The maximum number of rows to create when automatically positioning children.</td></tr>
-           <tr><td><code>{@link #GridLayout_rowOrderPreserved org.openpilot_nonag.androidgcs:rowOrderPreserved}</code></td><td>
+           <tr><td><code>{@link #GridLayout_rowCount android.support.v7.gridlayout:rowCount}</code></td><td> The maximum number of rows to create when automatically positioning children.</td></tr>
+           <tr><td><code>{@link #GridLayout_rowOrderPreserved android.support.v7.gridlayout:rowOrderPreserved}</code></td><td>
         When set to true, forces row boundaries to appear in the same order
         as row indices.</td></tr>
-           <tr><td><code>{@link #GridLayout_useDefaultMargins org.openpilot_nonag.androidgcs:useDefaultMargins}</code></td><td>
+           <tr><td><code>{@link #GridLayout_useDefaultMargins android.support.v7.gridlayout:useDefaultMargins}</code></td><td>
         When set to true, tells GridLayout to use default margins when none are specified
         in a view's layout parameters.</td></tr>
            </table>
@@ -488,7 +299,7 @@ containing a value of this type.
             </td></tr>
 </table>
           <p>This is a private symbol.
-          @attr name org.openpilot_nonag.androidgcs:alignmentMode
+          @attr name android.support.v7.gridlayout:alignmentMode
         */
         public static final int GridLayout_alignmentMode = 4;
         /**
@@ -504,7 +315,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
           <p>This is a private symbol.
-          @attr name org.openpilot_nonag.androidgcs:columnCount
+          @attr name android.support.v7.gridlayout:columnCount
         */
         public static final int GridLayout_columnCount = 2;
         /**
@@ -525,7 +336,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
           <p>This is a private symbol.
-          @attr name org.openpilot_nonag.androidgcs:columnOrderPreserved
+          @attr name android.support.v7.gridlayout:columnOrderPreserved
         */
         public static final int GridLayout_columnOrderPreserved = 6;
         /**
@@ -557,7 +368,7 @@ containing a value of this type.
 <tr><td><code>vertical</code></td><td>1</td><td> Defines a vertical widget. </td></tr>
 </table>
           <p>This is a private symbol.
-          @attr name org.openpilot_nonag.androidgcs:orientation
+          @attr name android.support.v7.gridlayout:orientation
         */
         public static final int GridLayout_orientation = 0;
         /**
@@ -573,7 +384,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
           <p>This is a private symbol.
-          @attr name org.openpilot_nonag.androidgcs:rowCount
+          @attr name android.support.v7.gridlayout:rowCount
         */
         public static final int GridLayout_rowCount = 1;
         /**
@@ -594,7 +405,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
           <p>This is a private symbol.
-          @attr name org.openpilot_nonag.androidgcs:rowOrderPreserved
+          @attr name android.support.v7.gridlayout:rowOrderPreserved
         */
         public static final int GridLayout_rowOrderPreserved = 5;
         /**
@@ -615,7 +426,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
           <p>This is a private symbol.
-          @attr name org.openpilot_nonag.androidgcs:useDefaultMargins
+          @attr name android.support.v7.gridlayout:useDefaultMargins
         */
         public static final int GridLayout_useDefaultMargins = 3;
         /** Attributes that can be used with a GridLayout_Layout.
@@ -638,19 +449,19 @@ containing a value of this type.
               Specifies extra space on the top side of this view.</td></tr>
            <tr><td><code>{@link #GridLayout_Layout_android_layout_width android:layout_width}</code></td><td>
               support versions.</td></tr>
-           <tr><td><code>{@link #GridLayout_Layout_layout_column org.openpilot_nonag.androidgcs:layout_column}</code></td><td>
+           <tr><td><code>{@link #GridLayout_Layout_layout_column android.support.v7.gridlayout:layout_column}</code></td><td>
         The column boundary delimiting the left of the group of cells
         occupied by this view.</td></tr>
-           <tr><td><code>{@link #GridLayout_Layout_layout_columnSpan org.openpilot_nonag.androidgcs:layout_columnSpan}</code></td><td>
+           <tr><td><code>{@link #GridLayout_Layout_layout_columnSpan android.support.v7.gridlayout:layout_columnSpan}</code></td><td>
         The column span: the difference between the right and left
         boundaries delimiting the group of cells occupied by this view.</td></tr>
-           <tr><td><code>{@link #GridLayout_Layout_layout_gravity org.openpilot_nonag.androidgcs:layout_gravity}</code></td><td>
+           <tr><td><code>{@link #GridLayout_Layout_layout_gravity android.support.v7.gridlayout:layout_gravity}</code></td><td>
         Gravity specifies how a component should be placed in its group of cells.</td></tr>
-           <tr><td><code>{@link #GridLayout_Layout_layout_row org.openpilot_nonag.androidgcs:layout_row}</code></td><td> END MarginLayout layoutparams 
+           <tr><td><code>{@link #GridLayout_Layout_layout_row android.support.v7.gridlayout:layout_row}</code></td><td> END MarginLayout layoutparams 
 
         The row boundary delimiting the top of the group of cells
         occupied by this view.</td></tr>
-           <tr><td><code>{@link #GridLayout_Layout_layout_rowSpan org.openpilot_nonag.androidgcs:layout_rowSpan}</code></td><td>
+           <tr><td><code>{@link #GridLayout_Layout_layout_rowSpan android.support.v7.gridlayout:layout_rowSpan}</code></td><td>
         The row span: the difference between the bottom and top
         boundaries delimiting the group of cells occupied by this view.</td></tr>
            </table>
@@ -767,7 +578,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
           <p>This is a private symbol.
-          @attr name org.openpilot_nonag.androidgcs:layout_column
+          @attr name android.support.v7.gridlayout:layout_column
         */
         public static final int GridLayout_Layout_layout_column = 9;
         /**
@@ -788,7 +599,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
           <p>This is a private symbol.
-          @attr name org.openpilot_nonag.androidgcs:layout_columnSpan
+          @attr name android.support.v7.gridlayout:layout_columnSpan
         */
         public static final int GridLayout_Layout_layout_columnSpan = 10;
         /**
@@ -833,7 +644,7 @@ containing a value of this type.
 <tr><td><code>end</code></td><td>0x00800005</td><td> Push object to the end of its container, not changing its size. </td></tr>
 </table>
           <p>This is a private symbol.
-          @attr name org.openpilot_nonag.androidgcs:layout_gravity
+          @attr name android.support.v7.gridlayout:layout_gravity
         */
         public static final int GridLayout_Layout_layout_gravity = 11;
         /**
@@ -853,7 +664,7 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
           <p>This is a private symbol.
-          @attr name org.openpilot_nonag.androidgcs:layout_row
+          @attr name android.support.v7.gridlayout:layout_row
         */
         public static final int GridLayout_Layout_layout_row = 7;
         /**
@@ -874,51 +685,8 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
           <p>This is a private symbol.
-          @attr name org.openpilot_nonag.androidgcs:layout_rowSpan
+          @attr name android.support.v7.gridlayout:layout_rowSpan
         */
         public static final int GridLayout_Layout_layout_rowSpan = 8;
-        /** Attributes that can be used with a setting_attributes.
-           <p>Includes the following attributes:</p>
-           <table>
-           <colgroup align="left" />
-           <colgroup align="left" />
-           <tr><th>Attribute</th><th>Description</th></tr>
-           <tr><td><code>{@link #setting_attributes_max_value org.openpilot_nonag.androidgcs:max_value}</code></td><td></td></tr>
-           <tr><td><code>{@link #setting_attributes_setting_name org.openpilot_nonag.androidgcs:setting_name}</code></td><td></td></tr>
-           </table>
-           @see #setting_attributes_max_value
-           @see #setting_attributes_setting_name
-         */
-        public static final int[] setting_attributes = {
-            0x7f01000c, 0x7f01000d
-        };
-        /**
-          <p>This symbol is the offset where the {@link org.openpilot_nonag.androidgcs.R.attr#max_value}
-          attribute's value can be found in the {@link #setting_attributes} array.
-
-
-          <p>Must be a floating point value, such as "<code>1.2</code>".
-<p>This may also be a reference to a resource (in the form
-"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
-theme attribute (in the form
-"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
-containing a value of this type.
-          @attr name org.openpilot_nonag.androidgcs:max_value
-        */
-        public static final int setting_attributes_max_value = 1;
-        /**
-          <p>This symbol is the offset where the {@link org.openpilot_nonag.androidgcs.R.attr#setting_name}
-          attribute's value can be found in the {@link #setting_attributes} array.
-
-
-          <p>Must be a string value, using '\\;' to escape characters such as '\\n' or '\\uxxxx' for a unicode character.
-<p>This may also be a reference to a resource (in the form
-"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
-theme attribute (in the form
-"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
-containing a value of this type.
-          @attr name org.openpilot_nonag.androidgcs:setting_name
-        */
-        public static final int setting_attributes_setting_name = 0;
     };
 }

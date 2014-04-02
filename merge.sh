@@ -1,8 +1,11 @@
 if [ ! -d "../OpenPilot/" ]; then
 	git clone git://git.openpilot.org/OpenPilot.git ../OpenPilot
 fi
+rm -rf ../OpenPilot/androidgcs/
 cp -rfv ./* ../OpenPilot/
 cd ../OpenPilot
+rm -rf ../OpenPilot/androidgcs/bin
+make androidgcs_clean
 make androidgcs V=1
-mv ../OpenPilot/build/androidgcs/bin/androidgcs-release.apk . 
+mv build/androidgcs/bin/androidgcs-release.apk . 
 adb install -r androidgcs-release.apk
