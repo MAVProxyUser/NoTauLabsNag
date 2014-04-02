@@ -93,6 +93,7 @@ public class Controller extends ObjectManagerActivity {
 		Log.d("keypress:", "Back Button");
 	if (i == 97)
 		Log.d("keypress:", "B Button");
+		super.onBackPressed(); 
 	if (i == 100)
 		Log.d("keypress:", "Y Button");
 	if (i == 99)
