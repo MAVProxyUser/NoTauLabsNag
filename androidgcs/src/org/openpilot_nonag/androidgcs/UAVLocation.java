@@ -39,6 +39,9 @@ import com.google.android.gms.maps.model.LatLng; // replaces GeoPoint
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import android.app.Activity;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentTransaction;
 
 public class UAVLocation extends ObjectManagerActivity
 {
@@ -58,7 +61,7 @@ public class UAVLocation extends ObjectManagerActivity
     @Override public void onCreate(Bundle icicle) {
 		super.onCreate(icicle);
 		setContentView(R.layout.map_layout);
-		mapFrag = ((MapFragment) getFragmentManager().findFragmentById(R.id.map_view));
+		mapFrag = ((MapFragment) getSupportFragmentManager().findFragmentById(R.id.map_view));
 		mMap = mapFrag.getMap();
 		mMap.setMyLocationEnabled(true);
 		mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);

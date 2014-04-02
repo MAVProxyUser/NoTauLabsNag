@@ -25,10 +25,14 @@ package org.openpilot_nonag.androidgcs;
 
 import org.openpilot_nonag.androidgcs.fragments.PFD;
 
-import android.app.FragmentTransaction;
+//import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.LinearLayout;
+
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentTransaction;
 
 public class PfdActivity extends ObjectManagerActivity {
 
@@ -47,7 +51,7 @@ public class PfdActivity extends ObjectManagerActivity {
 				LinearLayout.LayoutParams.WRAP_CONTENT));
 		layout.setId(0x101);
 		{
-			FragmentTransaction fragmentTransaction = getFragmentManager()
+			FragmentTransaction fragmentTransaction = getSupportFragmentManager()
 					.beginTransaction();
 			fragmentTransaction.add(0x101, new PFD());
 			fragmentTransaction.commit();
