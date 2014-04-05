@@ -101,12 +101,7 @@ public class ObjectManagerFragment extends Fragment {
 	 * each fragment.
 	 */
 	protected void registerObjectUpdates(UAVObject object) {
-
-// ((ObjectManagerActivity) getFragmentActivity()).registerObjectUpdates(object, this);
-((ObjectManagerActivity) this.getActivity()).registerObjectUpdates(object, this);
-
-//		ObjectManagerActivity test = (ObjectManagerActivity) this.getActivity();
-//		test.registerObjectUpdates(object, this);
+		((ObjectManagerActivity) this.getActivity()).registerObjectUpdates(object, this);
 	}
 
 }

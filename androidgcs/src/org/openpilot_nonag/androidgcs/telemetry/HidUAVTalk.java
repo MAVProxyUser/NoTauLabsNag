@@ -1,3 +1,26 @@
+/**
+ ******************************************************************************
+ * @file       HidUAVTalk.java
+ * @author     Tau Labs, http://taulabs.org, Copyright (C) 2012-2013
+ * @brief      The HID implementation of telemetry
+ * @see        The GNU Public License (GPL) Version 3
+ *
+ *****************************************************************************/
+/*
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+ * for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ */
 package org.openpilot_nonag.androidgcs.telemetry;
 
 // Code based on notes from http://torvafirmus-android.blogspot.com/2011/09/implementing-usb-hid-interface-in.html
@@ -25,6 +48,21 @@ import android.hardware.usb.UsbManager;
 import android.hardware.usb.UsbRequest;
 import android.util.Log;
 
+/**
+ * @class HidUAVTalk Implements a HID connection layer
+ *
+ * To look like the other interfaces the HID layer must
+ * expose itself via an input and output stream.  This
+ * is acomplished by opening up a @ref readThread and
+ * @ref writeThread that deal with the respective @ref
+ * inTalkStream and @ref outTalkStream.
+ *
+ * At a higher level there are the threads for Telemetry
+ * owned by the TelemetryTask which processes the input
+ * byte stream and the handler which sends to the output
+ * stream.  These expect when an IOException occurs on
+ * their streams that the connection was broken.
+ */
 public class HidUAVTalk extends TelemetryTask {
 
 	private static final String TAG = HidUAVTalk.class.getSimpleName();
@@ -55,18 +93,26 @@ public class HidUAVTalk extends TelemetryTask {
 	private UsbDeviceConnection usbDeviceConnection;
 	private IntentFilter permissionFilter;
 	private UsbInterface usbInterface = null;
-	private TalkInputStream inTalkStream;
-	private TalkOutputStream outTalkStream;
 	private final UsbRequest writeRequest = null;
 	private UsbRequest readRequest = null;
-	private Thread readThread;
-	private Thread writeThread;
+	private boolean disconnecting = false;
+	private boolean receiversRegistered = false;
 
 	private boolean readPending = false;
 	private boolean writePending = false;
 	private IntentFilter deviceAttachedFilter;
-	private boolean usbReceiverRegistered = false;
-	private boolean usbPermissionReceiverRegistered = false;
+
+	// Variables to create the streams
+
+	//! The stream that receives data from the HID device
+	private TalkInputStream inTalkStream;
+	//! The stream which sends data to the HID device
+	private TalkOutputStream outTalkStream;
+	//! The thread which reads from the device to @ref inTalkStream
+	private Thread readThread;
+	//! The thread which reads from @ref outTalkStream to the device
+	private Thread writeThread;
+
 
 	public HidUAVTalk(OPTelemetryService service) {
 		super(service);
@@ -75,31 +121,33 @@ public class HidUAVTalk extends TelemetryTask {
 	@Override
 	public void disconnect() {
 
-		CleanUpAndClose();
-		if(usbReceiverRegistered){
-			telemService.unregisterReceiver(usbReceiver);
-			usbReceiverRegistered = false;
-		}
-		if(usbPermissionReceiverRegistered){
-			telemService.unregisterReceiver(usbPermissionReceiver);
-			usbPermissionReceiverRegistered = false;
-		}
+		if (DEBUG) Log.d(TAG, "Disconnect called");
 
+		if (disconnecting) {
+			if (DEBUG) Log.d(TAG, "In progress disconnection detected", new Exception());
+			return;
+		}
+		disconnecting = true;
+
+		// Shut down the higher level logic first
 		super.disconnect();
 
+		// Next shut down threads dealing with the hardware
 		try {
+			if (DEBUG) Log.d(TAG, "Waiting for read thread to end");
 			if(readThread != null) {
 				readThread.interrupt(); // Make sure not blocking for data
 				readThread.join();
 				readThread = null;
 			}
+			if (DEBUG) Log.d(TAG, "Waiting for write thread to end");
 			if(writeThread != null) {
 				writeThread.interrupt();
 				writeThread.join();
 				writeThread = null;
 			}
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			if (ERROR) Log.e(TAG, "Unable to stop HID threads", e);
 		}
 
 		if (readRequest != null) {
@@ -107,6 +155,20 @@ public class HidUAVTalk extends TelemetryTask {
 			readRequest.close();
 			readRequest = null;
 		}
+
+		// Close the hardware interface
+		if(usbDeviceConnection != null && usbInterface != null)
+			usbDeviceConnection.releaseInterface(usbInterface);
+		usbDeviceConnection = null;
+		usbInterface = null;
+
+		if (receiversRegistered) {
+			telemService.unregisterReceiver(usbReceiver);
+			telemService.unregisterReceiver(usbPermissionReceiver);
+			receiversRegistered = false;
+		}
+
+		connectedToDevice = false;
 	}
 
 	@Override
@@ -118,13 +180,13 @@ public class HidUAVTalk extends TelemetryTask {
 		permissionIntent = PendingIntent.getBroadcast(telemService, 0, new Intent(ACTION_USB_PERMISSION), 0);
 		permissionFilter = new IntentFilter(ACTION_USB_PERMISSION);
 		telemService.registerReceiver(usbPermissionReceiver, permissionFilter);
-		usbPermissionReceiverRegistered = true;
 
 		deviceAttachedFilter = new IntentFilter();
 		deviceAttachedFilter.addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED);
 		deviceAttachedFilter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
 		telemService.registerReceiver(usbReceiver, deviceAttachedFilter);
-		usbReceiverRegistered = true;
+
+		receiversRegistered = true;
 
 		// Go through all the devices plugged in
 		HashMap<String, UsbDevice> deviceList = usbManager.getDeviceList();
@@ -135,7 +197,6 @@ public class HidUAVTalk extends TelemetryTask {
 			if (DEBUG) Log.d(TAG, "Testing device: " + dev);
 			if( ValidateFoundDevice(dev) ) {
 				usbManager.requestPermission(dev, permissionIntent);
-				break;
 			}
 		}
 
@@ -217,6 +278,7 @@ public class HidUAVTalk extends TelemetryTask {
 						if (DEBUG) Log.d(TAG, "Matching device disconnected");
 						// call your method that cleans up and closes communication with the device
 						disconnect();
+						telemService.connectionBroken();
 					}
 				}
 			}
@@ -236,13 +298,14 @@ public class HidUAVTalk extends TelemetryTask {
 	};
 
 
-	protected void CleanUpAndClose() {
-		if(usbDeviceConnection != null && usbInterface != null)
-			usbDeviceConnection.releaseInterface(usbInterface);
-		usbInterface = null;
-	}
-
-	//Validating the Connected Device - Before asking for permission to connect to the device, it is essential that you ensure that this is a device that you support or expect to connect to. This can be done by validating the devices Vendor ID and Product ID.
+	/**
+	 * @brief Validating the Connected Device
+	 * Before asking for permission to connect to the device, it is essential
+	 * that you ensure that this is a device that you support or expect to connect
+	 * to. This can be done by validating the devices Vendor ID and Product ID.
+	 * @param searchDevice
+	 * @return
+	 */
 	boolean ValidateFoundDevice(UsbDevice searchDevice) {
 		//A vendor id is a global identifier for the manufacturer. A product id refers to the product itself, and is unique to the manufacturer. The vendor id, product id combination refers to a particular product manufactured by a vendor.
 		if (DEBUG) Log.d(TAG, "ValidateFoundDevice: " + searchDevice );
@@ -250,18 +313,23 @@ public class HidUAVTalk extends TelemetryTask {
 		if ( searchDevice.getVendorId() == OPENPILOT_VENDOR_ID ) {
 			//Requesting permission
 			if (DEBUG) Log.d(TAG, "Device: " + searchDevice );
-			usbManager.requestPermission(searchDevice, permissionIntent);
 			return true;
 		}
 		else
 			return false;
 	}
 
-	boolean ConnectToDeviceInterface(UsbDevice connectDevice) {
+	private boolean connectedToDevice = false;
+	synchronized boolean ConnectToDeviceInterface(UsbDevice connectDevice)  {
 		// Connecting to the Device - If you are reading and writing, then the device
 		// can either have two end points on a single interface, or two interfaces
 		// each with a single end point. Either way, it is best if you know which interface
 		// you need to use and which end points
+
+		if (connectedToDevice) {
+			if (ERROR) Log.e(TAG, "Attempting to open a second HID device");
+			return false;
+		}
 
 		if (DEBUG) Log.d(TAG, "ConnectToDeviceInterface:");
 		UsbEndpoint ep1 = null;
@@ -310,8 +378,13 @@ public class HidUAVTalk extends TelemetryTask {
 
 		// Claim the interface
 		usbDeviceConnection = usbManager.openDevice(connectDevice);
+		if (usbDeviceConnection == null) {
+			if (ERROR) Log.e(TAG, "Unable to open the device");
+			return false;
+		}
 		usbDeviceConnection.claimInterface(usbInterface, true);
 
+		connectedToDevice = true;
 
 		if (DEBUG) Log.d(TAG, "Opened endpoints");
 
@@ -330,41 +403,14 @@ public class HidUAVTalk extends TelemetryTask {
 			}
 		});
 
-		readThread = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				// Enqueue the first read
-				queueRead();
-				while (!shutdown) {
-					UsbRequest returned = usbDeviceConnection.requestWait();
-					if (returned == readRequest) {
-						if (DEBUG) Log.d(TAG, "Received read request");
-						readData();
-					} else {
-						Log.e(TAG, "Received unknown USB response");
-						break;
-					}
-				}
-			}
+		if (readThread != null || writeThread != null) {
+			Log.e(TAG, "Already running HID???");
+		}
 
-		}, "HID Read");
+		readThread = new Thread(readThreadRunnable, "HID Read");
 		readThread.start();
 
-		writeThread = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				if (DEBUG) Log.d(TAG, "Starting HID write thread");
-				while(!shutdown) {
-					try {
-						if (sendDataSynchronous() == false)
-							break;
-					} catch (InterruptedException e) {
-						break;
-					}
-				}
-				if (DEBUG) Log.d(TAG, "Ending HID write thread");
-			}
-		}, "HID Write");
+		writeThread = new Thread(writeThreadRunnable, "HID Write");
 		writeThread.start();
 
 		telemService.toastMessage("HID Device Opened");
@@ -372,6 +418,47 @@ public class HidUAVTalk extends TelemetryTask {
 		return true;
 	}
 
+	final Runnable readThreadRunnable = new Runnable() {
+		@Override
+		public void run() {
+			// Enqueue the first read
+			queueRead();
+			while (!shutdown) {
+				UsbRequest returned = usbDeviceConnection.requestWait();
+				if (returned == readRequest) {
+					if (DEBUG) Log.d(TAG, "Received read request");
+					readData();
+				} else {
+					if (DEBUG) Log.e(TAG, "Received unknown USB response");
+					disconnect();
+					telemService.connectionBroken();
+					break;
+				}
+			}
+			if (DEBUG) Log.d(TAG, "Ending HID read thread");
+		}
+	};
+
+	final Runnable writeThreadRunnable = new Runnable() {
+		@Override
+		public void run() {
+			if (DEBUG) Log.d(TAG, "Starting HID write thread");
+			while(!shutdown) {
+				try {
+					if (sendDataSynchronous() == false)
+						break;
+				} catch (InterruptedException e) {
+					if (shutdown) {
+						if (DEBUG) Log.d(TAG, "Thread interrupted.  Shutting down");
+					} else {
+						if (ERROR) Log.e(TAG, "Got unexpected interrupting in HID write", new Exception());
+					}
+					break;
+				}
+			}
+			if (DEBUG) Log.d(TAG, "Ending HID write thread");
+		}
+	};
 
 	void displayBuffer(String msg, byte[] buf) {
 		msg += " (";
@@ -558,8 +645,12 @@ public class HidUAVTalk extends TelemetryTask {
 			try {
 				return data.getByteBlocking();
 			} catch (InterruptedException e) {
-				Log.e(TAG, "Timed out");
-				e.printStackTrace();
+				if (!shutdown) {
+					Log.e(TAG, "Timed out");
+					if (DEBUG) e.printStackTrace();
+					disconnect();
+					telemService.connectionBroken();
+				}
 			}
 			return -1;
 		}
@@ -596,10 +687,6 @@ public class HidUAVTalk extends TelemetryTask {
 			if ((size + dat.length) > MAX_SIZE) {
 				Log.e(TAG, "Dropped data.  Size:" + size + " data length: " + dat.length);
 				return false;
-			}
-			else
-			{
-				Log.e(TAG, "Legit data.  Size:" + size + " data length: " + dat.length);
 			}
 
 			// Place data at the end of the buffer
