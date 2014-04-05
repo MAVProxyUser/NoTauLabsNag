@@ -35,13 +35,8 @@ import android.support.v4.app.FragmentTransaction;
 
 //public class Preferences extends PreferenceActivity {
 public class Preferences extends FragmentActivity {
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		// Display the fragment as the main content.
-        getSupportFragmentManager().beginTransaction().replace(android.R.id.content, new PrefsFragment()).commit();
-	}
-	public static class PrefsFragment extends PreferenceFragment {
+	public static class PrefsFragment extends FragmentActivity {
+/*
 		@Override
 		public void onCreate(Bundle savedInstanceState) {
 			super.onCreate(savedInstanceState);
@@ -50,4 +45,15 @@ public class Preferences extends FragmentActivity {
 			addPreferencesFromResource(R.xml.controller_preferences);
 		}
 	}
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		// Display the fragment as the main content.
+        	//getSupportFragmentManager().beginTransaction().replace(android.R.id.content, new PrefsFragment()).commit();
+        	getSupportFragmentManager().beginTransaction().replace(android.R.id.content, PrefsFragment ).commit();
+*/
+	}
+
+
 }
