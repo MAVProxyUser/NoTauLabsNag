@@ -30,8 +30,22 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.Toast;
+import android.content.res.Configuration;
 
 public class HomePage extends ObjectManagerActivity {
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+	    super.onConfigurationChanged(newConfig);
+
+	    // Checks the orientation of the screen
+	    if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+	        Toast.makeText(this, "Landscape mode active", Toast.LENGTH_SHORT).show();
+	    } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
+	        Toast.makeText(this, "Portrait mode active", Toast.LENGTH_SHORT).show();
+	    }
+	}
+
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {

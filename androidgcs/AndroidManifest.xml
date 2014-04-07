@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.openpilot_nonag.androidgcs"
-    android:versionCode="12"
-    android:versionName="transcend" >
+    android:versionCode="14"
+    android:versionName="transcend_v3" >
 
     <uses-sdk android:minSdkVersion="10" android:targetSdkVersion="14"/>
 
@@ -46,8 +46,10 @@
         <!-- for map overlay -->
 	<meta-data android:name="com.google.android.maps.v2.API_KEY" android:value="AIzaSyB0Jjb8-iDm5WTul6WJ4Av-1bHBh7IrE-s"/>
         <!-- Object browser - main activity at the moment -->
+	<!-- http://stackoverflow.com/questions/5726657/how-to-detect-orientation-change-in-layout-in-android -->
         <activity
             android:name="HomePage"
+	    android:configChanges="orientation|screenSize|keyboardHidden"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

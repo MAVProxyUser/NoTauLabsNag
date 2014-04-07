@@ -32,14 +32,25 @@ import android.preference.PreferenceFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
+import android.os.Build;
+import android.widget.Toast;
 
 public class Preferences extends PreferenceActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		// Display the fragment as the main content.
-        	getFragmentManager().beginTransaction().replace(android.R.id.content, new PrefsFragment()).commit();
-	        //getSupportFragmentManager().beginTransaction().replace(android.R.id.content, new PrefsFragment()).commit();
+
+        	if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+			Log.d("OLD_API","This stuff is older than HoneyComb! I need to write more code, sorry");
+			Toast.makeText(this, "OLD AS DIRT!", Toast.LENGTH_SHORT).show();
+			Toast.makeText(this, "Please wait on new code!", Toast.LENGTH_SHORT).show();
+		//            onCreatePreferenceActivity();
+	        //	      getSupportFragmentManager().beginTransaction().replace(android.R.id.content, new PrefsFragment()).commit();
+        	} else {
+        		getFragmentManager().beginTransaction().replace(android.R.id.content, new PrefsFragment()).commit();
+        	}
 	}
 	public static class PrefsFragment extends PreferenceFragment {
 		@Override
