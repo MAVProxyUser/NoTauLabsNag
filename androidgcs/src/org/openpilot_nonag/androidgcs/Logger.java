@@ -97,7 +97,10 @@ public class Logger extends ObjectManagerActivity {
 		if (DEBUG) Log.d(TAG, "Stop logging");
 		logging = false;
 		try {
-			fileStream.close();
+			if (fileStream != null)
+			{		
+				fileStream.close();
+			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
