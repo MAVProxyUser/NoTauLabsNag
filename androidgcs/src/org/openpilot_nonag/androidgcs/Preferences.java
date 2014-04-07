@@ -32,42 +32,16 @@ import android.preference.PreferenceFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
-import android.os.Build;
 
 public class Preferences extends PreferenceActivity {
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-            onCreatePreferenceActivity();
-        } else {
-            onCreatePreferenceFragment();
-        }
-    }
-    /**
-     * Wraps legacy {@link #onCreate(Bundle)} code for Android < 3 (i.e. API lvl
-     * < 11).
-     */
-    @SuppressWarnings("deprecation")
-    private void onCreatePreferenceActivity() {
-        addPreferencesFromResource(R.xml.preferences);
-	addPreferencesFromResource(R.xml.controller_preferences);
-    }
-
-    /**
-     * Wraps {@link #onCreate(Bundle)} code for Android >= 3 (i.e. API lvl >=
-     * 11).
-     */
-//    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    private void onCreatePreferenceFragment() {
-//        getFragmentManager().beginTransaction()
-//                .replace(android.R.id.content, new MyPreferenceFragment ())
-//                .commit();
-    }
-}
-/*	public static class PrefsFragment extends PreferenceActivity {
-
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		// Display the fragment as the main content.
+        	getFragmentManager().beginTransaction().replace(android.R.id.content, new PrefsFragment()).commit();
+	        //getSupportFragmentManager().beginTransaction().replace(android.R.id.content, new PrefsFragment()).commit();
+	}
+	public static class PrefsFragment extends PreferenceFragment {
 		@Override
 		public void onCreate(Bundle savedInstanceState) {
 			super.onCreate(savedInstanceState);
@@ -76,14 +50,4 @@ public class Preferences extends PreferenceActivity {
 			addPreferencesFromResource(R.xml.controller_preferences);
 		}
 	}
-
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		// Display the fragment as the main content.
-        	//getSupportFragmentManager().beginTransaction().replace(android.R.id.content, new PrefsFragment()).commit();
-        	getSupportFragmentManager().beginTransaction().replace(android.R.id.content, PrefsFragment ).commit();
-
-	}
-
-*/
+}

@@ -90,6 +90,8 @@
             android:label="Logger"
             android:theme="@android:style/Theme.Dialog" />
 
+        <activity android:name="AdsActivity" android:label="ADS" />
+
         <activity
 	    android:name="UAVLocation"
 	    android:label="@string/location_name" />
