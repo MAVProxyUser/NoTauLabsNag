@@ -32,6 +32,7 @@ import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.preference.ListPreference;
 import android.util.AttributeSet;
+import android.util.Log;
 
 public class BluetoothDevicePreference extends ListPreference {
 
@@ -40,16 +41,40 @@ public class BluetoothDevicePreference extends ListPreference {
 
         BluetoothAdapter bta = BluetoothAdapter.getDefaultAdapter();
 		if (bta == null)
+		{
+			Log.d("All bad", "BT is NOT supported...");
 			return; // BT not supported
+		}
+		else
+		{
+			Log.d("All good", "BT is supported...");
+		}
         Set<BluetoothDevice> pairedDevices = bta.getBondedDevices();
         CharSequence[] entries = new CharSequence[pairedDevices.size()];
         CharSequence[] entryValues = new CharSequence[pairedDevices.size()];
 		if (pairedDevices.size() > 0) {
 			int i = 0;
 			for (BluetoothDevice dev : pairedDevices) {
-				entries[i] = dev.getName();
-				entryValues[i] = dev.getAddress();
-				i++;
+				if (dev.getName() != null) {
+					entries[i] = dev.getName();
+					Log.d("All good", entries[i].toString());
+				}
+				else
+				{
+					entries[i] = "NoName";
+					Log.d("All bad", entries[i].toString());
+				}
+				if (dev.getAddress() != null) {
+					entryValues[i] = dev.getAddress();
+					Log.d("All good", entryValues[i].toString());
+					i++;
+				}
+				else
+				{
+					entryValues[i] = "00:11:22:33:44:55";
+					Log.d("All bad", entryValues[i].toString());
+
+				}
 			}
         }
         setEntries(entries);
