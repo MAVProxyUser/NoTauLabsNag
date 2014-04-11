@@ -43,6 +43,12 @@ public class BluetoothDevicePreference extends ListPreference {
 		if (bta == null)
 		{
 			Log.d("All bad", "BT is NOT supported...");
+		        CharSequence[] entries = new CharSequence[1];
+        		CharSequence[] entryValues = new CharSequence[1];
+			entries[0] = "Bluetooth NOT available";
+			entryValues[0] = "00:11:22:33:44:55";
+		        setEntries(entries);
+        		setEntryValues(entryValues);
 			return; // BT not supported
 		}
 		else
