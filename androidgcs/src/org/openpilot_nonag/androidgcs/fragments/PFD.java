@@ -35,6 +35,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
+
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.FragmentManager;
+import java.util.List;
 
 public class PFD extends ObjectManagerFragment {
 
@@ -43,7 +50,7 @@ public class PFD extends ObjectManagerFragment {
 	private static final int LOGLEVEL = 0;
 	// private static boolean WARN = LOGLEVEL > 1;
 	private static final boolean DEBUG = LOGLEVEL > 0;
-
+	
 	// @Override
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -72,21 +79,32 @@ public class PFD extends ObjectManagerFragment {
 		if (DEBUG)
 			Log.d(TAG, "Updated");
 
-		double pitch = obj.getField("Pitch").getDouble();
-		double roll = obj.getField("Roll").getDouble();
+		double pitch;
+		double roll;
+                try
+                {
+                        pitch = obj.getField("Pitch").getDouble();
+                        roll = obj.getField("Roll").getDouble();
 
-		// TODO: These checks, while sensible, are necessary because the
-		// callbacks aren't
-		// removed when we switch to different activities sharing this fragment
-		Activity parent = getActivity();
-		AttitudeView attitude = null;
-		if (parent != null)
-			attitude = (AttitudeView) parent.findViewById(R.id.attitude_view);
-		if (attitude != null) {
-			attitude.setRoll(roll);
-			attitude.setPitch(pitch);
-			attitude.invalidate();
-		}
+			// TODO: These checks, while sensible, are necessary because the
+			// callbacks aren't
+			// removed when we switch to different activities sharing this fragment
+			Activity parent = getActivity();
+			AttitudeView attitude = null;
+			if (parent != null)
+				attitude = (AttitudeView) parent.findViewById(R.id.attitude_view);
+			if (attitude != null) {
+				attitude.setRoll(roll);
+				attitude.setPitch(pitch);
+				attitude.invalidate();
+			}
+	
+                }
+                catch (NullPointerException e)
+                {
+                        //Toast.makeText(this, "Catching Nulls on UAVObjects, link may be failing", Toast.LENGTH_SHORT).show();
+                        Log.d("PFD fragment", "Catching Nulls on UAVObjects, link may be failing");
+                }
 
 	}
 

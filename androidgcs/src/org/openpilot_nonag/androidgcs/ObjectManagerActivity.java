@@ -63,6 +63,7 @@ import android.widget.TextView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
+import android.widget.Toast;
 
 public abstract class ObjectManagerActivity extends FragmentActivity {
 
@@ -338,7 +339,15 @@ public abstract class ObjectManagerActivity extends FragmentActivity {
 		while (i.hasNext()) {
 			Observer o = i.next();
 			UAVObject obj = listeners.get(o);
-			obj.removeUpdatedObserver(o);
+			try
+			{
+				obj.removeUpdatedObserver(o);
+			}
+                        catch (NullPointerException e)
+                        {
+                                //Toast.makeText(this, "Catching Nulls on UAVObjects, link may be failing", Toast.LENGTH_SHORT).show();
+                                Log.d("pauseObjectUpdates", "Catching Nulls on UAVObjects, link may be failing");
+                        }
 		}
 		paused = true;
 
@@ -388,7 +397,17 @@ public abstract class ObjectManagerActivity extends FragmentActivity {
 		Observer o = new ActivityUpdatedObserver(object);
 		listeners.put(o,  object);
 		if (!paused)
-			object.addUpdatedObserver(o);
+		{
+			try
+			{
+				object.addUpdatedObserver(o);
+			}
+			catch (NullPointerException e)
+			{
+				//Toast.makeText(this, "Catching Nulls on UAVObjects, link may be failing", Toast.LENGTH_SHORT).show();	
+				Log.d("regobjectupdates", "Catching Nulls on UAVObjects, link may be failing");	
+			}
+		}
 	}
 
 	/**
@@ -463,7 +482,14 @@ public abstract class ObjectManagerActivity extends FragmentActivity {
 				if((task = binder.getTelemTask(0)) != null) {
 					objMngr = task.getObjectManager();
 					mConnected = true;
-					onOPConnected();
+					try
+					{
+						onOPConnected();
+					}
+					catch (NullPointerException e)
+					{
+						Log.d("onServiceConnected", "null pointers");
+					}
 				}
 
 			}

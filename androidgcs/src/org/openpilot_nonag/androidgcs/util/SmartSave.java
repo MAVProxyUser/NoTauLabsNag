@@ -33,6 +33,7 @@ import java.util.Observer;
 import java.util.Set;
 
 import junit.framework.Assert;
+import junit.framework.AssertionFailedError; 
 
 import org.openpilot_nonag.uavtalk.UAVObject;
 import org.openpilot_nonag.uavtalk.UAVObjectManager;
@@ -49,17 +50,12 @@ public class SmartSave {
 
 	//! Create a smart save button attached to the object manager and an apply and ave button
 	public SmartSave(UAVObjectManager objMngr, UAVObject obj, Button saveButton, Button applyButton) {
-		Assert.assertNotNull(objMngr);
-		this.objMngr = objMngr;
-		this.applyBtn = applyButton;
-		this.obj = obj;
-
-		Assert.assertNotNull(objMngr);
-		Assert.assertNotNull(obj);
-
-		obj.addUpdatedObserver(ObjectUpdated);
-
 		controlFieldMapping = new HashMap<ObjectFieldMappable,FieldPairing>();
+			this.objMngr = objMngr;
+			this.applyBtn = applyButton;
+			this.obj = obj;
+
+			obj.addUpdatedObserver(ObjectUpdated);
 
 		if (saveButton != null) {
 			saveBtn = saveButton;
@@ -82,6 +78,9 @@ public class SmartSave {
 			});
 		} else
 			applyBtn = null;
+
+
+		
 	}
 
 	//! Disconnect any listeners when this object is destroyed
