@@ -52,6 +52,7 @@ import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.view.WindowManager;
 
 public class ObjectBrowser extends ObjectManagerActivity implements OnSharedPreferenceChangeListener {
 
@@ -80,6 +81,7 @@ public class ObjectBrowser extends ObjectManagerActivity implements OnSharedPref
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
+                getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON); // disable sleep
 		setContentView(R.layout.object_browser);
 		prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		prefs.registerOnSharedPreferenceChangeListener(this);

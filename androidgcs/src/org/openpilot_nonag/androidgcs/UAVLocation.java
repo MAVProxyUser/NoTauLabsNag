@@ -43,7 +43,10 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import com.google.android.gms.maps.SupportMapFragment;
-
+import android.view.WindowManager;
+import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.model.VisibleRegion;
 public class UAVLocation extends ObjectManagerActivity
 {
 	private final String TAG = "UAVLocation";
@@ -61,13 +64,13 @@ public class UAVLocation extends ObjectManagerActivity
     LatLng uavLocation;
 
     @Override public void onCreate(Bundle icicle) {
-		super.onCreate(icicle);
-		setContentView(R.layout.map_layout);
-//		mapFrag = ((MapFragment) getSupportFragmentManager().findFragmentById(R.id.map_view));
 
+		super.onCreate(icicle);
+     		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON); // disable sleep
+		setContentView(R.layout.map_layout);
 		mapFrag = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map_view));
 
-// something wrong *here*
+		// something wrong *here* (only on versions with out Google Play Services) need to check instead of crashing. 
 
 		mMap = mapFrag.getMap();
 		mMap.setMyLocationEnabled(true);
@@ -79,6 +82,22 @@ public class UAVLocation extends ObjectManagerActivity
 //                mapFrag.onCreate(savedInstanceState);
 //		registerForContextMenu(mapFrag);
 
+/*
+		// Make sure we know how much screen realestate we have map wise. (aka get the extent)
+		VisibleRegion vr = mMap.getProjection().getVisibleRegion();
+		double left = vr.latLngBounds.southwest.longitude;
+		double top = vr.latLngBounds.northeast.latitude;
+		double right = vr.latLngBounds.northeast.longitude;
+		double bottom = vr.latLngBounds.southwest.latitude;
+
+		// Marker test
+		double latz = 40.119751;
+		double longz = -83.0767593;
+		// create marker
+		MarkerOptions marker = new MarkerOptions().position(new LatLng(latz, longz)).title("The House");
+		// adding marker
+		mMap.addMarker(marker);
+*/
 		mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
                         @Override
                         public void onMapLongClick(LatLng arg0) {
@@ -107,13 +126,23 @@ public class UAVLocation extends ObjectManagerActivity
 			registerObjectUpdates(obj);
 			objectUpdated(obj);
 		}
+		else
+		{
+                                Log.d(TAG, "location is null");
+		}
 	}
 
 	private LatLng getUavLocation() {
-		UAVObject pos = objMngr.getObject("PositionActual");
+//		UAVObject pos = objMngr.getObject("PositionActual");
+		UAVObject pos = objMngr.getObject("GPSPosition");
 		if (pos == null)
+		{
 			return new LatLng(0,0);
-
+		}
+                else
+		{
+                                Log.d(TAG, "location is null");
+                }
 		UAVObject home = objMngr.getObject("HomeLocation");
 		if (home == null)
 			return new LatLng(0,0);
@@ -130,12 +159,15 @@ public class UAVLocation extends ObjectManagerActivity
 
 		// Get the NED coordinates
 		double NED0, NED1;
-		NED0 = pos.getField("North").getDouble();
-		NED1 = pos.getField("East").getDouble();
+//		NED0 = pos.getField("North").getDouble();
+//		NED1 = pos.getField("East").getDouble();
 
 		// Compute the LLA coordinates
-		lat = lat + (NED0 / T0) * 180.0 / Math.PI;
-		lon = lon + (NED1 / T1) * 180.0 / Math.PI;
+//		lat = lat + (NED0 / T0) * 180.0 / Math.PI;
+//		lon = lon + (NED1 / T1) * 180.0 / Math.PI;
+
+		lat = lat * 180.0 / Math.PI;
+		lon = lon * 180.0 / Math.PI;
 
 		return new LatLng((int) (lat * 1e6), (int) (lon * 1e6));
 	}
@@ -154,23 +186,31 @@ public class UAVLocation extends ObjectManagerActivity
 			Double lon = obj.getField("Longitude").getDouble() / 10;
 			homeLocation = new LatLng(lat.intValue(), lon.intValue());
 			if (mHomeMarker == null) {
+	                        Log.d(TAG, "location is null so creating it");
+				CameraPosition camPos = mMap.getCameraPosition();
+				LatLng lla = camPos.target;
 				mHomeMarker = mMap.addMarker(new MarkerOptions()
-			       .position(new LatLng(homeLocation.latitude, homeLocation.longitude))
-			       .title("UAV")
-			       .snippet("Fly fly fly")
+			       .position(new LatLng(lla.latitude, lla.longitude))
+			       .title("UAV_HOME")
+			       .snippet("Home Location")
 			       .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_home)));
 			} else {
+	                        Log.d(TAG, "location is being updated");
 				mHomeMarker.setPosition((new LatLng(homeLocation.latitude, homeLocation.longitude)));
 			}
-		} else if (obj.getName().compareTo("PositionActual") == 0) {
+		} else if (obj.getName().compareTo("GPSPosition") == 0) {
 			uavLocation = getUavLocation();
 			if (mUavMarker == null) {
+	                        Log.d(TAG, "location is null so creating it");
+				CameraPosition camPos = mMap.getCameraPosition();
+				LatLng lla = camPos.target;
 				mUavMarker = mMap.addMarker(new MarkerOptions()
-			       .position(new LatLng(uavLocation.latitude, uavLocation.longitude))
-			       .title("UAV")
-			       .snippet("Fly fly fly")
+			       .position(new LatLng(lla.latitude, lla.longitude))
+			       .title("UAV_LOCATION")
+			       .snippet("UAV Aerial Position")
 			       .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_uav)));
 			} else {
+	                        Log.d(TAG, "location is being updated");
 				mUavMarker.setPosition((new LatLng(uavLocation.latitude, uavLocation.longitude)));
 			}
 		}
