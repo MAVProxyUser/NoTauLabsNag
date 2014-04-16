@@ -485,6 +485,7 @@ public class OPTelemetryService extends Service {
 
 		String classpath = new File(jarsDir, jar).getAbsolutePath();
 
+		Thread.currentThread().setContextClassLoader(getClass().getClassLoader()); // does this help?
 		DexClassLoader loader = new DexClassLoader(classpath, dexDir.getAbsolutePath(), null, getClassLoader());
 
 		try {
