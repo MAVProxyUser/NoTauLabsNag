@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.openpilot_nonag.androidgcs"
-    android:versionCode="16"
-    android:versionName="Commie" >
+    android:versionCode="17"
+    android:versionName="Flight Restricted Love!" >
 
     <uses-sdk android:minSdkVersion="10" android:targetSdkVersion="14"/>
 
