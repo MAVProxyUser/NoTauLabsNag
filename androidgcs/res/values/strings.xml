@@ -4,7 +4,7 @@
 	<string name="object_browser_name">Browser</string>
 	<string name="controller_name">Controller</string>
 	<string name="pfd_name">PFD</string>
-	<string name="ads_name">ADS-B</string>
+	<string name="tfr_name">TFR</string>
         <string name="location_name">Map</string>
 	<string name="logger_name">Logging</string>
 	
