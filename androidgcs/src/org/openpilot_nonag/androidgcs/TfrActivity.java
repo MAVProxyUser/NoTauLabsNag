@@ -50,7 +50,20 @@ public class TfrActivity extends Activity {
 		setContentView(R.layout.main);
  
 		webView = (WebView) findViewById(R.id.webView1);
-		webView.getSettings().setJavaScriptEnabled(true);
+
+		webView.setWebViewClient(new WebViewClient() {
+		        @Override
+	        	public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
+            			// Handle the error
+        		}
+
+        		@Override
+        		public boolean shouldOverrideUrlLoading(WebView view, String url) {
+            			view.loadUrl(url);
+            			return true;
+        		}
+    		});
+
 		webView.loadUrl("http://tfr.faa.gov/tfr2/list.html");
  
 	}
