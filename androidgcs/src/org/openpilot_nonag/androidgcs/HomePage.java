@@ -68,11 +68,11 @@ public class HomePage extends ObjectManagerActivity {
 			}
 		});
 
-		Button ads = (Button) findViewById(R.id.launch_ads);
-		ads.setOnClickListener(new OnClickListener() {
+		Button tfr = (Button) findViewById(R.id.launch_tfr);
+		tfr.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
-				startActivity(new Intent(HomePage.this, AdsActivity.class));
+				startActivity(new Intent(HomePage.this, TfrActivity.class));
 			}
 		});
 

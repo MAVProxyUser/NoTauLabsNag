@@ -88,15 +88,15 @@
         android:text="@string/location_name" />
 
     <Button
-        android:id="@+id/launch_ads"
+        android:id="@+id/launch_tfr"
         android:layout_width="132dp"
         android:layout_height="wrap_content"
         app:layout_column="4"
         app:layout_gravity="left"
         app:layout_row="5"
         android:background="@android:color/transparent"
-        android:drawableTop="@drawable/ic_ads"
-        android:text="@string/ads_name" />
+        android:drawableTop="@drawable/ic_tfr"
+        android:text="@string/tfr_name" />
 
     <android.support.v7.widget.Space
         android:layout_width="1dp"

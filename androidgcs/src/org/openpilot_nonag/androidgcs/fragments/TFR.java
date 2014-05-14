@@ -59,17 +59,17 @@ public class TFR extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
  
-		button = (Button) findViewById(R.id.buttonUrl);
+//		button = (Button) findViewById(R.id.buttonUrl);
  
-		button.setOnClickListener(new OnClickListener() {
+//		button.setOnClickListener(new OnClickListener() {
  
-		  @Override
-		  public void onClick(View arg0) {
+//		  @Override
+//		  public void onClick(View arg0) {
 //		    Intent intent = new Intent(context, TfrActivity.class);
 //		    startActivity(intent);
-		  }
+//		  }
  
-		});
+//		});
  
 	}
 
