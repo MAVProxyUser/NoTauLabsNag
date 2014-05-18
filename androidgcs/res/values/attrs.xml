@@ -3,5 +3,6 @@
     <declare-styleable name="setting_attributes">
         <attr name="setting_name" format="string"/>
         <attr name="max_value" format="float"/>
+        <attr name="text_value" format="string"/>
     </declare-styleable>
 </resources>

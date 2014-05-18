@@ -15,6 +15,51 @@
  */
 package org.openpilot_nonag.androidgcs;
 
+import org.openpilot_nonag.androidgcs.R;
+import org.openpilot_nonag.androidgcs.util.SmartSave;
+import org.openpilot_nonag.androidgcs.views.ScrollBarView;
+import org.openpilot_nonag.uavtalk.UAVDataObject;
+
+import android.os.Bundle;
+import android.util.Log;
+import android.widget.Button;
+import android.widget.Toast;
+
 public class Wizard extends ObjectManagerActivity {
+        private final String TAG = Wizard.class.getSimpleName();
+
+        private final boolean DEBUG = false;
+
+        private SmartSave smartSave;
+
+        /** Called when the activity is first created. */
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+                super.onCreate(savedInstanceState);
+                setContentView(R.layout.wizard);
+        }
+
+        @Override
+        void onOPConnected() {
+                super.onOPConnected();
+
+                if (DEBUG) Log.d(TAG, "onOPConnected()");
+                UAVDataObject systemSettings;
+                // Subscribe to updates from systemsettings and show the values for crude feedback
+                try
+                {
+                        systemSettings = (UAVDataObject) objMngr.getObject("SystemSettings");
+                        smartSave = new SmartSave(objMngr, systemSettings,
+                                (Button) findViewById(R.id.saveBtn),
+                                (Button) findViewById(R.id.applyBtn));
+
+                        smartSave.addControlMapping((ScrollBarView) findViewById(R.id.airframeType), "AirframeType", 0);
+                        smartSave.refreshSettingsDisplay();
+                }
+                catch (NullPointerException e)
+                {
+                        Toast.makeText(this, "Catching Nulls on UAVObjects, link may be failing", Toast.LENGTH_SHORT).show();
+                }
+        }
 
 }
