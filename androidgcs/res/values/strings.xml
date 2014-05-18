@@ -2,7 +2,7 @@
 <resources>
 	<string name="app_name">OpenPilot GCS Home</string>
 	<string name="object_browser_name">Browser</string>
-	<string name="controller_name">Controller</string>
+	<string name="wizard_name">Wizard</string>
 	<string name="pfd_name">PFD</string>
 	<string name="tfr_name">TFR</string>
         <string name="location_name">Map</string>

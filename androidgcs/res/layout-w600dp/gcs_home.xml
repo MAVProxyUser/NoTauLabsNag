@@ -6,7 +6,7 @@
     app:layout_gravity="center_horizontal" >
 
     <Button
-        android:id="@+id/launch_controller"
+        android:id="@+id/launch_wizard"
         android:layout_width="132dp"
         android:layout_height="wrap_content"
         app:layout_column="3"
@@ -14,8 +14,8 @@
         app:layout_row="1"
         app:layout_rowSpan="4"
         android:background="@android:color/transparent"
-        android:drawableTop="@drawable/ic_controller"
-        android:text="@string/controller_name" />
+        android:drawableTop="@drawable/ic_wizard"
+        android:text="@string/wizard_name" />
 
     <Button
         android:id="@+id/launch_object_browser"

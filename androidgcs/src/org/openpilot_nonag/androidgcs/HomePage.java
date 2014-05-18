@@ -84,11 +84,11 @@ public class HomePage extends ObjectManagerActivity {
                         }
                 });
 
-		Button controller = (Button) findViewById(R.id.launch_controller);
-		controller.setOnClickListener(new OnClickListener() {
+		Button wizard = (Button) findViewById(R.id.launch_wizard);
+		wizard.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
-				startActivity(new Intent(HomePage.this, Controller.class));
+				startActivity(new Intent(HomePage.this, Wizard.class));
 			}
 		});
 

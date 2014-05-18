@@ -58,7 +58,6 @@ public class Preferences extends PreferenceActivity {
 			super.onCreate(savedInstanceState);
 			// Load the preferences from an XML resource
 			addPreferencesFromResource(R.xml.preferences);
-			addPreferencesFromResource(R.xml.controller_preferences);
 		}
 	}
 }
