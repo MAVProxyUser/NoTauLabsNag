@@ -70,8 +70,8 @@
             android:name="PfdActivity"
             android:label="PFD" />
         <activity
-            android:name="Controller"
-            android:label="@string/controller_name" />
+            android:name="Wizard"
+            android:label="@string/wizard_name" />
         <activity
             android:name="Preferences"
             android:label="@string/preference_title" />
