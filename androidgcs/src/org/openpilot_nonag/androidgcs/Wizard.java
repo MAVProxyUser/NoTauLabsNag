@@ -17,7 +17,7 @@ package org.openpilot_nonag.androidgcs;
 
 import org.openpilot_nonag.androidgcs.R;
 import org.openpilot_nonag.androidgcs.util.SmartSave;
-import org.openpilot_nonag.androidgcs.views.ScrollBarView;
+import org.openpilot_nonag.androidgcs.views.DropdownBoxView;
 import org.openpilot_nonag.uavtalk.UAVDataObject;
 
 import android.os.Bundle;
@@ -53,7 +53,7 @@ public class Wizard extends ObjectManagerActivity {
                                 (Button) findViewById(R.id.saveBtn),
                                 (Button) findViewById(R.id.applyBtn));
 
-                        smartSave.addControlMapping((ScrollBarView) findViewById(R.id.airframeType), "AirframeType", 0);
+                        smartSave.addControlMapping((DropdownBoxView) findViewById(R.id.airframeType), "AirframeType", 0);
                         smartSave.refreshSettingsDisplay();
                 }
                 catch (NullPointerException e)

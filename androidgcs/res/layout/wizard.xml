@@ -16,15 +16,82 @@
             android:layout_height="wrap_content"
             android:orientation="vertical" >
 
-            <org.openpilot_nonag.androidgcs.views.ScrollBarView
+            <org.openpilot_nonag.androidgcs.views.DropdownBoxView
                 android:id="@+id/airframeType"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                setting_attributes:setting_name="VehicleType"
-                setting_attributes:text_value="default" />
+                android:choiceMode="singleChoice"
+                android:drawSelectorOnTop="true" />
+
+            <TextView
+                android:id="@+id/object_information"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_marginLeft="12dp"
+                android:layout_marginTop="12dp"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
+<!--  
+
+ActuatorSettings
+-ChannelUpdateFreq
+-ChannelMax
+-ChannelNeutral
+-ChannelMin
+-ChannelType
+-ChannelAddr
+-MotorsSpinWhileArmed
+
+AttitudeSettings
+-BoardRotation
+
+HwSettings
+-CC_RcvrPort
+-CC_MainPort
+-CC_FlexiPort
+-DSMxBind
+
+ManualControlSettings
+-ChannelMin
+-ChannelNeutral
+-ChannelMax
+-Stabilization1Settings
+-FlightModeNumber
+-FlightModePosition
+
+MixerSettings
+-ThrottleCurve1
+-ThrottleCurve2
+-Curve2Source
+-Mixer1Type
+-Mixer1Vector
+..
+-Mixer12Type
+-Mixer12Vector
+
+StabilizationSettings
+-ManualRate
+-MaximumRate
+-RollRatePID
+-PitchRatePID
+-YawRatePID
+-RollPI
+-PitchPI
+-YawPI
+-RollMax
+-PitchMax
+-YawMax
+
+SystemSettings
+-AirframeType
+
+-->
+
 
         </LinearLayout>
-    </ScrollView>
+ 
+   </ScrollView>
 
     <LinearLayout
         android:layout_width="match_parent"
