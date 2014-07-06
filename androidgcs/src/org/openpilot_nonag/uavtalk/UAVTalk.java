@@ -31,6 +31,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.Map;
+import java.util.HashMap;
 
 import junit.framework.Assert;
 import android.util.Log;
@@ -58,8 +60,9 @@ public class UAVTalk {
 				public void run() {
 					while(true) {
 						try {
-							if( !processInputStream() )
+							if (!processInputStream()) {
 								break;
+							}
 						} catch (IOException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
@@ -101,7 +104,7 @@ public class UAVTalk {
 			0xcb, 0xe6, 0xe1, 0xe8, 0xef, 0xfa, 0xfd, 0xf4, 0xf3 };
 
 	enum RxStateType {
-		STATE_SYNC, STATE_TYPE, STATE_SIZE, STATE_OBJID, STATE_INSTID, STATE_DATA, STATE_CS
+		STATE_SYNC, STATE_TYPE, STATE_SIZE, STATE_OBJID, STATE_INSTID, STATE_DATA, STATE_CS, STATE_ERROR, STATE_COMPLETE
 	};
 
 	static final int TYPE_MASK = 0xF8;
@@ -116,18 +119,14 @@ public class UAVTalk {
 	static final int TYPE_ACK = (TYPE_VER | 0x03);
 	static final int TYPE_NACK = (TYPE_VER | 0x04);
 
-	static final int MIN_HEADER_LENGTH = 8; // sync(1), type (1), size(2),
-											// object ID(4)
-	static final int MAX_HEADER_LENGTH = 10; // sync(1), type (1), size(2),
-												// object ID (4), instance ID(2,
-												// not used in single objects)
+	static final int HEADER_LENGTH = 10; // sync(1), type (1), size(2),
+												// object ID (4), instance ID(2)
 
 	static final int CHECKSUM_LENGTH = 1;
 
 	static final int MAX_PAYLOAD_LENGTH = 256;
 
-	static final int MAX_PACKET_LENGTH = (MAX_HEADER_LENGTH
-			+ MAX_PAYLOAD_LENGTH + CHECKSUM_LENGTH);
+	static final int MAX_PACKET_LENGTH = (HEADER_LENGTH	+ MAX_PAYLOAD_LENGTH + CHECKSUM_LENGTH);
 
 	static final int ALL_INSTANCES = 0xFFFF;
 	static final int TX_BUFFER_SIZE = 2 * 1024;
@@ -139,14 +138,14 @@ public class UAVTalk {
 	OutputStream outStream;
 	UAVObjectManager objMngr;
 
-	//! Currently only one UAVTalk transaction is permitted at a time.  If this is null none are in process
-	//! otherwise points to the pending object
-	UAVObject respObj;
-	//! If the pending transaction is for all the instances
-	boolean respAllInstances;
-	//! The type of response we are expecting
-	int respType;
-
+	static class Transaction {
+        public int respType;
+        public long respObjId;
+        public long respInstId;
+	}
+	
+	Map transactionMap = new HashMap(); 
+	
 	// Variables used by the receive state machine
 	ByteBuffer rxTmpBuffer /* 4 */;
 	ByteBuffer rxBuffer;
@@ -218,6 +217,93 @@ public class UAVTalk {
 	}
 
 	/**
+	 * Send the specified object through the telemetry link. \param[in] obj
+	 * Object to send \param[in] acked Selects if an ack is required \param[in]
+	 * allInstances If set true then all instances will be updated \return
+	 * Success (true), Failure (false)
+	 * @throws IOException
+	 */
+	public boolean sendObject(UAVObject obj, boolean acked, boolean allInstances) throws IOException {
+	    long instId = 0;
+
+	    if (allInstances) {
+	        instId = ALL_INSTANCES;
+	    } else if (obj) {
+	        instId = obj.getInstID();
+	    }
+	    bool success = false;
+		if (acked) {
+			success = objectTransaction(TYPE_OBJ_ACK, obj.getObjID(), instId, obj);
+		} else {
+			success = objectTransaction(TYPE_OBJ, obj.getObjID(), instId, obj);
+		}
+		return success;
+	}
+
+	/**
+	 * Request an update for the specified object, on success the object data
+	 * would have been updated by the GCS. \param[in] obj Object to update
+	 * \param[in] allInstances If set true then all instances will be updated
+	 * \return Success (true), Failure (false)
+	 * @throws IOException
+	 */
+	public boolean sendObjectRequest(UAVObject obj, boolean allInstances) throws IOException {
+	    long instId = 0;
+
+	    if (allInstances) {
+	        instId = ALL_INSTANCES;
+	    } else if (obj) {
+	        instId = obj.getInstID();
+	    }
+		return objectTransaction(TYPE_OBJ_REQ, obj.getObjID(), instId, obj);
+	}
+
+	/**
+	 * UAVTalk takes care of it's own transactions but if the caller knows
+	 * it wants to give up on one (after a timeout) then it can cancel it
+	 * @return True if that object was pending, False otherwise
+	 */
+	public boolean cancelPendingTransaction(UAVObject obj) {
+		synchronized (transMap) {
+			Transaction trans = findTransaction(obj.getObjID(), obj.getInstID()); 
+			if (trans != null) {
+				closeTransaction(trans);
+				if (transactionListener != null) {
+					Log.d(TAG,"Canceling transaction: " + respObj.getName());
+					transactionListener.TransactionFailed(respObj);
+				}
+				return true;
+			} else {
+				return false;
+			}
+		}
+	}
+
+	/**
+	 * Execute the requested transaction on an object. \param[in] obj Object
+	 * \param[in] type Transaction type TYPE_OBJ: send object, TYPE_OBJ_REQ:
+	 * request object update TYPE_OBJ_ACK: send object with an ack \param[in]
+	 * allInstances If set true then all instances will be updated \return
+	 * Success (true), Failure (false)
+	 * @throws IOException
+	 */
+	private boolean objectTransaction(int type, long objId, long instId, UAVObject obj) throws IOException {
+		if (type == TYPE_OBJ_ACK || type == TYPE_OBJ_REQ) {
+			if (transmitObject(type, objId, instId, obj)) {
+	            openTransaction(type, objId, instId);
+    	        return true;
+			}
+			else {
+				return false;
+			}
+		} else if (type == TYPE_OBJ) {
+			return transmitObject(type, objId, instId, obj)
+		} else {
+			return false;
+		}
+	}
+
+	/**
 	 * Process any data in the queue
 	 * @throws IOException
 	 */
@@ -233,97 +319,18 @@ public class UAVTalk {
 			return false;
 		}
 
-		 processInputByte(val);
-		 return true;
-	}
+		processInputByte(val);
+		if (rxState == RxStateType.STATE_COMPLETE) {
+			if (DEBUG) Log.d(TAG,"Received");
 
-
-	/**
-	 * Request an update for the specified object, on success the object data
-	 * would have been updated by the GCS. \param[in] obj Object to update
-	 * \param[in] allInstances If set true then all instances will be updated
-	 * \return Success (true), Failure (false)
-	 * @throws IOException
-	 */
-	public boolean sendObjectRequest(UAVObject obj, boolean allInstances) throws IOException {
-		return objectTransaction(obj, TYPE_OBJ_REQ, allInstances);
-	}
-
-	/**
-	 * Send the specified object through the telemetry link. \param[in] obj
-	 * Object to send \param[in] acked Selects if an ack is required \param[in]
-	 * allInstances If set true then all instances will be updated \return
-	 * Success (true), Failure (false)
-	 * @throws IOException
-	 */
-	public boolean sendObject(UAVObject obj, boolean acked, boolean allInstances) throws IOException {
-		if (acked) {
-			return objectTransaction(obj, TYPE_OBJ_ACK, allInstances);
-		} else {
-			return objectTransaction(obj, TYPE_OBJ, allInstances);
+			synchronized(rxState) {
+				rxBuffer.position(0);
+				receiveObject(rxType, rxObjId, rxInstId, rxBuffer);
+				stats.rxObjectBytes += rxLength;
+				stats.rxObjects++;
+			}
 		}
-	}
-
-	/**
-	 * UAVTalk takes care of it's own transactions but if the caller knows
-	 * it wants to give up on one (after a timeout) then it can cancel it
-	 * @return True if that object was pending, False otherwise
-	 */
-	public boolean cancelPendingTransaction(UAVObject obj) {
-		synchronized (respObj) {
-			if(respObj != null && respObj.getObjID() == obj.getObjID()) {
-				if(transactionListener != null) {
-					Log.d(TAG,"Canceling transaction: " + respObj.getName());
-					transactionListener.TransactionFailed(respObj);
-				}
-				respObj = null;
-				return true;
-			} else
-				return false;
-		}
-	}
-
-	/**
-	 * Cancel a pending transaction.  If there is a pending transaction and
-	 * a listener then notify them that the transaction failed.
-	 */
-	/*private synchronized void cancelPendingTransaction() {
-		if(respObj != null && transactionListener != null) {
-			Log.d(TAG,"Canceling transaction: " + respObj.getName());
-			transactionListener.TransactionFailed(respObj);
-		}
-		respObj = null;
-	}*/
-
-	/**
-	 * This is the code that sets up a new UAVTalk packet that expects a response.
-	 */
-	private void setupTransaction(UAVObject obj, boolean allInstances, int type) {
-		synchronized (this) {
-			// Only cancel if it is for a different object
-			if(respObj != null && respObj.getObjID() != obj.getObjID())
-				cancelPendingTransaction(obj);
-
-			respObj = obj;
-			respAllInstances = allInstances;
-			respType = type;
-		}
-	}
-
-	/**
-	 * Execute the requested transaction on an object. \param[in] obj Object
-	 * \param[in] type Transaction type TYPE_OBJ: send object, TYPE_OBJ_REQ:
-	 * request object update TYPE_OBJ_ACK: send object with an ack \param[in]
-	 * allInstances If set true then all instances will be updated \return
-	 * Success (true), Failure (false)
-	 * @throws IOException
-	 */
-	private boolean objectTransaction(UAVObject obj, int type, boolean allInstances) throws IOException {
-		if (type == TYPE_OBJ_ACK || type == TYPE_OBJ_REQ || type == TYPE_OBJ) {
-			return transmitObject(obj, type, allInstances);
-		} else {
-			return false;
-		}
+		return true;
 	}
 
 	/**
@@ -334,198 +341,211 @@ public class UAVTalk {
 	public boolean processInputByte(int rxbyte) throws IOException {
 		Assert.assertNotNull(objMngr);
 
+	    if (rxState == RxStateType.STATE_COMPLETE || RxStateType.rxState == STATE_ERROR) {
+	        rxState = STATE_SYNC;
+	    }
+
 		// Only need to synchronize this method on the state machine state
-		synchronized(rxState) {
-			// Update stats
-			stats.rxBytes++;
+		// Update stats
+		stats.rxBytes++;
 
-			rxPacketLength++; // update packet byte count
+ 		// update packet byte count
+		rxPacketLength++;
 
-			// Receive state machine
-			switch (rxState) {
-			case STATE_SYNC:
+		// Receive state machine
+		switch (rxState) {
+		case STATE_SYNC:
 
-				if (rxbyte != SYNC_VAL)
-					break;
+        	if (rxbyte != SYNC_VAL) {
+		        // continue until sync byte is matched
+    	    	//stats.rxSyncErrors++;
+        		break;
+	        }
 
-				// Initialize and update CRC
-				rxCS = updateCRC(0, rxbyte);
+			// Initialize and update CRC
+			rxCS = updateCRC(0, rxbyte);
 
-				rxPacketLength = 1;
+			rxPacketLength = 1;
 
-				rxState = RxStateType.STATE_TYPE;
-				break;
+	        // case local byte counter, don't forget to zero it after use.
+    		rxCount = 0;
 
-			case STATE_TYPE:
+			rxState = RxStateType.STATE_TYPE;
+			break;
 
-				// Update CRC
-				rxCS = updateCRC(rxCS, rxbyte);
+		case STATE_TYPE:
 
-				if ((rxbyte & TYPE_MASK) != TYPE_VER) {
-					if (ERROR) Log.e(TAG, "Unknown UAVTalk type:" + rxbyte);
-					rxState = RxStateType.STATE_SYNC;
-					break;
-				}
+			// Update CRC
+			rxCS = updateCRC(rxCS, rxbyte);
 
-				rxType = rxbyte;
-				if (VERBOSE) Log.v(TAG, "Received packet type: " + rxType);
-				packetSize = 0;
-
-				rxState = RxStateType.STATE_SIZE;
-				rxCount = 0;
-				break;
-
-			case STATE_SIZE:
-
-				// Update CRC
-				rxCS = updateCRC(rxCS, rxbyte);
-
-				if (rxCount == 0) {
-					packetSize += rxbyte;
-					rxCount++;
-					break;
-				}
-
-				packetSize += (rxbyte << 8) & 0xff00;
-
-				if (packetSize < MIN_HEADER_LENGTH
-						|| packetSize > MAX_HEADER_LENGTH + MAX_PAYLOAD_LENGTH) { // incorrect
-					// packet
-					// size
-					rxState = RxStateType.STATE_SYNC;
-					break;
-				}
-
-				rxCount = 0;
-				rxState = RxStateType.STATE_OBJID;
-				rxTmpBuffer.position(0);
-				break;
-
-			case STATE_OBJID:
-
-				// Update CRC
-				rxCS = updateCRC(rxCS, rxbyte);
-
-				rxTmpBuffer.put(rxCount++, (byte) (rxbyte & 0xff));
-				if (rxCount < 4)
-					break;
-
-				// Search for object, if not found reset state machine
-				rxObjId = rxTmpBuffer.getInt(0);
-				// Because java treats ints as only signed we need to do this manually
-				if (rxObjId < 0)
-					rxObjId = 0x100000000l + rxObjId;
-				{
-					UAVObject rxObj = objMngr.getObject(rxObjId);
-					if (rxObj == null) {
-						if (WARN) Log.w(TAG, "Unknown ID: " + rxObjId);
-						stats.rxErrors++;
-						rxState = RxStateType.STATE_SYNC;
-						break;
-					}
-
-					// Determine data length
-					if (rxType == TYPE_OBJ_REQ || rxType == TYPE_ACK || rxType == TYPE_NACK)
-						rxLength = 0;
-					else
-						rxLength = rxObj.getNumBytes();
-
-					// Check length and determine next state
-					if (rxLength >= MAX_PAYLOAD_LENGTH) {
-						if (WARN) Log.w(TAG, "Greater than max payload length");
-						stats.rxErrors++;
-						rxState = RxStateType.STATE_SYNC;
-						break;
-					}
-
-					// Check if this is a single instance object (i.e. if the
-					// instance ID field is coming next)
-					if (rxObj.isSingleInstance()) {
-						// If there is a payload get it, otherwise receive checksum
-						if (rxLength > 0)
-							rxState = RxStateType.STATE_DATA;
-						else
-							rxState = RxStateType.STATE_CS;
-						rxInstId = 0;
-						rxCount = 0;
-					} else {
-						rxState = RxStateType.STATE_INSTID;
-						rxCount = 0;
-					}
-				}
-
-				break;
-
-			case STATE_INSTID:
-
-				// Update CRC
-				rxCS = updateCRC(rxCS, rxbyte);
-
-				rxTmpBuffer.put(rxCount++, (byte) (rxbyte & 0xff));
-				if (rxCount < 2)
-					break;
-
-				rxInstId = rxTmpBuffer.getShort(0);
-
-				rxCount = 0;
-
-				// If there is a payload get it, otherwise receive checksum
-				if (rxLength > 0)
-					rxState = RxStateType.STATE_DATA;
-				else
-					rxState = RxStateType.STATE_CS;
-
-				break;
-
-			case STATE_DATA:
-
-				// Update CRC
-				rxCS = updateCRC(rxCS, rxbyte);
-
-				rxBuffer.put(rxCount++, (byte) (rxbyte & 0xff));
-				if (rxCount < rxLength)
-					break;
-
-				rxState = RxStateType.STATE_CS;
-				rxCount = 0;
-				break;
-
-			case STATE_CS:
-
-				// The CRC byte
-				rxCSPacket = rxbyte;
-
-				if (rxCS != rxCSPacket) { // packet error - faulty CRC
-					if (WARN) Log.w(TAG,"Bad crc");
-					stats.rxErrors++;
-					rxState = RxStateType.STATE_SYNC;
-					break;
-				}
-
-				if (rxPacketLength != (packetSize + 1)) { // packet error -
-					// mismatched packet
-					// size
-					if (WARN) Log.w(TAG,"Bad size");
-					stats.rxErrors++;
-					rxState = RxStateType.STATE_SYNC;
-					break;
-				}
-
-				if (DEBUG) Log.d(TAG,"Received");
-
-				rxBuffer.position(0);
-				receiveObject(rxType, rxObjId, rxInstId, rxBuffer);
-				stats.rxObjectBytes += rxLength;
-				stats.rxObjects++;
-
+			if ((rxbyte & TYPE_MASK) != TYPE_VER) {
+				if (ERROR) Log.e(TAG, "Unknown UAVTalk type:" + rxbyte);
+	            //stats.rxErrors++;
 				rxState = RxStateType.STATE_SYNC;
 				break;
-
-			default:
-				if (WARN) Log.w(TAG, "Bad state");
-				rxState = RxStateType.STATE_SYNC;
-				stats.rxErrors++;
 			}
+
+			rxType = rxbyte;
+
+			if (VERBOSE) Log.v(TAG, "Received packet type: " + rxType);
+			packetSize = 0;
+
+			rxState = RxStateType.STATE_SIZE;
+			break;
+
+		case STATE_SIZE:
+
+			// Update CRC
+			rxCS = updateCRC(rxCS, rxbyte);
+
+			if (rxCount == 0) {
+				packetSize += rxbyte;
+				rxCount++;
+				break;
+			}
+			packetSize += (rxbyte << 8) & 0xff00;
+	        rxCount     = 0;
+
+			if (packetSize < HEADER_LENGTH
+					|| packetSize > HEADER_LENGTH + MAX_PAYLOAD_LENGTH) {
+				// incorrect packet size
+				//stats.rxErrors++;
+				rxState = RxStateType.STATE_SYNC;
+				break;
+			}
+
+			rxState = RxStateType.STATE_OBJID;
+			rxTmpBuffer.position(0);
+			break;
+
+		case STATE_OBJID:
+
+			// Update CRC
+			rxCS = updateCRC(rxCS, rxbyte);
+
+			rxTmpBuffer.put(rxCount++, (byte) (rxbyte & 0xff));
+			if (rxCount < 4) {
+				break;
+			}
+	        rxCount     = 0;
+
+			// Search for object, if not found reset state machine
+			rxObjId = rxTmpBuffer.getInt(0);
+			// Because java treats ints as only signed we need to do this manually
+			if (rxObjId < 0) {
+				rxObjId = 0x100000000l + rxObjId;
+			}
+			
+	        // Message always contain an instance ID
+			rxInstId = 0;
+			rxState = RxStateType.STATE_INSTID;
+
+			break;
+
+		case STATE_INSTID:
+
+			// Update CRC
+			rxCS = updateCRC(rxCS, rxbyte);
+
+			rxTmpBuffer.put(rxCount++, (byte) (rxbyte & 0xff));
+			if (rxCount < 2) {
+				break;
+			}
+			rxCount = 0;
+
+
+			rxInstId = rxTmpBuffer.getShort(0);
+
+	        // Search for object, if not found reset state machine
+			{
+				UAVObject rxObj = objMngr.getObject(rxObjId);
+				if (rxObj == null) {
+					if (WARN) Log.w(TAG, "Unknown ID: " + rxObjId);
+					stats.rxErrors++;
+					rxState = RxStateType.STATE_ERROR;
+					break;
+				}
+
+				// Determine data length
+				if (rxType == TYPE_OBJ_REQ || rxType == TYPE_ACK || rxType == TYPE_NACK) {
+					rxLength = 0;
+				} else {
+	                if (rxObj != null) {
+						rxLength = rxObj.getNumBytes();
+					} else {
+						rxLength = packetSize - rxPacketLength;
+					}
+				}
+				
+				// Check length
+				if (rxLength >= MAX_PAYLOAD_LENGTH) {
+					if (WARN) Log.w(TAG, "Greater than max payload length");
+					stats.rxErrors++;
+					rxState = RxStateType.STATE_ERROR;
+					break;
+				}
+
+        		// Check the lengths match
+        		if ((rxPacketLength + rxLength) != packetSize) {
+            		// packet error - mismatched packet size
+            		if (WARN) Log.w(TAG, "Mismatched packet size");
+            		stats.rxErrors++;
+            		rxState = RxStateType.STATE_ERROR;
+            		break;
+        		}
+			}
+
+			// If there is a payload get it, otherwise receive checksum
+			if (rxLength > 0) {
+				rxState = RxStateType.STATE_DATA;
+			}
+			else {
+				rxState = RxStateType.STATE_CS;
+			}
+			break;
+
+		case STATE_DATA:
+
+			// Update CRC
+			rxCS = updateCRC(rxCS, rxbyte);
+
+			rxBuffer.put(rxCount++, (byte) (rxbyte & 0xff));
+			if (rxCount < rxLength) {
+				break;
+			}
+			rxCount = 0;
+
+			rxState = RxStateType.STATE_CS;
+			break;
+
+		case STATE_CS:
+
+			// The CRC byte
+			rxCSPacket = rxbyte;
+
+			if (rxCS != rxCSPacket) { // packet error - faulty CRC
+				if (WARN) Log.w(TAG,"Bad crc");
+				stats.rxErrors++;
+				rxState = RxStateType.STATE_SYNC;
+				break;
+			}
+
+			if (rxPacketLength != (packetSize + 1)) { // packet error -
+				// mismatched packet
+				// size
+				if (WARN) Log.w(TAG,"Bad size");
+				stats.rxErrors++;
+				rxState = RxStateType.STATE_SYNC;
+				break;
+			}
+
+			rxState = RxStateType.STATE_COMPLETE;
+			break;
+
+		default:
+			if (WARN) Log.w(TAG, "Bad state");
+			rxState = RxStateType.STATE_ERROR;
+			stats.rxErrors++;
 		}
 
 		// Done
@@ -561,8 +581,10 @@ public class UAVTalk {
 				obj = updateObject(objId, instId, data);
 
 				if (obj != null) {
-					// Check if this is a response to a UAVTalk transaction
-					updateObjReq(obj);
+                	// Check if this object acks a pending OBJ_REQ message
+                	// any OBJ message can ack a pending OBJ_REQ message
+                	// even one that was not sent in response to the OBJ_REQ message
+	                updateAck(type, objId, instId, obj);
 				} else {
 					error = true;
 				}
@@ -570,6 +592,7 @@ public class UAVTalk {
 				error = true;
 			}
 			break;
+		
 		case TYPE_OBJ_ACK:
 			// All instances, not allowed for OBJ_ACK messages
 			if (!allInstances) {
@@ -578,7 +601,7 @@ public class UAVTalk {
 				obj = updateObject(objId, instId, data);
 				// Transmit ACK
 				if (obj != null) {
-					transmitObject(obj, TYPE_ACK, false);
+					error = !transmitObject(TYPE_ACK, obj, false);
 				} else {
 					error = true;
 				}
@@ -586,9 +609,9 @@ public class UAVTalk {
 				error = true;
 			}
 			break;
+		
 		case TYPE_OBJ_REQ:
-			// Get object, if all instances are requested get instance 0 of the
-			// object
+			// Get object, if all instances are requested get instance 0 of the object
 			if (DEBUG) Log.d(TAG,"Received object request: " + objId + " " +
 			 objMngr.getObject(objId).getName());
 			if (allInstances) {
@@ -598,29 +621,16 @@ public class UAVTalk {
 			}
 			// If object was found transmit it
 			if (obj != null) {
-				transmitObject(obj, TYPE_OBJ, allInstances);
+				error != transmitObject(TYPE_OBJ, obj, allInstances);
 			} else {
 				error = true;
 			}
+	        if (error) {
+    	        // failed to send object, transmit NACK
+        	    transmitObject(TYPE_NACK, objId, instId, null);
+        	}
 			break;
-	    case TYPE_NACK:
-        	if (DEBUG) Log.d(TAG, "Received NAK: " + objId + " " + objMngr.getObject(objId).getName());
-        	// All instances, not allowed for NACK messages
-	        if (!allInstances)
-	        {
-	            // Get object
-	            obj = objMngr.getObject(objId, instId);
-	            // Check if object exists:
-	            if (obj != null)
-	            {
-	                receivedNack(obj);
-	            }
-	            else
-	            {
-	             error = true;
-	            }
-	        }
-	        break;
+	    
 		case TYPE_ACK:
 			// All instances, not allowed for ACK messages
 			if (!allInstances) {
@@ -629,12 +639,29 @@ public class UAVTalk {
 				obj = objMngr.getObject(objId, instId);
 				// Check if an ack is pending
 				if (obj != null) {
-					updateAck(obj);
+					updateAck(type, objId, instId, obj);
 				} else {
 					error = true;
 				}
 			}
 			break;
+
+	    case TYPE_NACK:
+        	if (DEBUG) Log.d(TAG, "Received NAK: " + objId + " " + objMngr.getObject(objId).getName());
+        	// All instances, not allowed for NACK messages
+	        if (!allInstances) {
+	            // Get object
+	            obj = objMngr.getObject(objId, instId);
+	            // Check if object exists:
+	            if (obj != null) {
+	              	// Check if a NACK is pending
+                	updateNack(objId, instId, obj);
+	            } else {
+	             	error = true;
+	            }
+	        }
+	        break;
+		
 		default:
 			error = true;
 		}
@@ -646,8 +673,7 @@ public class UAVTalk {
 	 * Update the data of an object from a byte array (unpack). If the object
 	 * instance could not be found in the list, then a new one is created.
 	 */
-	public synchronized UAVObject updateObject(long objId, long instId,
-			ByteBuffer data) {
+	public synchronized UAVObject updateObject(long objId, long instId, ByteBuffer data) {
 		assert (objMngr != null);
 
 		// Get object
@@ -692,10 +718,42 @@ public class UAVTalk {
 	}
 
 	/**
+	 * Check if a transaction is pending that this acked object corresponds to
+	 * and if yes complete it.
+	 */
+	private synchronized void updateAck(int type, long objId, long instId, UAVObject obj) {
+		if (DEBUG) Log.d(TAG, "Received ack: " + obj.getName());
+		Assert.assertNotNull(obj);
+	    Transaction trans = findTransaction(objId, instId);
+	    if (trans != null && trans.respType == type) {
+        	if (trans.respInstId == ALL_INSTANCES) {
+            	if (instId == 0) {
+	                // last instance received, complete transaction
+    	            closeTransaction(trans);
+					// Notify listener
+					if (transactionListener != null) {
+						transactionListener.TransactionSucceeded(obj);
+					}
+				} else {
+	                // TODO extend timeout?
+				}
+			}
+			else {
+	            closeTransaction(trans);
+				// Notify listener
+				if (transactionListener != null) {
+					transactionListener.TransactionSucceeded(obj);
+				}
+			}
+		}
+	}
+
+
+	/**
 	 * Called when an object is received to check if this completes
 	 * a UAVTalk transaction
 	 */
-	private void updateObjReq(UAVObject obj) {
+	private void updateNack(long objId, long instId, UAVObject obj) {
 		// Check if this is not a possible candidate
 		Assert.assertNotNull(obj);
 
@@ -707,56 +765,16 @@ public class UAVTalk {
 		// 1. processInputStream -> updateObjReq (locks uavtalk) -> tranactionCompleted (locks transInfo)
 		// 2. transactionTimeout (locks transInfo) -> sendObjectRequest -> ? -> setupTransaction (locks uavtalk)
 		synchronized(this) {
-			if(respObj != null && respType == TYPE_OBJ_REQ && respObj.getObjID() == obj.getObjID() &&
-					((respObj.getInstID() == obj.getInstID() || !respAllInstances))) {
-
-				// Indicate complete
-				respObj = null;
+		    Transaction trans = findTransaction(objId, instId);
+    		if (trans) {
+        		closeTransaction(trans);
 				succeeded = true;
-			}
+		    }
 		}
 
 		// Notify listener
-		if (succeeded && transactionListener != null)
-				transactionListener.TransactionSucceeded(obj);
-	}
-
-	/**
-	 * Check if a transaction is pending and if yes complete it.
-	 */
-	private synchronized void receivedNack(UAVObject obj)
-	{
-		Assert.assertNotNull(obj);
-		if(respObj != null && (respType == TYPE_OBJ_REQ || respType == TYPE_OBJ_ACK ) &&
-				respObj.getObjID() == obj.getObjID()) {
-
-			if (DEBUG) Log.d(TAG, "NAK: " + obj.getName());
-
-			// Indicate complete
-			respObj = null;
-
-			// Notify listener
-			if (transactionListener != null)
-				transactionListener.TransactionFailed(obj);
-		}
-	}
-
-	/**
-	 * Check if a transaction is pending that this acked object corresponds to
-	 * and if yes complete it.
-	 */
-	private synchronized void updateAck(UAVObject obj) {
-		if (DEBUG) Log.d(TAG, "Received ack: " + obj.getName());
-		Assert.assertNotNull(obj);
-		if (respObj != null && respObj.getObjID() == obj.getObjID()
-				&& (respObj.getInstID() == obj.getInstID() || respAllInstances)) {
-
-			// Indicate complete
-			respObj = null;
-
-			// Notify listener
-			if (transactionListener != null)
-				transactionListener.TransactionSucceeded(obj);
+		if (succeeded && transactionListener != null) {
+			transactionListener.TransactionSucceeded(obj);
 		}
 	}
 
@@ -768,41 +786,44 @@ public class UAVTalk {
 	 * @return Success (true), Failure (false)
 	 * @throws IOException
 	 */
-	private boolean transmitObject(UAVObject obj, int type, boolean allInstances) throws IOException {
-		// If all instances are requested on a single instance object it is an
-		// error
-		if (allInstances && obj.isSingleInstance()) {
-			allInstances = false;
-		}
+	private boolean transmitObject(int type, long objId, long instId, UAVObject obj) throws IOException {
+	    // Important note : obj can be null (when type is NACK for example) so protect all obj dereferences.
+
+	    // If all instances are requested on a single instance object it is an error
+    	if ((obj != null) && (instId == ALL_INSTANCES) && obj.isSingleInstance()) {
+        	instId = 0;
+    	}
+    	boolean allInstances = (instId == ALL_INSTANCES);
 
 		// Process message type
+		boolean ret = false;
 		if (type == TYPE_OBJ || type == TYPE_OBJ_ACK) {
 			if (allInstances) {
-				// Get number of instances
+    	        // Send all instances in reverse order
+	            // This allows the receiver to detect when the last object has been received (i.e. when instance 0 is received)
+	            ret = true;
 				int numInst = objMngr.getNumInstances(obj.getObjID());
-				// Send all instances
-				for (int instId = 0; instId < numInst; ++instId) {
+				for (int n = 0; n < numInst; ++n) {
+                	int i = numInst - n - 1;
 					// TODO: This code is buggy probably.  We should send each request
 					// and wait for an ack in the case of an TYPE_OBJ_ACK
 					Assert.assertNotSame(type, TYPE_OBJ_ACK); // catch any buggy calls
 
-					UAVObject inst = objMngr.getObject(obj.getObjID(), instId);
-					transmitSingleObject(inst, type, false);
+					UAVObject o = objMngr.getObject(obj.getObjID(), i);
+					if (!transmitSingleObject(type, objId, i, o)) {
+						ret = false;
+						break;
+					}
 				}
-				return true;
 			} else {
-				return transmitSingleObject(obj, type, false);
+				ret = transmitSingleObject(type, objId, instId, obj);
 			}
 		} else if (type == TYPE_OBJ_REQ) {
-			return transmitSingleObject(obj, TYPE_OBJ_REQ, allInstances);
+			ret = transmitSingleObject(TYPE_OBJ_REQ, objId, instId, obj);
 		} else if (type == TYPE_ACK) {
 			if (!allInstances) {
-				return transmitSingleObject(obj, TYPE_ACK, false);
-			} else {
-				return false;
+				ret = transmitSingleObject(TYPE_ACK, objId, instId, obj);
 			}
-		} else {
-			return false;
 		}
 	}
 
@@ -812,48 +833,45 @@ public class UAVTalk {
 	 * @param[in] obj Object handle to send
 	 * @param[in] type Transaction type \return Success (true), Failure (false)
 	 */
-	private boolean transmitSingleObject(UAVObject obj, int type, boolean allInstances) throws IOException {
+	private boolean transmitSingleObject(int type, long objId, long instId, UAVObject obj) throws IOException {
 		int length;
-		int allInstId = ALL_INSTANCES;
 
 		assert (objMngr != null && outStream != null);
 
+	    // IMPORTANT : obj can be null (when type is NACK for example)
+	
 		ByteBuffer bbuf = ByteBuffer.allocate(MAX_PACKET_LENGTH);
 		bbuf.order(ByteOrder.LITTLE_ENDIAN);
 
+		// Setup type and object id fields
+		bbuf.put((byte) (SYNC_VAL & 0xff));
+		bbuf.put((byte) (type & 0xff));
+		bbuf.putShort((short) (length + HEADER_LENGTH));
+		bbuf.putInt((int) objId);
+		bbuf.putShort((short) (instId & 0xffff));
+	
 		// Determine data length
-		if (type == TYPE_OBJ_REQ || type == TYPE_ACK) {
+		if (type == TYPE_OBJ_REQ || type == TYPE_ACK || type == TYPE_NACK) {
 			length = 0;
 		} else {
 			length = obj.getNumBytes();
 		}
 
-		// Setup type and object id fields
-		bbuf.put((byte) (SYNC_VAL & 0xff));
-		bbuf.put((byte) (type & 0xff));
-		bbuf.putShort((short) (length + 2 /* SYNC, Type */+ 2 /* Size */+ 4 /* ObjID */+ (obj
-						.isSingleInstance() ? 0 : 2)));
-		bbuf.putInt((int)obj.getObjID());
-
-		// Setup instance ID if one is required
-		if (!obj.isSingleInstance()) {
-			// Check if all instances are requested
-			if (allInstances)
-				bbuf.putShort((short) (allInstId & 0xffff));
-			else
-				bbuf.putShort((short) (obj.getInstID() & 0xffff));
-		}
-
 		// Check length
-		if (length >= MAX_PAYLOAD_LENGTH)
+		if (length >= MAX_PAYLOAD_LENGTH) {
+	        //++stats.txErrors;
 			return false;
+		}
 
 		// Copy data (if any)
 		if (length > 0)
 			try {
-				if (obj.pack(bbuf) == 0)
+				if (obj.pack(bbuf) == 0) {
+			        //++stats.txErrors;
 					return false;
+				}
 			} catch (Exception e) {
+		        //++stats.txErrors;
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 				return false;
@@ -867,14 +885,7 @@ public class UAVTalk {
 		byte[] dst = new byte[packlen];
 		bbuf.get(dst, 0, packlen);
 
-		if (type == TYPE_OBJ_ACK || type == TYPE_OBJ_REQ) {
-			// Once we send a UAVTalk packet that requires an ack or object let's set up
-			// the transaction here
-			setupTransaction(obj, allInstances, type);
-		}
-
 		outStream.write(dst);
-
 
 		// Update stats
 		++stats.txObjects;
@@ -883,6 +894,61 @@ public class UAVTalk {
 
 		// Done
 		return true;
+	}
+
+	private Transaction findTransaction(long objId, long instId) {
+	    // Lookup the transaction in the transaction map
+	    Map objTransactions = (Map) transMap.get(objId);
+	    if (objTransactions != null) {
+	        Transaction trans = (Transaction) objTransactions.get(instId);
+	        if (trans == null) {
+	            // see if there is an ALL_INSTANCES transaction
+	            trans = (Transaction) objTransactions.get(ALL_INSTANCES);
+	        }
+	        return trans;
+	    }
+	    return null;
+	}
+	
+	private synchronized void openTransaction(int type, long objId, long instId) {
+		Transaction trans = new Transaction();
+		
+	    trans.respType = (type == TYPE_OBJ_REQ) ? TYPE_OBJ : TYPE_ACK;
+	    trans.respObjId  = objId;
+    	trans.respInstId = instId;
+
+		Map objTransactions = (Map) transMap.get(trans.respObjId);
+		if (objTransactions == null) {
+			objTransactions = new HashMap():
+			transMap.put(trans.respObjId, objTransactions); 
+		}
+		objTransactions.put(instId, trans);
+	}
+
+	private void closeTransaction(Transaction trans) {
+	    Map objTransactions = (Map) transMap.get(trans.respObjId);
+	    if (objTransactions != null) {
+	        objTransactions.remove(trans.respInstId);
+	        // Keep the map even if it is empty
+	        // There are at most 100 different object IDs...
+	    }
+	}
+	
+	private void closeAllTransactions() {
+/*	
+	    foreach(quint32 objId, transMap.keys()) {
+	        QMap<quint32, Transaction *> *objTransactions = transMap.value(objId);
+	        foreach(quint32 instId, objTransactions->keys()) {
+	            Transaction *trans = objTransactions->value(instId);
+	
+	            qWarning() << "UAVTalk - closing active transaction for object" << trans->respObjId;
+	            objTransactions->remove(instId);
+	            delete trans;
+	        }
+	        transMap.remove(objId);
+	        delete objTransactions;
+	    }
+*/	    
 	}
 
 	/**
@@ -907,13 +973,14 @@ public class UAVTalk {
 	}
 
 	private OnTransactionCompletedListener transactionListener = null;
+
 	abstract class OnTransactionCompletedListener {
     	abstract void TransactionSucceeded(UAVObject data);
     	abstract void TransactionFailed(UAVObject data);
     };
+
     void setOnTransactionCompletedListener(OnTransactionCompletedListener onTransactionListener) {
     	this.transactionListener = onTransactionListener;
     }
-
 
 }
