@@ -143,7 +143,8 @@ public class UAVTalk {
         public long respObjId;
         public long respInstId;
 	}
-	
+ 
+		 
 	Map transactionMap = new HashMap(); 
 	
 	// Variables used by the receive state machine
@@ -160,6 +161,10 @@ public class UAVTalk {
 	int packetSize;
 	RxStateType rxState;
 	ComStats stats = new ComStats();
+	
+	//! Currently only one UAVTalk transaction is permitted at a time.  If this is null none are in process
+	//! otherwise points to the pending object
+	UAVObject respObj;
 
 	/**
 	 * Comm stats
@@ -228,10 +233,10 @@ public class UAVTalk {
 
 	    if (allInstances) {
 	        instId = ALL_INSTANCES;
-	    } else if (obj) {
+	    } else if (obj != null) {
 	        instId = obj.getInstID();
 	    }
-	    bool success = false;
+	    boolean success = false;
 		if (acked) {
 			success = objectTransaction(TYPE_OBJ_ACK, obj.getObjID(), instId, obj);
 		} else {
@@ -252,7 +257,7 @@ public class UAVTalk {
 
 	    if (allInstances) {
 	        instId = ALL_INSTANCES;
-	    } else if (obj) {
+	    } else if (obj != null) {
 	        instId = obj.getInstID();
 	    }
 		return objectTransaction(TYPE_OBJ_REQ, obj.getObjID(), instId, obj);
@@ -264,7 +269,7 @@ public class UAVTalk {
 	 * @return True if that object was pending, False otherwise
 	 */
 	public boolean cancelPendingTransaction(UAVObject obj) {
-		synchronized (transMap) {
+		synchronized (transactionMap) {
 			Transaction trans = findTransaction(obj.getObjID(), obj.getInstID()); 
 			if (trans != null) {
 				closeTransaction(trans);
@@ -297,7 +302,7 @@ public class UAVTalk {
 				return false;
 			}
 		} else if (type == TYPE_OBJ) {
-			return transmitObject(type, objId, instId, obj)
+			return transmitObject(type, objId, instId, obj);
 		} else {
 			return false;
 		}
@@ -341,8 +346,8 @@ public class UAVTalk {
 	public boolean processInputByte(int rxbyte) throws IOException {
 		Assert.assertNotNull(objMngr);
 
-	    if (rxState == RxStateType.STATE_COMPLETE || RxStateType.rxState == STATE_ERROR) {
-	        rxState = STATE_SYNC;
+	    if (rxState == RxStateType.STATE_COMPLETE || rxState == RxStateType.STATE_ERROR) {
+	        rxState = RxStateType.STATE_SYNC;
 	    }
 
 		// Only need to synchronize this method on the state machine state
@@ -601,7 +606,7 @@ public class UAVTalk {
 				obj = updateObject(objId, instId, data);
 				// Transmit ACK
 				if (obj != null) {
-					error = !transmitObject(TYPE_ACK, obj, false);
+					error = !transmitObject(TYPE_ACK, objId, instId,obj);
 				} else {
 					error = true;
 				}
@@ -621,7 +626,7 @@ public class UAVTalk {
 			}
 			// If object was found transmit it
 			if (obj != null) {
-				error != transmitObject(TYPE_OBJ, obj, allInstances);
+				error = !transmitObject(TYPE_OBJ, objId, instId, obj);
 			} else {
 				error = true;
 			}
@@ -766,7 +771,7 @@ public class UAVTalk {
 		// 2. transactionTimeout (locks transInfo) -> sendObjectRequest -> ? -> setupTransaction (locks uavtalk)
 		synchronized(this) {
 		    Transaction trans = findTransaction(objId, instId);
-    		if (trans) {
+    		if (trans != null) {
         		closeTransaction(trans);
 				succeeded = true;
 		    }
@@ -825,6 +830,8 @@ public class UAVTalk {
 				ret = transmitSingleObject(TYPE_ACK, objId, instId, obj);
 			}
 		}
+		
+		return ret;
 	}
 
 	/**
@@ -834,7 +841,7 @@ public class UAVTalk {
 	 * @param[in] type Transaction type \return Success (true), Failure (false)
 	 */
 	private boolean transmitSingleObject(int type, long objId, long instId, UAVObject obj) throws IOException {
-		int length;
+		int length = 0;
 
 		assert (objMngr != null && outStream != null);
 
@@ -898,7 +905,7 @@ public class UAVTalk {
 
 	private Transaction findTransaction(long objId, long instId) {
 	    // Lookup the transaction in the transaction map
-	    Map objTransactions = (Map) transMap.get(objId);
+	    Map objTransactions = (Map) transactionMap.get(objId);
 	    if (objTransactions != null) {
 	        Transaction trans = (Transaction) objTransactions.get(instId);
 	        if (trans == null) {
@@ -917,16 +924,16 @@ public class UAVTalk {
 	    trans.respObjId  = objId;
     	trans.respInstId = instId;
 
-		Map objTransactions = (Map) transMap.get(trans.respObjId);
+		Map objTransactions = (Map) transactionMap.get(trans.respObjId);
 		if (objTransactions == null) {
-			objTransactions = new HashMap():
-			transMap.put(trans.respObjId, objTransactions); 
+			objTransactions = new HashMap();
+			transactionMap.put(trans.respObjId, objTransactions); 
 		}
 		objTransactions.put(instId, trans);
 	}
 
 	private void closeTransaction(Transaction trans) {
-	    Map objTransactions = (Map) transMap.get(trans.respObjId);
+	    Map objTransactions = (Map) transactionMap.get(trans.respObjId);
 	    if (objTransactions != null) {
 	        objTransactions.remove(trans.respInstId);
 	        // Keep the map even if it is empty
