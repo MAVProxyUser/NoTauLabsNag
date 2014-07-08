@@ -7,5 +7,6 @@
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.DEPENDENCIES"/>
 	<classpathentry kind="src" path="gen"/>
 	<classpathentry kind="lib" path="/Users/kevinfinisterre/Desktop/OP_droid_GCS/NoTauLabsNag/androidgcs/libs/android-support-v4.jar"/>
+	<classpathentry kind="lib" path="/Applications/adt-bundle-mac-x86_64-20140624/sdk/tools/support/annotations.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

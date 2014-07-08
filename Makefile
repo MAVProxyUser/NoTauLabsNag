@@ -529,7 +529,7 @@ androidgcs_install: $(ANDROIDGCS_OUT_DIR)/bin/androidgcs-$(ANDROIDGCS_BUILD_CONF
 #UAVO_GIT_VERSIONS := 85c222e # 14.01
 #UAVO_GIT_VERSIONS := b58620c # ???
 #UAVO_GIT_VERSIONS := c267d73 # 13.06.04
-UAVO_GIT_VERSIONS := 5e14f53 b58620c c267d73
+UAVO_GIT_VERSIONS := 5e14f53 b58620c c267d73 831817e
 
 # All versions includes also the current source tree UAVO hash
 UAVO_ALL_VERSIONS := $(UAVO_GIT_VERSIONS) srctree
