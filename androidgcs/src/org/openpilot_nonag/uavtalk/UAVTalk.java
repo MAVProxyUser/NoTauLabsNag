@@ -194,7 +194,6 @@ public class UAVTalk {
 
 		// mutex = new QMutex(QMutex::Recursive);
 
-		respObj = null;
 		resetStats();
 		rxTmpBuffer = ByteBuffer.allocate(4);
 		rxTmpBuffer.order(ByteOrder.LITTLE_ENDIAN);
@@ -274,8 +273,8 @@ public class UAVTalk {
 			if (trans != null) {
 				closeTransaction(trans);
 				if (transactionListener != null) {
-					Log.d(TAG,"Canceling transaction: " + respObj.getName());
-					transactionListener.TransactionFailed(respObj);
+					Log.d(TAG,"Canceling transaction: " + obj);
+					transactionListener.TransactionFailed(obj);
 				}
 				return true;
 			} else {
