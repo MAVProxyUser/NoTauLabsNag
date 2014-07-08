@@ -65,6 +65,7 @@
             -post-package
             -post-build
             -pre-clean
+            -Xlint:unchecked
     -->
     <import file="custom_rules.xml" optional="true" />
 

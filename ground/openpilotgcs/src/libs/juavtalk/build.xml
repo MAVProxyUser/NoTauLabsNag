@@ -10,7 +10,9 @@
   <target name="compile" depends="clean">
     <mkdir dir="${build.dir}" />
     <mkdir dir="${classes.dir}" />
-    <javac srcdir="${src.dir}" destdir="${classes.dir}" />
+    <javac srcdir="${src.dir}" destdir="${classes.dir}" debug="true">
+        <compilerarg value="-Xlint:unchecked" />
+    </javac>
   </target>
   
   <target name="jar" depends="compile">
