@@ -91,7 +91,6 @@ typedef struct  {
     UpdateMode flightTelemetryUpdateMode; /** Update mode used by the autopilot (UpdateMode) */
     int flightTelemetryUpdatePeriod; /** Update period used by the autopilot (only if telemetry mode is PERIODIC) */
     bool       gcsTelemetryAcked;
-    bool       LoggingAcked;
     UpdateMode gcsTelemetryUpdateMode; /** Update mode used by the GCS (UpdateMode) */
     int gcsTelemetryUpdatePeriod; /** Update period used by the GCS (only if telemetry mode is PERIODIC) */
     UpdateMode loggingUpdateMode; /** Update mode used by the logging module (UpdateMode) */

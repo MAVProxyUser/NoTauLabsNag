@@ -192,6 +192,7 @@ public abstract class UAVObject {
 	public final static int UAVOBJ_GCS_TELEMETRY_ACKED_SHIFT = 3;
 	public final static int UAVOBJ_TELEMETRY_UPDATE_MODE_SHIFT = 4;
 	public final static int UAVOBJ_GCS_TELEMETRY_UPDATE_MODE_SHIFT = 6;
+	public final static int UAVOBJ_LOGGING_UPDATE_MODE_SHIFT = 8;
 	public final static int UAVOBJ_UPDATE_MODE_MASK = 0x3;
 
 	public final static class Metadata {
@@ -210,6 +211,7 @@ public abstract class UAVObject {
 		 *      3    gcsTelemetryAcked          Defines if an ack is required for the transactions of this object (1:acked, 0:not acked)
 		 *    4-5    telemetryUpdateMode        Update mode used by the telemetry module (UAVObjUpdateMode)
 		 *    6-7    gcsTelemetryUpdateMode     Update mode used by the GCS (UAVObjUpdateMode)
+		 *    8-9    loggingUpdateMode          Update mode used by the logging module (UAVObjUpdateMode)
 		 */
 		public int flags; /** Defines flags for update and logging modes and whether an update should be ACK'd (bits defined above) */
 
@@ -221,6 +223,7 @@ public abstract class UAVObject {
 
 		/** Update period used by the GCS (only if telemetry mode is PERIODIC) */
 		public int loggingUpdatePeriod;
+		
 		/**
 		 * Update period used by the logging module (only if logging mode is
 		 * PERIODIC)
@@ -790,7 +793,7 @@ public abstract class UAVObject {
 	 * Return a string with the object information (only the header)
 	 */
 	public String toStringBrief() {
-		return getName(); // + " (" + Integer.toHexString(getObjID()) + " " + Integer.toHexString(getInstID()) + " " + getNumBytes() + ")\n";
+		return getName() + " (" + Long.toHexString(getObjID()) + ":" + getInstID() + " " + getNumBytes() + ")";
 	}
 
 	/**

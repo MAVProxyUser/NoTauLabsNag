@@ -55,14 +55,14 @@ public class Telemetry {
 
 	public class TelemetryStats {
 		public int txBytes;
+        public int txObjectBytes;
+        public int txObjects;
+        public int txErrors;
+        public int txRetries;
 		public int rxBytes;
-		public int txObjectBytes;
 		public int rxObjectBytes;
 		public int rxObjects;
-		public int txObjects;
-		public int txErrors;
 		public int rxErrors;
-		public int txRetries;
 	};
 
 	class ObjectTimeInfo {
@@ -431,14 +431,14 @@ public class Telemetry {
 		// Update stats
 		TelemetryStats stats = new TelemetryStats();
 		stats.txBytes = utalkStats.txBytes;
+        stats.txObjectBytes = utalkStats.txObjectBytes;
+        stats.txObjects = utalkStats.txObjects;
+        stats.txErrors = utalkStats.txErrors + txErrors;
+        stats.txRetries = txRetries;
 		stats.rxBytes = utalkStats.rxBytes;
-		stats.txObjectBytes = utalkStats.txObjectBytes;
 		stats.rxObjectBytes = utalkStats.rxObjectBytes;
 		stats.rxObjects = utalkStats.rxObjects;
-		stats.txObjects = utalkStats.txObjects;
-		stats.txErrors = utalkStats.txErrors + txErrors;
 		stats.rxErrors = utalkStats.rxErrors;
-		stats.txRetries = txRetries;
 
 		// Done
 		return stats;

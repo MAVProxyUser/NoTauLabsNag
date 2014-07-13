@@ -487,6 +487,7 @@ public class OPTelemetryService extends Service {
 
 		Thread.currentThread().setContextClassLoader(getClass().getClassLoader()); // does this help?
 		DexClassLoader loader = new DexClassLoader(classpath, dexDir.getAbsolutePath(), null, getClassLoader());
+        Log.d(TAG, "Done dex loader");
 
 		try {
 			Class<?> initClass = loader.loadClass("org.openpilot_nonag.uavtalk.uavobjects.UAVObjectsInitialize");

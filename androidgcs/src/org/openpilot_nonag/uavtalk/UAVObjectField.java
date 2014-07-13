@@ -413,23 +413,40 @@ public class UAVObjectField {
     	}
     }
 
-    public double getDouble() { return getDouble(0); };
+    public int getInt() { return getInt(0); };
     @SuppressWarnings("unchecked")
-	public double getDouble(int index) {
+	public int getInt(int index) {
     	switch (type) {
     	case ENUM:
     		return ((List<Byte>)data).get(index);
     	default:
     		break;
     	}
-    	return ((Number) getValue(index)).doubleValue();
+    	return ((Number) getValue(index)).intValue();
+    }
+
+    public void setInt(int value) { setInt(value, 0); };
+    public void setInt(int value, int index) {
+    	setValue(value, index);
+    }
+
+    public double getDouble() { return getDouble(0); };
+    @SuppressWarnings("unchecked")
+    public double getDouble(int index) {
+        switch (type) {
+        case ENUM:
+            return ((List<Byte>)data).get(index);
+        default:
+            break;
+        }
+        return ((Number) getValue(index)).doubleValue();
     }
 
     public void setDouble(double value) { setDouble(value, 0); };
     public void setDouble(double value, int index) {
-    	setValue(value, index);
+        setValue(value, index);
     }
-
+    
     public int getDataOffset() {
     	return offset;
     }

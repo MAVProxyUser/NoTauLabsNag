@@ -40,7 +40,7 @@ import android.util.Log;
 public class UAVTalk {
 
 	static final String TAG = "UAVTalk";
-	public static int LOGLEVEL = 0;
+	public static int LOGLEVEL = 4;
 	public static boolean VERBOSE = LOGLEVEL > 3;
 	public static boolean WARN = LOGLEVEL > 2;
 	public static boolean DEBUG = LOGLEVEL > 1;
@@ -143,9 +143,8 @@ public class UAVTalk {
         public long respObjId;
         public long respInstId;
 	}
- 
 		 
-	Map transactionMap = new HashMap(); 
+	Map<Long, Map<Long, Transaction>> transMap = new HashMap<Long, Map<Long, Transaction>>(); 
 	
 	// Variables used by the receive state machine
 	ByteBuffer rxTmpBuffer /* 4 */;
@@ -171,13 +170,17 @@ public class UAVTalk {
 	 */
 	public class ComStats {
 		public int txBytes = 0;
+        public int txObjectBytes = 0;
+        public int txObjects = 0;
+        public int txErrors = 0;
 		public int rxBytes = 0;
-		public int txObjectBytes = 0;
 		public int rxObjectBytes = 0;
 		public int rxObjects = 0;
-		public int txObjects = 0;
-		public int txErrors = 0;
 		public int rxErrors = 0;
+	}
+	
+	public static String toHex(long l) {
+        return String.format("%08X", l);
 	}
 
 	/**
@@ -268,12 +271,12 @@ public class UAVTalk {
 	 * @return True if that object was pending, False otherwise
 	 */
 	public boolean cancelPendingTransaction(UAVObject obj) {
-		synchronized (transactionMap) {
+		synchronized (transMap) {
 			Transaction trans = findTransaction(obj.getObjID(), obj.getInstID()); 
 			if (trans != null) {
 				closeTransaction(trans);
 				if (transactionListener != null) {
-					Log.d(TAG,"Canceling transaction: " + obj);
+					Log.d(TAG,"Canceling transaction: " + toHex(obj.getObjID()) + " " + obj.getName());
 					transactionListener.TransactionFailed(obj);
 				}
 				return true;
@@ -325,8 +328,6 @@ public class UAVTalk {
 
 		processInputByte(val);
 		if (rxState == RxStateType.STATE_COMPLETE) {
-			if (DEBUG) Log.d(TAG,"Received");
-
 			synchronized(rxState) {
 				rxBuffer.position(0);
 				receiveObject(rxType, rxObjId, rxInstId, rxBuffer);
@@ -464,7 +465,7 @@ public class UAVTalk {
 			{
 				UAVObject rxObj = objMngr.getObject(rxObjId);
 				if (rxObj == null) {
-					if (WARN) Log.w(TAG, "Unknown ID: " + rxObjId);
+					if (WARN) Log.w(TAG, "Unknown ID: " + toHex(rxObjId));
 					stats.rxErrors++;
 					rxState = RxStateType.STATE_ERROR;
 					break;
@@ -567,7 +568,7 @@ public class UAVTalk {
 	 */
 	public boolean receiveObject(int type, long objId, long instId, ByteBuffer data) throws IOException {
 
-		if (DEBUG) Log.d(TAG, "Received object ID: " + objId);
+		if (DEBUG) Log.d(TAG, "Received object : " + toHex(objId));
 		assert (objMngr != null);
 
 		UAVObject obj = null;
@@ -579,7 +580,7 @@ public class UAVTalk {
 		case TYPE_OBJ:
 			// All instances, not allowed for OBJ messages
 			if (!allInstances) {
-				if (DEBUG) Log.d(TAG,"Received object: " + objMngr.getObject(objId).getName());
+				if (DEBUG) Log.d(TAG, "Received object: " + objMngr.getObject(objId).getName());
 
 				// Get object and update its data
 				obj = updateObject(objId, instId, data);
@@ -600,7 +601,7 @@ public class UAVTalk {
 		case TYPE_OBJ_ACK:
 			// All instances, not allowed for OBJ_ACK messages
 			if (!allInstances) {
-				 if (DEBUG) Log.d(TAG,"Received object ack: " + objId + " " + objMngr.getObject(objId).getName());
+				 if (DEBUG) Log.d(TAG,"Received object ack: " + objMngr.getObject(objId).getName());
 				// Get object and update its data
 				obj = updateObject(objId, instId, data);
 				// Transmit ACK
@@ -616,8 +617,7 @@ public class UAVTalk {
 		
 		case TYPE_OBJ_REQ:
 			// Get object, if all instances are requested get instance 0 of the object
-			if (DEBUG) Log.d(TAG,"Received object request: " + objId + " " +
-			 objMngr.getObject(objId).getName());
+			if (DEBUG) Log.d(TAG,"Received object request: " + objMngr.getObject(objId).getName());
 			if (allInstances) {
 				obj = objMngr.getObject(objId);
 			} else {
@@ -638,7 +638,7 @@ public class UAVTalk {
 		case TYPE_ACK:
 			// All instances, not allowed for ACK messages
 			if (!allInstances) {
-				if (DEBUG) Log.d(TAG,"Received ack: " + objId + " " + objMngr.getObject(objId).getName());
+				if (DEBUG) Log.d(TAG,"Received ack: " + objMngr.getObject(objId).getName());
 				// Get object
 				obj = objMngr.getObject(objId, instId);
 				// Check if an ack is pending
@@ -651,7 +651,7 @@ public class UAVTalk {
 			break;
 
 	    case TYPE_NACK:
-        	if (DEBUG) Log.d(TAG, "Received NAK: " + objId + " " + objMngr.getObject(objId).getName());
+        	if (DEBUG) Log.d(TAG, "Received nak: " + objMngr.getObject(objId).getName());
         	// All instances, not allowed for NACK messages
 	        if (!allInstances) {
 	            // Get object
@@ -726,10 +726,10 @@ public class UAVTalk {
 	 * and if yes complete it.
 	 */
 	private synchronized void updateAck(int type, long objId, long instId, UAVObject obj) {
-		if (DEBUG) Log.d(TAG, "Received ack: " + obj.getName());
 		Assert.assertNotNull(obj);
 	    Transaction trans = findTransaction(objId, instId);
 	    if (trans != null && trans.respType == type) {
+            if (DEBUG) Log.d(TAG, "Transaction acked: " + obj.getName());
         	if (trans.respInstId == ALL_INSTANCES) {
             	if (instId == 0) {
 	                // last instance received, complete transaction
@@ -771,6 +771,7 @@ public class UAVTalk {
 		synchronized(this) {
 		    Transaction trans = findTransaction(objId, instId);
     		if (trans != null) {
+                if (DEBUG) Log.d(TAG, "Transaction nacked: " + obj.getName());
         		closeTransaction(trans);
 				succeeded = true;
 		    }
@@ -798,6 +799,8 @@ public class UAVTalk {
         	instId = 0;
     	}
     	boolean allInstances = (instId == ALL_INSTANCES);
+
+        if (DEBUG) Log.d(TAG, "Transmitting " + getTypeString(type) + " " + toHex(objId) + " " + instId + " " + (obj != null ? obj.toStringBrief() : ""));
 
 		// Process message type
 		boolean ret = false;
@@ -828,6 +831,10 @@ public class UAVTalk {
 			if (!allInstances) {
 				ret = transmitSingleObject(TYPE_ACK, objId, instId, obj);
 			}
+		}
+		
+		if (!ret) {
+            Log.e(TAG, "Failed transmitting " + getTypeString(type) + " " + toHex(objId) + " " + instId + " " + (obj != null ? obj.getName() : ""));
 		}
 		
 		return ret;
@@ -865,7 +872,7 @@ public class UAVTalk {
 
 		// Check length
 		if (length >= MAX_PAYLOAD_LENGTH) {
-	        //++stats.txErrors;
+	        ++stats.txErrors;
 			return false;
 		}
 
@@ -873,11 +880,11 @@ public class UAVTalk {
 		if (length > 0)
 			try {
 				if (obj.pack(bbuf) == 0) {
-			        //++stats.txErrors;
+			        ++stats.txErrors;
 					return false;
 				}
 			} catch (Exception e) {
-		        //++stats.txErrors;
+		        ++stats.txErrors;
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 				return false;
@@ -904,12 +911,12 @@ public class UAVTalk {
 
 	private Transaction findTransaction(long objId, long instId) {
 	    // Lookup the transaction in the transaction map
-	    Map objTransactions = (Map) transactionMap.get(objId);
+	    Map<Long, Transaction> objTransactions = transMap.get(objId);
 	    if (objTransactions != null) {
-	        Transaction trans = (Transaction) objTransactions.get(instId);
+	        Transaction trans = objTransactions.get(instId);
 	        if (trans == null) {
 	            // see if there is an ALL_INSTANCES transaction
-	            trans = (Transaction) objTransactions.get(ALL_INSTANCES);
+	            trans = objTransactions.get(ALL_INSTANCES);
 	        }
 	        return trans;
 	    }
@@ -923,16 +930,16 @@ public class UAVTalk {
 	    trans.respObjId  = objId;
     	trans.respInstId = instId;
 
-		Map objTransactions = (Map) transactionMap.get(trans.respObjId);
+		Map<Long, Transaction> objTransactions = transMap.get(trans.respObjId);
 		if (objTransactions == null) {
-			objTransactions = new HashMap();
-			transactionMap.put(trans.respObjId, objTransactions); 
+			objTransactions = new HashMap<Long, Transaction>();
+			transMap.put(trans.respObjId, objTransactions); 
 		}
 		objTransactions.put(instId, trans);
 	}
 
 	private void closeTransaction(Transaction trans) {
-	    Map objTransactions = (Map) transactionMap.get(trans.respObjId);
+	    Map<Long, Transaction> objTransactions = transMap.get(trans.respObjId);
 	    if (objTransactions != null) {
 	        objTransactions.remove(trans.respInstId);
 	        // Keep the map even if it is empty
@@ -987,6 +994,23 @@ public class UAVTalk {
 
     void setOnTransactionCompletedListener(OnTransactionCompletedListener onTransactionListener) {
     	this.transactionListener = onTransactionListener;
+    }
+
+
+    public final static String getTypeString(int type) {
+        switch(type) {
+            case TYPE_OBJ:
+                return "object";
+            case TYPE_OBJ_ACK:
+                return "object (acked)";
+            case TYPE_OBJ_REQ:
+                return "object request";
+            case TYPE_ACK:
+                return "ack";
+            case TYPE_NACK:
+                return "nack";
+        }           
+        return "unknown type";
     }
 
 }

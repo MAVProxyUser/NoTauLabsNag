@@ -41,7 +41,7 @@ import android.util.Log;
 public class TelemetryMonitor extends Observable {
 
 	private static final String TAG = "TelemetryMonitor";
-	public static final int LOGLEVEL = 0;
+	public static final int LOGLEVEL = 3;
 	public static boolean DEBUG = LOGLEVEL > 2;
 	public static final boolean WARN = LOGLEVEL > 1;
 	public static final boolean ERROR = LOGLEVEL > 0;
@@ -291,12 +291,18 @@ public class TelemetryMonitor extends Observable {
 		// Update stats object
 		gcsStatsObj.getField("RxDataRate").setDouble(telStats.rxBytes / dT);
 		gcsStatsObj.getField("TxDataRate").setDouble(telStats.txBytes / dT);
-		UAVObjectField field = gcsStatsObj.getField("RxFailures");
-		field.setDouble(field.getDouble() + telStats.rxErrors);
-		field = gcsStatsObj.getField("TxFailures");
-		field.setDouble(field.getDouble() + telStats.txErrors);
+		
+		UAVObjectField field;
+        field = gcsStatsObj.getField("TxBytes");
+        field.setInt(field.getInt() + telStats.txBytes);
+        field = gcsStatsObj.getField("TxFailures");
+        field.setInt(field.getInt() + telStats.txErrors);
 		field = gcsStatsObj.getField("TxRetries");
-		field.setDouble(field.getDouble() + telStats.txRetries);
+		field.setInt(field.getInt() + telStats.txRetries);
+        field = gcsStatsObj.getField("RxBytes");
+        field.setInt(field.getInt() + telStats.rxBytes);
+        field = gcsStatsObj.getField("RxFailures");
+        field.setInt(field.getInt() + telStats.rxErrors);
 
 		tel.resetStats();
 

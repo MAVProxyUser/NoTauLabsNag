@@ -92,9 +92,6 @@ void replaceCommonTags(QString & out, ObjectInfo *info)
     // Replace $(GCSTELEM_ACKED) tag
     out.replace(QString("$(GCSTELEM_ACKED)"), boolTo01String(info->gcsTelemetryAcked));
     out.replace(QString("$(GCSTELEM_ACKEDTF)"), boolToTRUEFALSEString(info->gcsTelemetryAcked));
-    // Replace $(GCSTELEM_ACKED) tag
-    out.replace(QString("$(LOGGING_ACKED)"), boolTo01String(info->LoggingAcked));
-    out.replace(QString("$(LOGGING_ACKEDTF)"), boolToTRUEFALSEString(info->LoggingAcked));
     // Replace $(GCSTELEM_UPDATEMODE) tag
     value = updateModeStr[info->gcsTelemetryUpdateMode];
     out.replace(QString("$(GCSTELEM_UPDATEMODE)"), value);
