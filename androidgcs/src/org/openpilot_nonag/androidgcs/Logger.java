@@ -67,7 +67,7 @@ public class Logger extends ObjectManagerActivity {
 		File root = Environment.getExternalStorageDirectory();
 
 		// Make the directory if it doesn't exist
-		File logDirectory = new File(root, "/OpenPilotFuckYeah");
+		File logDirectory = new File(root, "/OpenPilotGCS");
 		logDirectory.mkdirs();
 
 		Date d = new Date();

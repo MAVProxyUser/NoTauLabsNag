@@ -6,6 +6,7 @@ rm -rf ../OpenPilot/androidgcs/
 cp -rfv ./* ../OpenPilot/
 cd ../OpenPilot
 rm -rf ../OpenPilot/androidgcs/bin
+ android update project -s --path ./androidgcs
 make androidgcs_clean
 make androidgcs V=1
 mv build/androidgcs/bin/androidgcs-release.apk . 
