@@ -261,7 +261,7 @@ public class TelemetryMonitor extends Observable {
 			Log.d(TAG, "Flight Status: "
 					+ flightStatsObj.getField("Status").getValue());
 		if (((String) gcsStatsObj.getField("Status").getValue())
-				.compareTo("Connected") != 0
+				.compareTo("Connected") == 0
 				|| ((String) flightStatsObj.getField("Status").getValue())
 						.compareTo("Connected") == 0) {
 			processStatsUpdates();

@@ -415,7 +415,7 @@ public class UAVTalk {
 					|| packetSize > HEADER_LENGTH + MAX_PAYLOAD_LENGTH) {
 				// incorrect packet size
 				//stats.rxErrors++;
-				rxState = RxStateType.STATE_SYNC;
+				rxState = RxStateType.STATE_ERROR;
 				break;
 			}
 
@@ -540,7 +540,7 @@ public class UAVTalk {
 				// size
 				if (WARN) Log.w(TAG,"Bad size");
 				stats.rxErrors++;
-				rxState = RxStateType.STATE_SYNC;
+				rxState = RxStateType.STATE_ERROR;
 				break;
 			}
 
@@ -852,6 +852,13 @@ public class UAVTalk {
 		assert (objMngr != null && outStream != null);
 
 	    // IMPORTANT : obj can be null (when type is NACK for example)
+
+		// Determine data length
+		if (type == TYPE_OBJ_REQ || type == TYPE_ACK || type == TYPE_NACK) {
+			length = 0;
+		} else {
+			length = obj.getNumBytes();
+		}
 	
 		ByteBuffer bbuf = ByteBuffer.allocate(MAX_PACKET_LENGTH);
 		bbuf.order(ByteOrder.LITTLE_ENDIAN);
@@ -863,12 +870,6 @@ public class UAVTalk {
 		bbuf.putInt((int) objId);
 		bbuf.putShort((short) (instId & 0xffff));
 	
-		// Determine data length
-		if (type == TYPE_OBJ_REQ || type == TYPE_ACK || type == TYPE_NACK) {
-			length = 0;
-		} else {
-			length = obj.getNumBytes();
-		}
 
 		// Check length
 		if (length >= MAX_PAYLOAD_LENGTH) {
