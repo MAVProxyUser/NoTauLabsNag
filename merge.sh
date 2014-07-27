@@ -5,6 +5,8 @@ fi
 rm -rf ../OpenPilot/androidgcs/
 cp -rfv ./* ../OpenPilot/
 cd ../OpenPilot
+git tag -l
+git checkout tags/RELEASE-14.06-RC4
 rm -rf ../OpenPilot/androidgcs/bin
  android update project -s --path ./androidgcs
 make androidgcs_clean
