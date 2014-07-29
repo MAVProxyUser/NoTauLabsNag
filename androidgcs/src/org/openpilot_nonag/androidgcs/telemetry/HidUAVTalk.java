@@ -66,7 +66,7 @@ import android.util.Log;
 public class HidUAVTalk extends TelemetryTask {
 
 	private static final String TAG = HidUAVTalk.class.getSimpleName();
-	public static final int LOGLEVEL = 1;
+	public static final int LOGLEVEL = 3;
 	public static final boolean DEBUG = LOGLEVEL > 2;
 	public static final boolean WARN = LOGLEVEL > 1;
 	public static final boolean ERROR = LOGLEVEL > 0;
@@ -481,8 +481,9 @@ public class HidUAVTalk extends TelemetryTask {
 		synchronized(readRequest) {
 			if(!readRequest.queue(readBuffer, MAX_HID_PACKET_SIZE)) {
 				if (ERROR) Log.e(TAG, "Failed to queue request");
-			} else
+			} else {
 				readPending = true;
+			}
 		}
 	}
 
@@ -514,9 +515,9 @@ public class HidUAVTalk extends TelemetryTask {
 				byte[] dst = new byte[dataSize];
 				readBuffer.position(2);
 				readBuffer.get(dst, 0, dataSize);
-				if (DEBUG) Log.d(TAG, "Entered read");
+				if (DEBUG) Log.d(TAG, "readData - before write:");
 				inTalkStream.write(dst);
-				if (DEBUG) Log.d(TAG, "Got read: " + dataSize + " bytes");
+				if (DEBUG) Log.d(TAG, "readData - after write: " + dataSize + " bytes");
 			}
 
 			// Queue another read
@@ -624,10 +625,13 @@ public class HidUAVTalk extends TelemetryTask {
 			if (shutdown)
 				throw new IOException();
 
+			if (DEBUG) Log.d(TAG, "write : before synchronized");
 			synchronized(data) {
+				if (DEBUG) Log.d(TAG, "write : in synchronized");
 				data.put(b);
 				data.notify();
 			}
+			if (DEBUG) Log.d(TAG, "write : after synchronized");
 		}
 
 	};
@@ -699,12 +703,13 @@ public class HidUAVTalk extends TelemetryTask {
 			return true;
 		}
 
-		public ByteBuffer get(byte[] dst, int offset, int size) {
+		public ByteBuffer get(byte[] dst, int offset, int byte_size) {
 			synchronized(buf) {
 				buf.flip();
-				buf.get(dst, offset, size);
+				buf.get(dst, offset, byte_size);
 				buf.compact();
-				this.size -= size;
+				if (DEBUG) Log.d(TAG, "ByteBuffer.get  Size:" + size + " data length: " + byte_size);
+				this.size -= byte_size;
 			}
 			return buf;
 		}
@@ -712,6 +717,7 @@ public class HidUAVTalk extends TelemetryTask {
 		public int getByteBlocking() throws InterruptedException {
 			synchronized(buf) {
 				if (size == 0) {
+					if (DEBUG) Log.d(TAG, "size = 0");
 					buf.wait();
 				}
 				int val = byteToInt(buf.get(0));
@@ -721,5 +727,7 @@ public class HidUAVTalk extends TelemetryTask {
 				return val;
 			}
 		}
+
+		
 	}
 }

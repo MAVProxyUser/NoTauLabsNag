@@ -65,7 +65,7 @@ public class PFD extends ObjectManagerFragment {
 		if (DEBUG)
 			Log.d(TAG, "On connected");
 
-		UAVObject obj = objMngr.getObject("AttitudeActual");
+		UAVObject obj = objMngr.getObject("AttitudeState");
 		if (obj != null)
 			registerObjectUpdates(obj);
 		objectUpdated(obj);
@@ -83,23 +83,23 @@ public class PFD extends ObjectManagerFragment {
 		double roll;
                 try
                 {
-                        pitch = obj.getField("Pitch").getDouble();
-                        roll = obj.getField("Roll").getDouble();
+                    pitch = obj.getField("Pitch").getDouble();
+                    roll = obj.getField("Roll").getDouble();
 
-			// TODO: These checks, while sensible, are necessary because the
-			// callbacks aren't
-			// removed when we switch to different activities sharing this fragment
-			Activity parent = getActivity();
-			AttitudeView attitude = null;
-			if (parent != null)
-				attitude = (AttitudeView) parent.findViewById(R.id.attitude_view);
-			if (attitude != null) {
-				attitude.setRoll(roll);
-				attitude.setPitch(pitch);
-				attitude.invalidate();
-			}
-	
-                }
+					// TODO: These checks, while sensible, are necessary because the
+					// callbacks aren't
+					// removed when we switch to different activities sharing this fragment
+					Activity parent = getActivity();
+					AttitudeView attitude = null;
+					if (parent != null)
+						attitude = (AttitudeView) parent.findViewById(R.id.attitude_view);
+					if (attitude != null) {
+						attitude.setRoll(roll);
+						attitude.setPitch(pitch);
+						attitude.invalidate();
+					}
+				
+			    }
                 catch (NullPointerException e)
                 {
                         //Toast.makeText(this, "Catching Nulls on UAVObjects, link may be failing", Toast.LENGTH_SHORT).show();

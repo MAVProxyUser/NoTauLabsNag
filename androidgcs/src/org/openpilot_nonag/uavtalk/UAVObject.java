@@ -150,6 +150,23 @@ public abstract class UAVObject {
 		}
 	}
 
+	private final CallbackListener updatedPeriodicListeners = new CallbackListener(this);
+	public void addUpdatedPeriodicObserver(Observer o) {
+		synchronized(updatedPeriodicListeners) {
+			updatedPeriodicListeners.addObserver(o);
+		}
+	}
+	public void removeUpdatedPeriodicObserver(Observer o) {
+		synchronized(updatedPeriodicListeners) {
+			updatedPeriodicListeners.deleteObserver(o);
+		}
+	}
+	void updatedPeriodic() {
+		synchronized(updatedPeriodicListeners) {
+			updatedPeriodicListeners.event();
+		}
+	}
+
 	private final CallbackListener updateRequestedListeners = new CallbackListener(this);
 	public void addUpdateRequestedObserver(Observer o) {
 		synchronized(updateRequestedListeners) {

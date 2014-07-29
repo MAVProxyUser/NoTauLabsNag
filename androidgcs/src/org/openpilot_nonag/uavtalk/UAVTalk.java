@@ -320,8 +320,6 @@ public class UAVTalk {
 		//inStream.wait();
 		val = inStream.read();
 
-		if (VERBOSE) Log.v(TAG, "Read: " + val);
-
 		if (val == -1) {
 			return false;
 		}
@@ -531,7 +529,7 @@ public class UAVTalk {
 			if (rxCS != rxCSPacket) { // packet error - faulty CRC
 				if (WARN) Log.w(TAG,"Bad crc");
 				stats.rxErrors++;
-				rxState = RxStateType.STATE_SYNC;
+				rxState = RxStateType.STATE_ERROR;
 				break;
 			}
 
@@ -806,6 +804,7 @@ public class UAVTalk {
 		boolean ret = false;
 		if (type == TYPE_OBJ || type == TYPE_OBJ_ACK) {
 			if (allInstances) {
+				if (DEBUG) Log.d(TAG, "type == TYPE_OBJ || type == TYPE_OBJ_ACK && allInstances");
     	        // Send all instances in reverse order
 	            // This allows the receiver to detect when the last object has been received (i.e. when instance 0 is received)
 	            ret = true;
@@ -823,11 +822,14 @@ public class UAVTalk {
 					}
 				}
 			} else {
+				if (DEBUG) Log.d(TAG, "transmitSingleObject " + getTypeString(type) + " " + toHex(objId) + " " + instId + " " + (obj != null ? obj.toStringBrief() : ""));
 				ret = transmitSingleObject(type, objId, instId, obj);
 			}
 		} else if (type == TYPE_OBJ_REQ) {
+			if (DEBUG) Log.d(TAG, "transmitSingleObject : type = TYPE_OBJ_REQ " + getTypeString(type) + " " + toHex(objId) + " " + instId + " " + (obj != null ? obj.toStringBrief() : ""));
 			ret = transmitSingleObject(TYPE_OBJ_REQ, objId, instId, obj);
 		} else if (type == TYPE_ACK) {
+			if (DEBUG) Log.d(TAG, "transmitSingleObject : type = TYPE_ACK " + getTypeString(type) + " " + toHex(objId) + " " + instId + " " + (obj != null ? obj.toStringBrief() : ""));
 			if (!allInstances) {
 				ret = transmitSingleObject(TYPE_ACK, objId, instId, obj);
 			}
