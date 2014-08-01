@@ -36,11 +36,12 @@ public class Wizard extends ObjectManagerActivity {
         @Override
         public void onCreate(Bundle savedInstanceState) {
                 super.onCreate(savedInstanceState);
-                setContentView(R.layout.wizard);
+//                setContentView(R.layout.wizard);
         }
 
         @Override
         void onOPConnected() {
+	/*
                 super.onOPConnected();
 
                 if (DEBUG) Log.d(TAG, "onOPConnected()");
@@ -60,6 +61,7 @@ public class Wizard extends ObjectManagerActivity {
                 {
                         Toast.makeText(this, "Catching Nulls on UAVObjects, link may be failing", Toast.LENGTH_SHORT).show();
                 }
+*/
         }
 
 }

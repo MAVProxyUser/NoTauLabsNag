@@ -66,7 +66,7 @@ import android.util.Log;
 public class HidUAVTalk extends TelemetryTask {
 
 	private static final String TAG = HidUAVTalk.class.getSimpleName();
-	public static final int LOGLEVEL = 3;
+	public static final int LOGLEVEL = 1;
 	public static final boolean DEBUG = LOGLEVEL > 2;
 	public static final boolean WARN = LOGLEVEL > 1;
 	public static final boolean ERROR = LOGLEVEL > 0;

@@ -497,7 +497,7 @@ androidgcs: uavobjects_java uavo-collections_java
 		--name androidgcs \
 		--path ./androidgcs
 	$(V1) ant -f ./androidgcs/google-play-services_lib/build.xml \
-		$(ANT_QUIET) debug
+		$(ANT_QUIET) release
 	$(V1) $(ANT) -f ./androidgcs/build.xml \
 		$(ANT_QUIET) \
 		-Dout.dir="../$(call toprel, $(ANDROIDGCS_OUT_DIR)/bin)" \

@@ -41,7 +41,7 @@ import android.util.Log;
 public class TelemetryMonitor extends Observable {
 
 	private static final String TAG = "TelemetryMonitor";
-	public static final int LOGLEVEL = 3;
+	public static final int LOGLEVEL = 1;
 	public static boolean DEBUG = LOGLEVEL > 2;
 	public static final boolean WARN = LOGLEVEL > 1;
 	public static final boolean ERROR = LOGLEVEL > 0;
@@ -206,7 +206,7 @@ public class TelemetryMonitor extends Observable {
 			throw new Error("Got null object forom transaction queue");
 		}
 
-		if (DEBUG)
+		if (WARN)
 			Log.d(TAG, "Retrieving object: " + obj.getName());
 
 		// TODO: Does this need to stay here permanently? This appears to be
@@ -224,7 +224,7 @@ public class TelemetryMonitor extends Observable {
 	 */
 	public synchronized void transactionCompleted(UAVObject obj, boolean success)
 			throws IOException {
-		if (DEBUG)
+		if (WARN)
 			Log.d(TAG, "transactionCompleted.  Status: " + success);
 
 		// Remove the listener for the event that just finished
