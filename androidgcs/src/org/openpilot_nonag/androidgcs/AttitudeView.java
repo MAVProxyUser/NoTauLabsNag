@@ -153,9 +153,10 @@ public class AttitudeView extends View {
 		int screenSize = Math.min(PX, PY);
 		int imageHalfSize = (int) ((screenSize + screenSize * margin) / 2);
 
+		int scale = 500;
 		// This puts the image at the center of the PFD canvas (after it was
 		// translated)
-		horizon.setBounds( PX/2 - imageHalfSize, PY/2 - imageHalfSize, PX/2 + imageHalfSize, PY/2 + imageHalfSize);
+		horizon.setBounds( PX/2 - (imageHalfSize + scale), PY/2 - (imageHalfSize + scale), PX/2 + (imageHalfSize + scale), PY/2 + (imageHalfSize + scale));
 		horizon.draw(canvas);
 		canvas.restore();
 

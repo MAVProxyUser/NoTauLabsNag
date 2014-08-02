@@ -4,6 +4,30 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingTop="20px" >
+
+        <TextView
+            android:id="@+id/textViewFlightMode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.08"
+            android:paddingLeft="10px"
+            android:paddingTop="20px"
+            android:text="Stabalized1"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+        <TextView
+            android:id="@+id/textViewArmedStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Disarmed"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+    </LinearLayout>
+    
     <org.openpilot_nonag.androidgcs.AttitudeView
         android:id="@+id/attitude_view"
         android:layout_width="wrap_content"

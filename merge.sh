@@ -10,7 +10,7 @@ cd $WD
 rm -rf ../OpenPilot/androidgcs/
 cp -rfv ./* ../OpenPilot/
 rm -rf ../OpenPilot/androidgcs/bin
-android update project -s --path ./androidgcs
+#android update project -s --path ./androidgcs 
 cd ../OpenPilot
 
 make androidgcs_clean

@@ -30,26 +30,36 @@ import org.openpilot_nonag.uavtalk.UAVObject;
 import org.openpilot_nonag.uavtalk.UAVObjectManager;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import android.speech.tts.TextToSpeech;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.FragmentManager;
 import java.util.List;
+import java.util.Locale;
 
 public class PFD extends ObjectManagerFragment {
 
 	private static final String TAG = ObjectManagerFragment.class
 			.getSimpleName();
 	private static final int LOGLEVEL = 0;
-	// private static boolean WARN = LOGLEVEL > 1;
+	private static boolean WARN = LOGLEVEL > 1;
 	private static final boolean DEBUG = LOGLEVEL > 0;
+	
+	private static String preArmedStatus;
+		
+	
+	private boolean ttsInit = false;
 	
 	// @Override
 	@Override
@@ -61,12 +71,19 @@ public class PFD extends ObjectManagerFragment {
 
 	@Override
 	public void onOPConnected(UAVObjectManager objMngr) {
+
 		super.onOPConnected(objMngr);
+		
 		if (DEBUG)
 			Log.d(TAG, "On connected");
 
 		UAVObject obj = objMngr.getObject("AttitudeState");
 		if (obj != null)
+			registerObjectUpdates(obj);
+		objectUpdated(obj);
+		
+		obj = objMngr.getObject("FlightStatus");
+		if(obj != null)
 			registerObjectUpdates(obj);
 		objectUpdated(obj);
 	}
@@ -76,36 +93,82 @@ public class PFD extends ObjectManagerFragment {
 	 */
 	@Override
 	public void objectUpdated(UAVObject obj) {
+		
 		if (DEBUG)
 			Log.d(TAG, "Updated");
 
-		double pitch;
-		double roll;
-                try
-                {
-                    pitch = obj.getField("Pitch").getDouble();
-                    roll = obj.getField("Roll").getDouble();
-
-					// TODO: These checks, while sensible, are necessary because the
-					// callbacks aren't
-					// removed when we switch to different activities sharing this fragment
-					Activity parent = getActivity();
-					AttitudeView attitude = null;
-					if (parent != null)
-						attitude = (AttitudeView) parent.findViewById(R.id.attitude_view);
-					if (attitude != null) {
-						attitude.setRoll(roll);
-						attitude.setPitch(pitch);
-						attitude.invalidate();
-					}
+		if (obj.getName().compareTo("AttitudeState") == 0) {
+			double pitch;
+			double roll;
+			
+	        try
+	        {
+	            pitch = obj.getField("Pitch").getDouble();
+	            roll = obj.getField("Roll").getDouble();
+	
+				// TODO: These checks, while sensible, are necessary because the
+				// callbacks aren't
+				// removed when we switch to different activities sharing this fragment
+				Activity parent = getActivity();
+				AttitudeView attitude = null;
+				if (parent != null)
+					attitude = (AttitudeView) parent.findViewById(R.id.attitude_view);
+				if (attitude != null) {
+					attitude.setRoll(roll);
+					attitude.setPitch(pitch);
+					attitude.invalidate();
+				}
+			
+		    }
+	        catch (NullPointerException e)
+	        {
+	                //Toast.makeText(this, "Catching Nulls on UAVObjects, link may be failing", Toast.LENGTH_SHORT).show();
+	                Log.d("PFD fragment", "Catching Nulls on UAVObjects, link may be failing");
+	        }
+		}if (obj.getName().compareTo("FlightStatus") == 0) {
+			
+			String flightMode = "";
+			String armedStatus ="";
+			
+			try{
 				
-			    }
-                catch (NullPointerException e)
-                {
-                        //Toast.makeText(this, "Catching Nulls on UAVObjects, link may be failing", Toast.LENGTH_SHORT).show();
-                        Log.d("PFD fragment", "Catching Nulls on UAVObjects, link may be failing");
-                }
+				Activity parent = getActivity();
+				
+				
+				
+				String newArmed = obj.getField("Armed").getValue().toString();
+				TextView textView = (TextView)parent.findViewById(R.id.textViewArmedStatus);
+				textView.setText(newArmed);
+				textView.invalidate();
+				
+				if (newArmed.compareTo(armedStatus) != 0) {
+					armedStatus = newArmed;
+					if (armedStatus.compareTo("Arming") != 0)
+						tts.speak(newArmed, TextToSpeech.QUEUE_ADD, null);
+				}
+
+				// Announce change in flight mode
+				String newFlightMode = obj.getField("FlightMode").getValue().toString();
+				textView = (TextView)parent.findViewById(R.id.textViewFlightMode);
+				textView.setText(newFlightMode);
+				textView.invalidate();
+				if (newFlightMode.compareTo(flightMode) != 0) {
+					flightMode = newFlightMode;
+					tts.speak("Flight Mode " + flightMode, TextToSpeech.QUEUE_ADD, null);
+				}
+				
+				
+				
+			}
+			catch (NullPointerException e)
+	        {
+	                //Toast.makeText(this, "Catching Nulls on UAVObjects, link may be failing", Toast.LENGTH_SHORT).show();
+	                Log.d("PFD fragment", "Catching Nulls on UAVObjects, link may be failing");
+	        }
+			
+		}
 
 	}
+	
 
 }
