@@ -33,7 +33,7 @@ public class TuningActivity extends ObjectManagerActivity {
 		// Subscribe to updates from ManualControlCommand and show the values for crude feedback
                 try
                 {
-			stabilizationSettings = (UAVDataObject) objMngr.getObject("StabilizationSettings");
+			stabilizationSettings = (UAVDataObject) objMngr.getObject("StabilizationSettingsBank1");
 			smartSave = new SmartSave(objMngr, stabilizationSettings,
 				(Button) findViewById(R.id.saveBtn),
 				(Button) findViewById(R.id.applyBtn));
@@ -48,7 +48,7 @@ public class TuningActivity extends ObjectManagerActivity {
                 }
                 catch (NullPointerException e)
                 {
-                        Toast.makeText(this, "Catching Nulls on UAVObjects, link may be failing", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "Catching Nulls on UAVObjects, link may be failing" + e, Toast.LENGTH_SHORT).show();
                 }
 	}
 
