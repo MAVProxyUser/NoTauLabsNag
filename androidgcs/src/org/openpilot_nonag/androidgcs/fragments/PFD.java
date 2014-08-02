@@ -24,29 +24,19 @@
 
 package org.openpilot_nonag.androidgcs.fragments;
 
-import org.openpilot_nonag.androidgcs.R;
 import org.openpilot_nonag.androidgcs.AttitudeView;
+import org.openpilot_nonag.androidgcs.R;
 import org.openpilot_nonag.uavtalk.UAVObject;
 import org.openpilot_nonag.uavtalk.UAVObjectManager;
 
 import android.app.Activity;
-import android.content.Intent;
-import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import android.speech.tts.TextToSpeech;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.app.FragmentManager;
-import java.util.List;
-import java.util.Locale;
 
 public class PFD extends ObjectManagerFragment {
 
@@ -56,10 +46,9 @@ public class PFD extends ObjectManagerFragment {
 	private static boolean WARN = LOGLEVEL > 1;
 	private static final boolean DEBUG = LOGLEVEL > 0;
 	
-	private static String preArmedStatus;
-		
-	
-	private boolean ttsInit = false;
+	private String flightMode = "";
+	private String armedStatus ="";
+
 	
 	// @Override
 	@Override
@@ -125,16 +114,14 @@ public class PFD extends ObjectManagerFragment {
 	                //Toast.makeText(this, "Catching Nulls on UAVObjects, link may be failing", Toast.LENGTH_SHORT).show();
 	                Log.d("PFD fragment", "Catching Nulls on UAVObjects, link may be failing");
 	        }
-		}if (obj.getName().compareTo("FlightStatus") == 0) {
+		}
+		
+		if (obj.getName().compareTo("FlightStatus") == 0) {
 			
-			String flightMode = "";
-			String armedStatus ="";
 			
 			try{
 				
 				Activity parent = getActivity();
-				
-				
 				
 				String newArmed = obj.getField("Armed").getValue().toString();
 				TextView textView = (TextView)parent.findViewById(R.id.textViewArmedStatus);
@@ -142,9 +129,8 @@ public class PFD extends ObjectManagerFragment {
 				textView.invalidate();
 				
 				if (newArmed.compareTo(armedStatus) != 0) {
-					armedStatus = newArmed;
-					if (armedStatus.compareTo("Arming") != 0)
-						tts.speak(newArmed, TextToSpeech.QUEUE_ADD, null);
+					armedStatus = newArmed;						
+					tts.speak(newArmed, TextToSpeech.QUEUE_ADD, null);
 				}
 
 				// Announce change in flight mode
@@ -152,12 +138,11 @@ public class PFD extends ObjectManagerFragment {
 				textView = (TextView)parent.findViewById(R.id.textViewFlightMode);
 				textView.setText(newFlightMode);
 				textView.invalidate();
+				
 				if (newFlightMode.compareTo(flightMode) != 0) {
 					flightMode = newFlightMode;
 					tts.speak("Flight Mode " + flightMode, TextToSpeech.QUEUE_ADD, null);
 				}
-				
-				
 				
 			}
 			catch (NullPointerException e)
