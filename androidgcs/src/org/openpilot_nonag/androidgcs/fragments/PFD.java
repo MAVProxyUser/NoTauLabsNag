@@ -128,21 +128,10 @@ public class PFD extends ObjectManagerFragment {
 				textView.setText(newArmed);
 				textView.invalidate();
 				
-				if (newArmed.compareTo(armedStatus) != 0) {
-					armedStatus = newArmed;						
-					tts.speak(newArmed, TextToSpeech.QUEUE_ADD, null);
-				}
-
-				// Announce change in flight mode
 				String newFlightMode = obj.getField("FlightMode").getValue().toString();
 				textView = (TextView)parent.findViewById(R.id.textViewFlightMode);
 				textView.setText(newFlightMode);
 				textView.invalidate();
-				
-				if (newFlightMode.compareTo(flightMode) != 0) {
-					flightMode = newFlightMode;
-					tts.speak("Flight Mode " + flightMode, TextToSpeech.QUEUE_ADD, null);
-				}
 				
 			}
 			catch (NullPointerException e)

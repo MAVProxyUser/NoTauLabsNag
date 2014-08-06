@@ -1,0 +1,143 @@
+<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/drawer_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <LinearLayout
+        android:baselineAligned="false"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
+
+        <fragment
+            android:id="@+id/pfd"
+            android:name="org.openpilot_nonag.androidgcs.fragments.PFD"
+            android:layout_width="0dp"
+            android:layout_weight="0.7"
+            android:layout_height="match_parent"  />
+
+        <fragment
+            android:id="@+id/map"
+            android:name="org.openpilot_nonag.androidgcs.fragments.MapPositioner"
+            android:layout_width="0dp"
+            android:layout_weight="1.2"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="5dp"  />
+    
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="vertical" >
+
+            <!-- <RadioGroup
+                android:id="@+id/modeSelectRadio"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" >
+
+                <ToggleButton
+                    android:id="@+id/positionHoldButton"
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:onClick="onToggle"
+                    android:textOff="@string/positionHold"
+                    android:textOn="@string/positionHold" />
+                <ToggleButton
+                    android:id="@+id/positionVarioFpvButton"
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:onClick="onToggle"
+                    android:textOff="@string/positionVarioFPV"
+                    android:textOn="@string/positionVarioFPV" />
+                <ToggleButton
+                    android:id="@+id/positionVarioLOSButton"
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:onClick="onToggle"
+                    android:textOff="@string/positionVarioLOS"
+                    android:textOn="@string/positionVarioLOS" />
+				<ToggleButton
+                    android:id="@+id/positionVarioNSEWButton"
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:onClick="onToggle"
+                    android:textOff="@string/positionVarioNSEW"
+                    android:textOn="@string/positionVarioNSEW" />
+                
+                <ToggleButton
+                    android:id="@+id/rtbButton"
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:onClick="onToggle"
+                    android:textOff="@string/returnToBase"
+                    android:textOn="@string/returnToBase" />
+
+                <ToggleButton
+                    android:id="@+id/pathPlannerButton"
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:onClick="onToggle"
+                    android:textOff="@string/autoPath"
+                    android:textOn="@string/autoPath" />
+                
+                <ToggleButton
+                    android:id="@+id/stabilizeOneButton"
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:onClick="onToggle"
+                    android:textOff="@string/stabilize1"
+                    android:textOn="@string/stabilize1" />
+                <ToggleButton
+                    android:id="@+id/stabilizeTwoButton"
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:onClick="onToggle"
+                    android:textOff="@string/stabilize2"
+                    android:textOn="@string/stabilize2" />
+                <ToggleButton
+                    android:id="@+id/stabilizeThreeButton"
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:onClick="onToggle"
+                    android:textOff="@string/stabilize3"
+                    android:textOn="@string/stabilize3" />
+                <ToggleButton
+                    android:id="@+id/manualButton"
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:onClick="onToggle"
+                    android:textOff="@string/manual"
+                    android:textOn="@string/manual" />
+
+                Disable for now
+                <ToggleButton
+                    android:id="@+id/landButton"
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:onClick="onToggle"
+                    android:textOff="@string/land"
+                    android:textOn="@string/land" />
+            </RadioGroup>
+
+ -->
+
+            
+            
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- The navigation drawer -->
+
+    <ListView
+        android:id="@+id/left_drawer"
+        android:layout_width="240dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:background="#111"
+        android:choiceMode="singleChoice"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="0dp" />
+    
+    
+ </android.support.v4.widget.DrawerLayout>

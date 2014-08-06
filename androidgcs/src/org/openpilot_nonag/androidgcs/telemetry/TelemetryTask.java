@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import java.util.Observable;
 import java.util.Observer;
 
+import org.openpilot_nonag.androidgcs.telemetry.tasks.AudioTask;
 import org.openpilot_nonag.uavtalk.Telemetry;
 import org.openpilot_nonag.uavtalk.TelemetryMonitor;
 import org.openpilot_nonag.uavtalk.UAVObjectManager;
@@ -21,10 +22,11 @@ public abstract class TelemetryTask implements Runnable {
 
 	// Logging settings
 	private final String TAG = TelemetryTask.class.getSimpleName();
-	public static final int LOGLEVEL = 2;
-	public static final boolean WARN = LOGLEVEL > 1;
-	public static final boolean DEBUG = LOGLEVEL > 0;
-
+	public static int LOGLEVEL = 0;
+	public static boolean VERBOSE = LOGLEVEL > 3;
+	public static boolean DEBUG = LOGLEVEL > 2;
+	public static boolean WARN = LOGLEVEL > 1;
+	public static boolean ERROR = LOGLEVEL > 0;
 	/*
 	 * This is a self contained runnable that will establish (if possible)
 	 * a telemetry connection and provides a listener interface to be
@@ -77,6 +79,9 @@ public abstract class TelemetryTask implements Runnable {
 	//! Indicate a physical connection is established
 	private boolean connected;
 
+	//! Generate audio alerts based on object updates
+	private final AudioTask audioTask = new AudioTask();
+
 	TelemetryTask(OPTelemetryService s) {
 		telemService = s;
 		shutdown = false;
@@ -113,6 +118,9 @@ public abstract class TelemetryTask implements Runnable {
 
 		// Create an observer to notify system of connection
 		mon.addObserver(connectionObserver);
+
+		// Connect the audio alerts
+		audioTask.connect(objMngr, telemService);
 
 		// Create a new thread that processes the input bytes
 		startInputProcessing();
@@ -160,6 +168,9 @@ public abstract class TelemetryTask implements Runnable {
 			} catch (InterruptedException e) {
 			}
 		}
+
+		if(audioTask != null)
+			audioTask.disconnect();
 
 		// TODO: Make sure the input and output stream is closed
 

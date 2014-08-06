@@ -23,23 +23,10 @@
 
 package org.openpilot_nonag.androidgcs;
 
-import org.openpilot_nonag.androidgcs.fragments.TFR;
-
-//import android.app.FragmentTransaction;
-import android.os.Bundle;
-import android.view.View;
-import android.widget.LinearLayout;
-import android.content.ContentResolver;
-import android.webkit.*;
-
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentTransaction;
-import android.util.Log;
-
 import android.app.Activity;
 import android.os.Bundle;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 public class TfrActivity extends Activity {
  

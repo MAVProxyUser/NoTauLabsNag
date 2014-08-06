@@ -38,11 +38,13 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
 import android.widget.TextView;
+import java.io.FilenameFilter;
 
 
 public class Logger extends ObjectManagerActivity {
 
 	final String TAG = "Logger";
+	final String LOGGER_DIR ="/OpenPilotGCS";
 
 	final boolean VERBOSE = false;
 	final boolean DEBUG = true;
@@ -67,7 +69,7 @@ public class Logger extends ObjectManagerActivity {
 		File root = Environment.getExternalStorageDirectory();
 
 		// Make the directory if it doesn't exist
-		File logDirectory = new File(root, "/OpenPilotGCS");
+		File logDirectory = new File(root, LOGGER_DIR);
 		logDirectory.mkdirs();
 
 		Date d = new Date();
@@ -105,6 +107,19 @@ public class Logger extends ObjectManagerActivity {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+
+	private File[] getLogFilesFromSDCard() {
+		File sdCard = Environment.getExternalStorageDirectory();
+		File logsDirectory = new File(sdCard, LOGGER_DIR);
+		File logsList[] = logsDirectory.listFiles(new FilenameFilter() {
+			@Override
+			public boolean accept(File dir, String filename) {
+				return filename.contains(".opl");
+			}	
+		});
+		
+		return logsList;
 	}
 
 	@Override

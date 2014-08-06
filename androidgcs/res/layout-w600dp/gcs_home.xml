@@ -98,6 +98,18 @@
         android:drawableTop="@drawable/ic_tfr"
         android:text="@string/tfr_name" />
 
+    <Button
+        android:id="@+id/launch_cc"
+        android:layout_width="132dp"
+        android:layout_height="wrap_content"
+        app:layout_column="6"
+        app:layout_gravity="right"
+        app:layout_row="2"
+        app:layout_rowSpan="2"
+        android:background="@android:color/transparent"
+        android:drawableTop="@drawable/ic_cc"
+        android:text="@string/cc_name" />
+
     <android.support.v7.widget.Space
         android:layout_width="1dp"
         android:layout_height="32dp"

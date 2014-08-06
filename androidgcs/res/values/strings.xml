@@ -2,9 +2,11 @@
 <resources>
 	<string name="app_name">OpenPilot GCS Home</string>
 	<string name="object_browser_name">Browser</string>
+	<string name="controller_name">Controller</string>
 	<string name="wizard_name">Wizard</string>
 	<string name="pfd_name">PFD</string>
 	<string name="tfr_name">TFR</string>
+	<string name="cc_name">Comand Center</string>
         <string name="location_name">Map</string>
 	<string name="logger_name">Logging</string>
 	
@@ -43,4 +45,17 @@
 	<string name="data">Data</string>
 	<string name="edit">Edit</string>
 	<string name="load">Load</string>
+
+	<!-- Flight Modes -->
+	<string name="positionHold">Position Hold</string>
+	<string name="positionVarioFPV">PositionVario FPV</string>
+	<string name="positionVarioLOS">PositionVario LOS</string>
+	<string name="positionVarioNSEW">PositionVario NSEW</string>
+	<string name="returnToBase">Return To Base</string>
+	<string name="autoPath">Auto</string>
+	<string name="stabilize1">Stabilize 1</string>
+	<string name="stabilize2">Stabilize 2</string>
+	<string name="stabilize3">Stabilize 3</string>
+	<string name="manual">Manual</string>
+	<string name="land">Land</string>
 </resources>
