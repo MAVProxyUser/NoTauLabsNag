@@ -4,7 +4,7 @@ if [ ! -d "../OpenPilot/" ]; then
 fi
 cd ../OpenPilot
 git tag -l
-git checkout tags/RELEASE-14.06-RC5
+git checkout tags/RELEASE-14.06
 
 cd $WD
 rm -rf ../OpenPilot/androidgcs/
