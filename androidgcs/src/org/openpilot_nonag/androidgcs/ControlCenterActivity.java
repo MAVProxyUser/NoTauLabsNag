@@ -11,6 +11,13 @@ import android.view.View;
 import android.widget.RadioGroup;
 import android.widget.ToggleButton;
 
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.model.VisibleRegion;
 
 public class ControlCenterActivity extends ObjectManagerActivity {
 
@@ -25,12 +32,21 @@ public class ControlCenterActivity extends ObjectManagerActivity {
 
 	private final FlexibleHashMap <String, Integer>modesToId = new FlexibleHashMap<String, Integer>();
 
+        private GoogleMap mMap;
+        private SupportMapFragment mapFrag;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.control_center);
+                mapFrag = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map_view));
+
+                // something wrong *here* (only on versions with out Google Play Services) need to check instead of crashing. 
+
+                mMap = mapFrag.getMap();
+                mMap.setMyLocationEnabled(true);
+                mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
 
 //		((RadioGroup) findViewById(R.id.modeSelectRadio)).setOnCheckedChangeListener(ToggleListener);
     
