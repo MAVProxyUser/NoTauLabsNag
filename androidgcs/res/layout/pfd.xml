@@ -1,36 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
     android:orientation="vertical" >
 
-    <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingTop="20px" >
-
-        <TextView
-            android:id="@+id/textViewFlightMode"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.08"
-            android:paddingLeft="10px"
-            android:paddingTop="20px"
-            android:text="Stabalized1"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
-
-        <TextView
-            android:id="@+id/textViewArmedStatus"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Disarmed"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
-    </LinearLayout>
-    
     <org.openpilot_nonag.androidgcs.AttitudeView
         android:id="@+id/attitude_view"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" />
 
-</LinearLayout>
+    <org.openpilot_nonag.androidgcs.HeadingView
+        android:id="@+id/heading_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="5dp" />
+
+
+    <org.openpilot_nonag.androidgcs.AltitudeView
+        android:id="@+id/altitude_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignRight="@+id/attitude_view"
+        android:layout_centerVertical="true" />
+    
+    <org.openpilot_nonag.androidgcs.FlightStatusView
+        android:id="@+id/flight_status_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/gps_view"
+        android:layout_marginBottom="5dp"
+        android:layout_centerHorizontal="true" />
+
+    <org.openpilot_nonag.androidgcs.BatteryView
+        android:id="@+id/battery_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/flight_status_view"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="5dp"
+        android:visibility="invisible" />
+
+    <org.openpilot_nonag.androidgcs.GpsView
+        android:id="@+id/gps_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true" />
+    
+</RelativeLayout>
