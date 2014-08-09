@@ -75,29 +75,7 @@ public class UAVLocation extends ObjectManagerActivity
 		mMap = mapFrag.getMap();
 		mMap.setMyLocationEnabled(true);
 		mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-		//mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-		//mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
-		//mMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
 
-//                mapFrag.onCreate(savedInstanceState);
-//		registerForContextMenu(mapFrag);
-
-/*
-		// Make sure we know how much screen realestate we have map wise. (aka get the extent)
-		VisibleRegion vr = mMap.getProjection().getVisibleRegion();
-		double left = vr.latLngBounds.southwest.longitude;
-		double top = vr.latLngBounds.northeast.latitude;
-		double right = vr.latLngBounds.northeast.longitude;
-		double bottom = vr.latLngBounds.southwest.latitude;
-
-		// Marker test
-		double latz = 40.119751;
-		double longz = -83.0767593;
-		// create marker
-		MarkerOptions marker = new MarkerOptions().position(new LatLng(latz, longz)).title("The House");
-		// adding marker
-		mMap.addMarker(marker);
-*/
 		mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
                         @Override
                         public void onMapLongClick(LatLng arg0) {
