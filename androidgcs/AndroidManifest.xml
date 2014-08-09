@@ -93,6 +93,8 @@
             android:theme="@android:style/Theme.Dialog" />
 
         <activity android:name="TfrActivity" android:label="TFR" />
+        
+        <activity android:name="ControlCenterActivity" android:label="Control Center" />
 
         <activity
 	    android:name="UAVLocation"

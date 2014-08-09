@@ -4,13 +4,13 @@ if [ ! -d "../OpenPilot/" ]; then
 fi
 cd ../OpenPilot
 git tag -l
-git checkout tags/RELEASE-14.06-RC5
+git checkout tags/RELEASE-14.06
 
 cd $WD
 rm -rf ../OpenPilot/androidgcs/
 cp -rfv ./* ../OpenPilot/
 rm -rf ../OpenPilot/androidgcs/bin
-android update project -s --path ./androidgcs
+#android update project -s --path ./androidgcs 
 cd ../OpenPilot
 
 make androidgcs_clean

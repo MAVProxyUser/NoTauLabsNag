@@ -119,8 +119,12 @@ public class UAVLocation extends ObjectManagerActivity
 			registerObjectUpdates(obj);
 			objectUpdated(obj);
 		}
+		else
+		{
+                                Log.d(TAG, "HomeLocation is null");
+		}
 
-		obj = objMngr.getObject("PositionActual");
+		obj = objMngr.getObject("PositionState");
 		if (obj != null) {
 			obj.updateRequested(); // Make sure this is correct and been updated
 			registerObjectUpdates(obj);
@@ -128,26 +132,34 @@ public class UAVLocation extends ObjectManagerActivity
 		}
 		else
 		{
-                                Log.d(TAG, "location is null");
+                                Log.d(TAG, "PositionState is null");
 		}
 	}
 
 	private LatLng getUavLocation() {
-//		UAVObject pos = objMngr.getObject("PositionActual");
-		UAVObject pos = objMngr.getObject("GPSPosition");
+		UAVObject pos = objMngr.getObject("PositionState");
 		if (pos == null)
 		{
 			return new LatLng(0,0);
 		}
                 else
 		{
-                                Log.d(TAG, "location is null");
+                                Log.d(TAG, "PositionState info is valid null");
                 }
+
+		// What does the HomeLocation have to do with current UavLocation?
 		UAVObject home = objMngr.getObject("HomeLocation");
 		if (home == null)
+		{
 			return new LatLng(0,0);
+		}
+                else
+		{
+                                Log.d(TAG, "HomeLocation info is valid null");
+                }
 
 		double lat, lon, alt;
+		// Again why are we grabbing the home location data? Only logic I can think is IF home is auto set on GPS lock
 		lat = home.getField("Latitude").getDouble() / 10.0e6;
 		lon = home.getField("Longitude").getDouble() / 10.0e6;
 		alt = home.getField("Altitude").getDouble();
@@ -159,15 +171,12 @@ public class UAVLocation extends ObjectManagerActivity
 
 		// Get the NED coordinates
 		double NED0, NED1;
-//		NED0 = pos.getField("North").getDouble();
-//		NED1 = pos.getField("East").getDouble();
+		NED0 = pos.getField("North").getDouble();
+		NED1 = pos.getField("East").getDouble();
 
 		// Compute the LLA coordinates
-//		lat = lat + (NED0 / T0) * 180.0 / Math.PI;
-//		lon = lon + (NED1 / T1) * 180.0 / Math.PI;
-
-		lat = lat * 180.0 / Math.PI;
-		lon = lon * 180.0 / Math.PI;
+		lat = lat + (NED0 / T0) * 180.0 / Math.PI;
+		lon = lon + (NED1 / T1) * 180.0 / Math.PI;
 
 		return new LatLng((int) (lat * 1e6), (int) (lon * 1e6));
 	}
@@ -181,6 +190,8 @@ public class UAVLocation extends ObjectManagerActivity
 	protected void objectUpdated(UAVObject obj) {
 		if (obj == null)
 			return;
+
+		// update HomeLocation with curent setting, or use tablet current position?
 		if (obj.getName().compareTo("HomeLocation") == 0) {
 			Double lat = obj.getField("Latitude").getDouble() / 10;
 			Double lon = obj.getField("Longitude").getDouble() / 10;
@@ -198,7 +209,10 @@ public class UAVLocation extends ObjectManagerActivity
 	                        Log.d(TAG, "location is being updated");
 				mHomeMarker.setPosition((new LatLng(homeLocation.latitude, homeLocation.longitude)));
 			}
-		} else if (obj.getName().compareTo("GPSPosition") == 0) {
+		} 
+
+		// update the UAVlocation, if marker is null create it at current tablet location? else use Uav location
+		else if (obj.getName().compareTo("GPSPositionSensor") == 0) {
 			uavLocation = getUavLocation();
 			if (mUavMarker == null) {
 	                        Log.d(TAG, "location is null so creating it");

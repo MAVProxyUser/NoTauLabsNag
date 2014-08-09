@@ -523,9 +523,9 @@ public class Telemetry {
 	/**
 	 * Private constants
 	 */
-	private static final int REQ_TIMEOUT_MS = 1000;
+	private static final int REQ_TIMEOUT_MS = 8000;
 	private static final int MAX_RETRIES = 3;
-	private static final int MAX_UPDATE_PERIOD_MS = 1000;
+	private static final int MAX_UPDATE_PERIOD_MS = 4000;
 	private static final int MIN_UPDATE_PERIOD_MS = 1;
 
 	static private ObjectUpdateHandler handler;

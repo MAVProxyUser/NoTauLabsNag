@@ -84,6 +84,14 @@ public class HomePage extends ObjectManagerActivity {
                         }
                 });
 
+        	Button command_center = (Button) findViewById(R.id.launch_cc);
+        	command_center.setOnClickListener(new OnClickListener() {
+                	@Override
+                	public void onClick(View arg0) {
+                	        startActivity(new Intent(HomePage.this, ControlCenterActivity.class));
+                	}
+        	});
+
 		Button wizard = (Button) findViewById(R.id.launch_wizard);
 		wizard.setOnClickListener(new OnClickListener() {
 			@Override
