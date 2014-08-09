@@ -22,11 +22,17 @@
  */
 
 package org.openpilot_nonag.androidgcs;
-
 import org.openpilot_nonag.uavtalk.UAVObject;
 
+import android.location.Location;
+import com.google.android.gms.maps.GoogleMap.OnMyLocationChangeListener;
 import android.os.Bundle;
 import android.util.Log;
+import java.util.ArrayList;
+import java.util.List;
+import android.graphics.Color;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 
 import com.google.android.gms.maps.GoogleMap;
 //import com.google.android.gms.maps.MapFragment;
@@ -47,23 +53,25 @@ import android.view.WindowManager;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.model.VisibleRegion;
-public class UAVLocation extends ObjectManagerActivity
+public class UAVLocation extends ObjectManagerActivity implements OnMyLocationChangeListener
 {
 	private final String TAG = "UAVLocation";
-	private static int LOGLEVEL = 0;
-//	private static boolean WARN = LOGLEVEL > 1;
+	private static int LOGLEVEL = 3;
+	private static boolean WARN = LOGLEVEL > 1;
 	private static boolean DEBUG = LOGLEVEL > 0;
 
 	private GoogleMap mMap;
-//	private MapFragment mapFrag;
 	private SupportMapFragment mapFrag;
 	private Marker mUavMarker;
 	private Marker mHomeMarker;
 
-    LatLng homeLocation;
-    LatLng uavLocation;
+    	private LatLng homeLocation;
+    	private LatLng uavLocation;
+    	private List<LatLng> pathPoints = new ArrayList<LatLng>();
+    	private Polyline pathLine;
 
-    @Override public void onCreate(Bundle icicle) {
+    	@Override
+	public void onCreate(Bundle icicle) {
 
 		super.onCreate(icicle);
      		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON); // disable sleep
@@ -74,7 +82,11 @@ public class UAVLocation extends ObjectManagerActivity
 
 		mMap = mapFrag.getMap();
 		mMap.setMyLocationEnabled(true);
-		mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+		mMap.setOnMyLocationChangeListener(this);
+		mMap.setMapType(mMap.MAP_TYPE_HYBRID);
+
+                pathLine = mMap.addPolyline(new PolylineOptions().width(5).color(Color.WHITE));
+                pathLine.setPoints(pathPoints);
 
 		mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
                         @Override
@@ -86,6 +98,21 @@ public class UAVLocation extends ObjectManagerActivity
 		});
 
     }
+
+	@Override
+    	public void onMyLocationChange(Location location) {
+	        // Getting latitude of the current location
+	        double latitude = location.getLatitude();
+	        // Getting longitude of the current location
+	        double longitude = location.getLongitude();
+	        // Creating a LatLng object for the current location
+	        LatLng latLng = new LatLng(latitude, longitude);
+
+	        // Setting latitude and longitude in the TextView tv_location
+                Log.d(TAG, "my location changed and is currently lat / lon pair " + latitude + " " + longitude);
+
+
+	    }
 
 	@Override
 	void onOPConnected() {
@@ -112,51 +139,38 @@ public class UAVLocation extends ObjectManagerActivity
 		{
                                 Log.d(TAG, "PositionState is null");
 		}
+
+		obj = objMngr.getObject("GPSPositionSensor");
+		if (obj != null) {
+			obj.updateRequested(); // Make sure this is correct and been updated
+			registerObjectUpdates(obj);
+			objectUpdated(obj);
+		}
+		else
+		{
+                                Log.d(TAG, "GPSPositionSensor is null");
+		}
 	}
 
 	private LatLng getUavLocation() {
-		UAVObject pos = objMngr.getObject("PositionState");
+		Log.d(TAG, "Getting Location.....");
+		UAVObject pos = objMngr.getObject("GPSPositionSensor");
 		if (pos == null)
 		{
 			return new LatLng(0,0);
 		}
                 else
 		{
-                                Log.d(TAG, "PositionState info is valid null");
-                }
-
-		// What does the HomeLocation have to do with current UavLocation?
-		UAVObject home = objMngr.getObject("HomeLocation");
-		if (home == null)
-		{
-			return new LatLng(0,0);
-		}
-                else
-		{
-                                Log.d(TAG, "HomeLocation info is valid null");
+                                Log.d(TAG, "PositionState info is valid");
                 }
 
 		double lat, lon, alt;
-		// Again why are we grabbing the home location data? Only logic I can think is IF home is auto set on GPS lock
-		lat = home.getField("Latitude").getDouble() / 10.0e6;
-		lon = home.getField("Longitude").getDouble() / 10.0e6;
-		alt = home.getField("Altitude").getDouble();
+		lat = pos.getField("Latitude").getDouble(); 
+		lon = pos.getField("Longitude").getDouble();
+                Log.d(TAG, "returning lat / lon pair " + lat + " " + lon);
+		// needs value corrected 
 
-		// Get the home coordinates
-		double T0, T1;
-		T0 = alt+6.378137E6;
-		T1 = Math.cos(lat * Math.PI / 180.0)*(alt+6.378137E6);
-
-		// Get the NED coordinates
-		double NED0, NED1;
-		NED0 = pos.getField("North").getDouble();
-		NED1 = pos.getField("East").getDouble();
-
-		// Compute the LLA coordinates
-		lat = lat + (NED0 / T0) * 180.0 / Math.PI;
-		lon = lon + (NED1 / T1) * 180.0 / Math.PI;
-
-		return new LatLng((int) (lat * 1e6), (int) (lon * 1e6));
+		return new LatLng(lat, lon);
 	}
 
 	// https://developers.google.com/maps/documentation/android/marker
@@ -168,43 +182,44 @@ public class UAVLocation extends ObjectManagerActivity
 	protected void objectUpdated(UAVObject obj) {
 		if (obj == null)
 			return;
-
-		// update HomeLocation with curent setting, or use tablet current position?
 		if (obj.getName().compareTo("HomeLocation") == 0) {
 			Double lat = obj.getField("Latitude").getDouble() / 10;
 			Double lon = obj.getField("Longitude").getDouble() / 10;
+
+	                Log.d(TAG, "home returns as lat / lon pair " + lat + " " + lon);
+
 			homeLocation = new LatLng(lat.intValue(), lon.intValue());
 			if (mHomeMarker == null) {
-	                        Log.d(TAG, "location is null so creating it");
-				CameraPosition camPos = mMap.getCameraPosition();
-				LatLng lla = camPos.target;
-				mHomeMarker = mMap.addMarker(new MarkerOptions()
-			       .position(new LatLng(lla.latitude, lla.longitude))
+	                        Log.d(TAG, "home marker is null so creating it");
+				mHomeMarker = mMap.addMarker(new MarkerOptions().anchor(0.5f,0.5f)
+			       .position(new LatLng(homeLocation.latitude, homeLocation.longitude))
 			       .title("UAV_HOME")
-			       .snippet("Home Location")
+			       .snippet(String.format("%g, %g", homeLocation.latitude, homeLocation.longitude))
 			       .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_home)));
 			} else {
-	                        Log.d(TAG, "location is being updated");
+	                        Log.d(TAG, "home location is being updated to " + homeLocation.latitude + " " + homeLocation.latitude);
 				mHomeMarker.setPosition((new LatLng(homeLocation.latitude, homeLocation.longitude)));
 			}
 		} 
 
-		// update the UAVlocation, if marker is null create it at current tablet location? else use Uav location
 		else if (obj.getName().compareTo("GPSPositionSensor") == 0) {
 			uavLocation = getUavLocation();
+			LatLng loc = new LatLng(uavLocation.latitude, uavLocation.longitude);
 			if (mUavMarker == null) {
-	                        Log.d(TAG, "location is null so creating it");
+	                        Log.d(TAG, "uav marker is null so creating it");
 				CameraPosition camPos = mMap.getCameraPosition();
 				LatLng lla = camPos.target;
 				mUavMarker = mMap.addMarker(new MarkerOptions()
 			       .position(new LatLng(lla.latitude, lla.longitude))
 			       .title("UAV_LOCATION")
-			       .snippet("UAV Aerial Position")
+			       .snippet(String.format("%g, %g", uavLocation.latitude, uavLocation.longitude))
 			       .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_uav)));
 			} else {
-	                        Log.d(TAG, "location is being updated");
+	                        Log.d(TAG, "uav location is being updated");
 				mUavMarker.setPosition((new LatLng(uavLocation.latitude, uavLocation.longitude)));
 			}
+                        pathPoints.add(loc);
+                        pathLine.setPoints(pathPoints);
 		}
 	}
 
