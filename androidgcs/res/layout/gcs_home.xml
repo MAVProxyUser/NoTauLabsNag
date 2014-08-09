@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.GridLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res/org.openpilot_nonag.androidgcs"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" 
+    xmlns:app="http://schemas.android.com/apk/res/org.openpilot_nonag.androidgcs"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+<android.support.v7.widget.GridLayout  
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_alignParentLeft="true"
@@ -125,3 +129,4 @@
         app:layout_row="1" />
 
 </android.support.v7.widget.GridLayout>
+</ScrollView>
