@@ -23,6 +23,7 @@
 
 package org.openpilot_nonag.androidgcs;
 import org.openpilot_nonag.uavtalk.UAVObject;
+import java.math.BigDecimal;
 
 import android.location.Location;
 import com.google.android.gms.maps.GoogleMap.OnMyLocationChangeListener;
@@ -108,7 +109,6 @@ public class UAVLocation extends ObjectManagerActivity implements OnMyLocationCh
 	        // Creating a LatLng object for the current location
 	        LatLng latLng = new LatLng(latitude, longitude);
 
-	        // Setting latitude and longitude in the TextView tv_location
                 Log.d(TAG, "my location changed and is currently lat / lon pair " + latitude + " " + longitude);
 
 
@@ -164,9 +164,9 @@ public class UAVLocation extends ObjectManagerActivity implements OnMyLocationCh
                                 Log.d(TAG, "PositionState info is valid");
                 }
 
-		double lat, lon, alt;
-		lat = pos.getField("Latitude").getDouble(); 
-		lon = pos.getField("Longitude").getDouble();
+		double lat, lon;
+		lat = (pos.getField("Latitude").getDouble() * .0000001 );
+		lon = (pos.getField("Longitude").getDouble() * .0000001 );
                 Log.d(TAG, "returning lat / lon pair " + lat + " " + lon);
 		// needs value corrected 
 
