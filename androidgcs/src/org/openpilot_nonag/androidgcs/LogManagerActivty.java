@@ -55,8 +55,9 @@ public class LogManagerActivty extends Activity{
 		fileList.clear();
 		fileArray = getLogFilesFromSDCard();
 		if (fileArray != null) {
-			for(File file : fileArray)
+			for(File file : fileArray){ 
 				fileList.add(file.getName());
+			}
 		}
 
 		ArrayAdapter<String> logFileListAdapter = new ArrayAdapter<String>(this,
@@ -73,9 +74,19 @@ public class LogManagerActivty extends Activity{
 	               intent.setType("application/octet-stream");
 	               intent.putExtra(Intent.EXTRA_EMAIL, new String[]{"noreply@openpilot",""});
 	               intent.putExtra(Intent.EXTRA_SUBJECT, "OpenPilot AndroidGCS log file");
-	               intent.putExtra(Intent.EXTRA_TEXT, fileArray[position].getName());
+	               
+	               String message = fileArray[position].getName();
+	               File f = null;
+	               try {
+	            	   f = new File(fileArray[position].getAbsolutePath());
+	            	   message += " size = " + f.length();
+	               } catch (Exception e) {
+	            	   // TODO Auto-generated catch block
+	            	   e.printStackTrace();
+	               }
+	               intent.putExtra(Intent.EXTRA_TEXT, message);
 	               intent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://"+ fileArray[position].getAbsolutePath()));
-	               startActivity(Intent.createChooser(intent, "Choice app to send file:"));
+	               startActivity(Intent.createChooser(intent, "Choose app to send file:"));
 		    }
 		});
 		
