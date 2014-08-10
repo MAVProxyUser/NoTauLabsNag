@@ -189,8 +189,8 @@ public class UAVLocation extends ObjectManagerActivity implements OnMyLocationCh
 		if (obj == null)
 			return;
 		if (obj.getName().compareTo("HomeLocation") == 0) {
-			Double lat = obj.getField("Latitude").getDouble() / 10;
-			Double lon = obj.getField("Longitude").getDouble() / 10;
+			Double lat = obj.getField("Latitude").getDouble() * .0000001;
+			Double lon = obj.getField("Longitude").getDouble() * .0000001;
 
 	                Log.d(TAG, "home returns as lat / lon pair " + lat + " " + lon);
 
@@ -205,6 +205,7 @@ public class UAVLocation extends ObjectManagerActivity implements OnMyLocationCh
 			} else {
 	                        Log.d(TAG, "home location is being updated to " + homeLocation.latitude + " " + homeLocation.latitude);
 				mHomeMarker.setPosition((new LatLng(homeLocation.latitude, homeLocation.longitude)));
+				mHomeMarker.setSnippet(String.format("%g, %g", homeLocation.latitude, homeLocation.longitude));
 			}
 		} 
 
@@ -223,6 +224,7 @@ public class UAVLocation extends ObjectManagerActivity implements OnMyLocationCh
 			} else {
 	                        Log.d(TAG, "uav location is being updated");
 				mUavMarker.setPosition((new LatLng(uavLocation.latitude, uavLocation.longitude)));
+				mUavMarker.setSnippet(String.format("%g, %g", uavLocation.latitude, uavLocation.longitude));
 			}
                         UAVpathPoints.add(loc);
 	                Log.d(TAG, "uav path point being added");
