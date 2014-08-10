@@ -68,8 +68,10 @@ public class UAVLocation extends ObjectManagerActivity implements OnMyLocationCh
 
     	private LatLng homeLocation;
     	private LatLng uavLocation;
-    	private List<LatLng> pathPoints = new ArrayList<LatLng>();
-    	private Polyline pathLine;
+    	private List<LatLng> UAVpathPoints = new ArrayList<LatLng>();
+    	private List<LatLng> TabletpathPoints = new ArrayList<LatLng>();
+    	private Polyline UAVpathLine;
+    	private Polyline TabletpathLine;
 
     	@Override
 	public void onCreate(Bundle icicle) {
@@ -86,8 +88,10 @@ public class UAVLocation extends ObjectManagerActivity implements OnMyLocationCh
 		mMap.setOnMyLocationChangeListener(this);
 		mMap.setMapType(mMap.MAP_TYPE_HYBRID);
 
-                pathLine = mMap.addPolyline(new PolylineOptions().width(5).color(Color.WHITE));
-                pathLine.setPoints(pathPoints);
+                UAVpathLine = mMap.addPolyline(new PolylineOptions().width(5).color(Color.WHITE));
+                UAVpathLine.setPoints(UAVpathPoints);
+                TabletpathLine = mMap.addPolyline(new PolylineOptions().width(5).color(Color.BLUE));
+                TabletpathLine.setPoints(TabletpathPoints);
 
 		mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
                         @Override
@@ -110,7 +114,9 @@ public class UAVLocation extends ObjectManagerActivity implements OnMyLocationCh
 	        LatLng latLng = new LatLng(latitude, longitude);
 
                 Log.d(TAG, "my location changed and is currently lat / lon pair " + latitude + " " + longitude);
-
+                TabletpathPoints.add(latLng);
+	        Log.d(TAG, "path point being added");
+                TabletpathLine.setPoints(TabletpathPoints);
 
 	    }
 
@@ -218,8 +224,9 @@ public class UAVLocation extends ObjectManagerActivity implements OnMyLocationCh
 	                        Log.d(TAG, "uav location is being updated");
 				mUavMarker.setPosition((new LatLng(uavLocation.latitude, uavLocation.longitude)));
 			}
-                        pathPoints.add(loc);
-                        pathLine.setPoints(pathPoints);
+                        UAVpathPoints.add(loc);
+	                Log.d(TAG, "uav path point being added");
+                        UAVpathLine.setPoints(UAVpathPoints);
 		}
 	}
 
