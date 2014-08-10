@@ -95,6 +95,8 @@
         <activity android:name="TfrActivity" android:label="TFR" />
         
         <activity android:name="ControlCenterActivity" android:label="Control Center" />
+        
+		<activity android:name="LogManagerActivty" android:label="Manage GCS Logs" />
 
         <activity
 	    android:name="UAVLocation"
