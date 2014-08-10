@@ -35,6 +35,14 @@ import android.graphics.Color;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
+import android.view.ContextMenu;
+import android.view.LayoutInflater;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.ContextMenu.ContextMenuInfo;
+
 import com.google.android.gms.maps.GoogleMap;
 //import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -68,6 +76,7 @@ public class UAVLocation extends ObjectManagerActivity implements OnMyLocationCh
 
     	private LatLng homeLocation;
     	private LatLng uavLocation;
+    	private LatLng touchLocation;
     	private List<LatLng> UAVpathPoints = new ArrayList<LatLng>();
     	private List<LatLng> TabletpathPoints = new ArrayList<LatLng>();
     	private Polyline UAVpathLine;
@@ -93,16 +102,54 @@ public class UAVLocation extends ObjectManagerActivity implements OnMyLocationCh
                 TabletpathLine = mMap.addPolyline(new PolylineOptions().width(5).color(Color.BLUE));
                 TabletpathLine.setPoints(TabletpathPoints);
 
+		registerForContextMenu(mapFrag.getView());
 		mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
                         @Override
                         public void onMapLongClick(LatLng arg0) {
                                 Log.d(TAG, "Click");
-                                // Animating to the touched position
-                		mMap.animateCamera(CameraUpdateFactory.newLatLng(arg0));
+				mapFrag.getView().showContextMenu();
+				touchLocation = arg0;
                 	}
 		});
 
     }
+
+        @Override
+        public void onCreateContextMenu(ContextMenu menu, View v,
+                                        ContextMenuInfo menuInfo) {
+            super.onCreateContextMenu(menu, v, menuInfo);
+	    Activity mapAct = (Activity) this;
+            MenuInflater inflater = mapAct.getMenuInflater();
+            inflater.inflate(R.menu.map_click_actions, menu);
+        }
+
+        @Override
+        public boolean onContextItemSelected(MenuItem item) {
+
+            switch (item.getItemId()) {
+                case R.id.map_action_jump_to_uav:
+			uavLocation = getUavLocation(); // null pointer somewhere around here. 
+                    if (uavLocation != null) {
+                        mMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(uavLocation.latitude, uavLocation.longitude)));
+                    }
+                    return true;
+                case R.id.map_action_clear_uav_path:
+                        UAVpathPoints.clear();
+                        UAVpathLine.setPoints(UAVpathPoints);
+                        return true;
+                case R.id.map_action_clear_tablet_path:
+                        TabletpathPoints.clear();
+                        TabletpathLine.setPoints(TabletpathPoints);
+                        return true;
+                case R.id.map_action_set_home:
+			homeLocation = touchLocation;
+			// change this to actually push out the UAVO to the board.
+                        return true;
+                default:
+                    return super.onContextItemSelected(item);
+            }
+
+        }
 
 	@Override
     	public void onMyLocationChange(Location location) {
