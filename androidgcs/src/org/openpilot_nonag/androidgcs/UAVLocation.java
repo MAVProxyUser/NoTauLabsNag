@@ -248,8 +248,8 @@ public class UAVLocation extends ObjectManagerActivity implements OnMyLocationCh
 		if (obj == null)
 			return;
 		if (obj.getName().compareTo("HomeLocation") == 0) {
-			Double lat = obj.getField("Latitude").getDouble() / 10;
-			Double lon = obj.getField("Longitude").getDouble() / 10;
+			Double lat = obj.getField("Latitude").getDouble() * .0000001;
+			Double lon = obj.getField("Longitude").getDouble() * .0000001;
 
 			Log.d(TAG, "HomeLocation is at lat / lon pair " + lat + " " + lon);
 
