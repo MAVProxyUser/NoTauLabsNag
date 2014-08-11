@@ -24,25 +24,22 @@
 
 package org.openpilot_nonag.androidgcs.fragments;
 
-import org.openpilot_nonag.androidgcs.AttitudeView;
 import org.openpilot_nonag.androidgcs.AltitudeView;
+import org.openpilot_nonag.androidgcs.AttitudeView;
 import org.openpilot_nonag.androidgcs.BatteryView;
 import org.openpilot_nonag.androidgcs.FlightStatusView;
 import org.openpilot_nonag.androidgcs.GpsView;
 import org.openpilot_nonag.androidgcs.HeadingView;
-
 import org.openpilot_nonag.androidgcs.R;
 import org.openpilot_nonag.uavtalk.UAVObject;
 import org.openpilot_nonag.uavtalk.UAVObjectManager;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 public class PFD extends ObjectManagerFragment {
 
@@ -192,6 +189,7 @@ public class PFD extends ObjectManagerFragment {
                                         batteryView.setVisibility(View.VISIBLE);
                                         batteryView.setCurrent(current);
                                         batteryView.setVoltage(voltage);
+                                        
                                 }
                         }
                 }
@@ -220,6 +218,7 @@ public class PFD extends ObjectManagerFragment {
 	        	}
 
 		}
+		
 
 	}
 }
