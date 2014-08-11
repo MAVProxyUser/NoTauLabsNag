@@ -13,6 +13,7 @@
 	<string name="menu_item_settings">Settings</string>
 	<string name="menu_item_connect">Connect</string>
 	<string name="menu_item_disconnect">Disconnect</string>
+	<string name="menu_item_manage_logs">Manage GCS Logs</string>
 	
 	<string name="preference_title">Settings</string>
 	<string name="preference_checkbox_autoconnect">Automatically Connect</string>
@@ -45,6 +46,8 @@
 	<string name="data">Data</string>
 	<string name="edit">Edit</string>
 	<string name="load">Load</string>
+	
+	<string name="select_file_to_send">Select Log to send: </string>
 
 	<!-- Flight Modes -->
 	<string name="positionHold">Position Hold</string>

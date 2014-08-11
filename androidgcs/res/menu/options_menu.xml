@@ -3,4 +3,5 @@
     <item android:title="@string/menu_item_settings" android:id="@+id/menu_settings"></item>
     <item android:title="@string/menu_item_connect" android:id="@+id/menu_connect"></item>
     <item android:title="@string/menu_item_disconnect" android:id="@+id/menu_disconnect"></item>
+    <item android:title="@string/menu_item_manage_logs" android:id="@+id/menu_manage_logs"></item>
 </menu>

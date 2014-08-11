@@ -70,7 +70,7 @@ public abstract class ObjectManagerActivity extends FragmentActivity {
 
 	private final String TAG = "ObjectManagerActivity";
 	private static int LOGLEVEL = 0;
-//	private static boolean WARN = LOGLEVEL > 1;
+	private static boolean WARN = LOGLEVEL > 1;
 	private static boolean DEBUG = LOGLEVEL > 0;
 
 	//! Object manager, populated by parent for the children to use
@@ -525,6 +525,9 @@ public abstract class ObjectManagerActivity extends FragmentActivity {
 		case R.id.menu_settings:
 			startActivity(new Intent(this, Preferences.class));
 			return true;
+		case R.id.menu_manage_logs:
+			 startActivity(new Intent(this, LogManagerActivty.class));
+			 return true;
 		default:
 			return super.onOptionsItemSelected(item);
 		}
