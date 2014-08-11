@@ -23,6 +23,7 @@
 
 package org.openpilot_nonag.androidgcs;
 import org.openpilot_nonag.uavtalk.UAVObject;
+import org.openpilot_nonag.uavtalk.UAVObjectField;
 import java.math.BigDecimal;
 
 import android.location.Location;
@@ -142,8 +143,14 @@ public class UAVLocation extends ObjectManagerActivity implements OnMyLocationCh
                         TabletpathLine.setPoints(TabletpathPoints);
                         return true;
                 case R.id.map_action_set_home:
-			homeLocation = touchLocation;
-			// change this to actually push out the UAVO to the board.
+			Log.d(TAG, "Touch point location is currently lat / lon pair " + touchLocation.latitude + " " + touchLocation.longitude);
+
+			// Make this code complete... 
+			if (objMngr != null) {
+				UAVObject obj = objMngr.getObject("HomeLocation");
+			 	UAVObjectField field = obj.getField("Lattitude");
+			}
+
                         return true;
                 default:
                     return super.onContextItemSelected(item);
