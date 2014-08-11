@@ -160,9 +160,8 @@ public class UAVLocation extends ObjectManagerActivity implements OnMyLocationCh
 	        // Creating a LatLng object for the current location
 	        LatLng latLng = new LatLng(latitude, longitude);
 
-                Log.d(TAG, "my location changed and is currently lat / lon pair " + latitude + " " + longitude);
+		Log.d(TAG, "Tablet location changed and is currently lat / lon pair " + latitude + " " + longitude);
                 TabletpathPoints.add(latLng);
-	        Log.d(TAG, "path point being added");
                 TabletpathLine.setPoints(TabletpathPoints);
 
 	    }
@@ -206,7 +205,21 @@ public class UAVLocation extends ObjectManagerActivity implements OnMyLocationCh
 	}
 
 	private LatLng getUavLocation() {
-		Log.d(TAG, "Getting Location.....");
+               // Original code was reliant upon the following behavior: 
+               //
+               // GPS sensor provides lat/long coordinates, you set a HomeLocation 
+               // UAV Position is converted in NED (North,East,Down) coordinates relative to HomeLocation.
+               //
+               // PositionActual is now PositionState
+               //
+               // http://forums.openpilot.org/topic/1578-changes-to-gps-objects/
+               // filled with the AHRS's filtered version of position, heading and velocity vectors.
+               // The GCS should be using the PositionActual object and not the GPSPosition directly. 
+               // The reason is that the PositionActual will contain the more accurate AHRS derived position (by using raw GPS, baro, and IMU data). 
+               //
+               // For now we want to visualize the *raw* GPS info
+
+
 		UAVObject pos = objMngr.getObject("GPSPositionSensor");
 		if (pos == null)
 		{
@@ -214,14 +227,13 @@ public class UAVLocation extends ObjectManagerActivity implements OnMyLocationCh
 		}
                 else
 		{
-                                Log.d(TAG, "PositionState info is valid");
+//                                Log.d(TAG, "PositionState info is valid");
                 }
 
 		double lat, lon;
 		lat = (pos.getField("Latitude").getDouble() * .0000001 );
 		lon = (pos.getField("Longitude").getDouble() * .0000001 );
-                Log.d(TAG, "returning lat / lon pair " + lat + " " + lon);
-		// needs value corrected 
+		Log.d(TAG, "UAV location is currently lat / lon pair " + lat + " " + lon);
 
 		return new LatLng(lat, lon);
 	}
@@ -239,21 +251,29 @@ public class UAVLocation extends ObjectManagerActivity implements OnMyLocationCh
 			Double lat = obj.getField("Latitude").getDouble() / 10;
 			Double lon = obj.getField("Longitude").getDouble() / 10;
 
-	                Log.d(TAG, "home returns as lat / lon pair " + lat + " " + lon);
+			Log.d(TAG, "HomeLocation is at lat / lon pair " + lat + " " + lon);
 
-			homeLocation = new LatLng(lat.intValue(), lon.intValue());
-			if (mHomeMarker == null) {
-	                        Log.d(TAG, "home marker is null so creating it");
-				mHomeMarker = mMap.addMarker(new MarkerOptions().anchor(0.5f,0.5f)
-			       .position(new LatLng(homeLocation.latitude, homeLocation.longitude))
-			       .title("UAV_HOME")
-			       .snippet(String.format("%g, %g", homeLocation.latitude, homeLocation.longitude))
-			       .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_home)));
-			} else {
-	                        Log.d(TAG, "home location is being updated to " + homeLocation.latitude + " " + homeLocation.latitude);
-				mHomeMarker.setPosition((new LatLng(homeLocation.latitude, homeLocation.longitude)));
-			}
-		} 
+                       if (lat !=0 && lon !=0)
+                       {
+                               homeLocation = new LatLng(lat, lon);
+                               if (mHomeMarker == null) {
+                                       Log.d(TAG, "home marker is null so creating it");
+                                       mHomeMarker = mMap.addMarker(new MarkerOptions().anchor(0.5f,0.5f)
+                                       .position(new LatLng(homeLocation.latitude, homeLocation.longitude))
+                                       .title("UAV_HOME")
+                                       .snippet(String.format("%g, %g", homeLocation.latitude, homeLocation.longitude))
+                                       .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_home)));
+                               } else {
+                                       Log.d(TAG, "home location marker has been updated to " + homeLocation.latitude + " " + homeLocation.latitude);
+                                       mHomeMarker.setPosition((new LatLng(homeLocation.latitude, homeLocation.longitude)));
+                                       mHomeMarker.setSnippet(String.format("%g, %g", homeLocation.latitude, homeLocation.longitude));
+                               }
+                       }
+                       else
+                       {
+                               Log.d(TAG, "Home location is invalid lat / lon pair 0, 0");
+                       }
+               }
 
 		else if (obj.getName().compareTo("GPSPositionSensor") == 0) {
 			uavLocation = getUavLocation();
@@ -268,11 +288,11 @@ public class UAVLocation extends ObjectManagerActivity implements OnMyLocationCh
 			       .snippet(String.format("%g, %g", uavLocation.latitude, uavLocation.longitude))
 			       .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_uav)));
 			} else {
-	                        Log.d(TAG, "uav location is being updated");
+//	                        Log.d(TAG, "uav location is being updated");
 				mUavMarker.setPosition((new LatLng(uavLocation.latitude, uavLocation.longitude)));
 			}
                         UAVpathPoints.add(loc);
-	                Log.d(TAG, "uav path point being added");
+//	                Log.d(TAG, "uav path point being added");
                         UAVpathLine.setPoints(UAVpathPoints);
 		}
 	}
