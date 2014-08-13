@@ -102,8 +102,8 @@ public class UAVLocation extends ObjectManagerActivity implements OnMyLocationCh
 
                 UAVpathLine = mMap.addPolyline(new PolylineOptions().width(5).color(Color.WHITE));
                 UAVpathLine.setPoints(UAVpathPoints);
-                NEDUAVpathLine = mMap.addPolyline(new PolylineOptions().width(5).color(Color.WHITE));
-                NEDUAVpathLine.setPoints(UAVpathPoints);
+                NEDUAVpathLine = mMap.addPolyline(new PolylineOptions().width(5).color(Color.RED));
+                NEDUAVpathLine.setPoints(NEDUAVpathPoints);
                 TabletpathLine = mMap.addPolyline(new PolylineOptions().width(5).color(Color.BLUE));
                 TabletpathLine.setPoints(TabletpathPoints);
 
@@ -307,19 +307,19 @@ public class UAVLocation extends ObjectManagerActivity implements OnMyLocationCh
 
                        if (lat !=0 && lon !=0)
                        {
-                               homeLocation = new LatLng(lat, lon);
-                               if (mHomeMarker == null) {
+                               	homeLocation = new LatLng(lat, lon);
+                               	if (mHomeMarker == null) {
                                        Log.d(TAG, "home marker is null so creating it");
                                        mHomeMarker = mMap.addMarker(new MarkerOptions().anchor(0.5f,0.5f)
                                        .position(new LatLng(homeLocation.latitude, homeLocation.longitude))
                                        .title("UAV_HOME")
                                        .snippet(String.format("%g, %g", homeLocation.latitude, homeLocation.longitude))
                                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_home)));
-                               } else {
+                               	} else {
                                        Log.d(TAG, "home location marker has been updated to " + homeLocation.latitude + " " + homeLocation.latitude);
                                        mHomeMarker.setPosition((new LatLng(homeLocation.latitude, homeLocation.longitude)));
                                        mHomeMarker.setSnippet(String.format("%g, %g", homeLocation.latitude, homeLocation.longitude));
-                               }
+                               	}
                        }
                        else
                        {
@@ -331,6 +331,7 @@ public class UAVLocation extends ObjectManagerActivity implements OnMyLocationCh
 			uavLocation = getUavLocation();
 			uavNEDLocation = getNEDUavLocation();
 			LatLng loc = new LatLng(uavLocation.latitude, uavLocation.longitude);
+			LatLng NEDloc = new LatLng(uavNEDLocation.latitude, uavNEDLocation.longitude);
 			if (mUavMarker == null) {
 	                        Log.d(TAG, "uav marker is null so creating it");
 				CameraPosition camPos = mMap.getCameraPosition();
@@ -345,8 +346,15 @@ public class UAVLocation extends ObjectManagerActivity implements OnMyLocationCh
 				mUavMarker.setPosition((new LatLng(uavLocation.latitude, uavLocation.longitude)));
 			}
                         UAVpathPoints.add(loc);
-//	                Log.d(TAG, "uav path point being added");
                         UAVpathLine.setPoints(UAVpathPoints);
+
+                        Log.d(TAG, "NEDLocation is at lat / lon pair " + uavNEDLocation.latitude + " " + uavNEDLocation.longitude);
+
+                       	if (uavNEDLocation.latitude !=0 && uavNEDLocation.longitude !=0)
+                       	{
+                                NEDUAVpathPoints.add(NEDloc);
+                                NEDUAVpathLine.setPoints(NEDUAVpathPoints);
+			}
 		}
 	}
 
