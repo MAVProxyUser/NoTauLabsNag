@@ -64,6 +64,7 @@
 
 	<string name="jump_to_uav">Jump To UAV</string>
 	<string name="clear_uav_path">Clear UAV Path</string>
+	<string name="clear_NEDuav_path">Clear NED UAV Path</string>
 	<string name="clear_tablet_path">Clear Tablet Path</string>
 	<string name="set_home">Set Home</string>
 

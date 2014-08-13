@@ -79,8 +79,10 @@ public class UAVLocation extends ObjectManagerActivity implements OnMyLocationCh
     	private LatLng uavLocation;
     	private LatLng touchLocation;
     	private List<LatLng> UAVpathPoints = new ArrayList<LatLng>();
+    	private List<LatLng> NEDUAVpathPoints = new ArrayList<LatLng>();
     	private List<LatLng> TabletpathPoints = new ArrayList<LatLng>();
     	private Polyline UAVpathLine;
+    	private Polyline NEDUAVpathLine;
     	private Polyline TabletpathLine;
 
     	@Override
@@ -100,6 +102,8 @@ public class UAVLocation extends ObjectManagerActivity implements OnMyLocationCh
 
                 UAVpathLine = mMap.addPolyline(new PolylineOptions().width(5).color(Color.WHITE));
                 UAVpathLine.setPoints(UAVpathPoints);
+                NEDUAVpathLine = mMap.addPolyline(new PolylineOptions().width(5).color(Color.WHITE));
+                NEDUAVpathLine.setPoints(UAVpathPoints);
                 TabletpathLine = mMap.addPolyline(new PolylineOptions().width(5).color(Color.BLUE));
                 TabletpathLine.setPoints(TabletpathPoints);
 
@@ -137,6 +141,10 @@ public class UAVLocation extends ObjectManagerActivity implements OnMyLocationCh
                 case R.id.map_action_clear_uav_path:
                         UAVpathPoints.clear();
                         UAVpathLine.setPoints(UAVpathPoints);
+                        return true;
+                case R.id.map_action_clear_NEDuav_path:
+                        NEDUAVpathPoints.clear();
+                        NEDUAVpathLine.setPoints(NEDUAVpathPoints);
                         return true;
                 case R.id.map_action_clear_tablet_path:
                         TabletpathPoints.clear();
@@ -245,6 +253,43 @@ public class UAVLocation extends ObjectManagerActivity implements OnMyLocationCh
 		return new LatLng(lat, lon);
 	}
 
+	private LatLng getNEDUavLocation() {
+		UAVObject pos = objMngr.getObject("PositionState");
+		if (pos == null)
+		{
+			Log.d(TAG, "unable to grab NED coordinates due to invalid PositionState");
+			return new LatLng(0,0);
+		}
+		UAVObject home = objMngr.getObject("HomeLocation");
+		if (home == null)
+		{
+			Log.d(TAG, "unable to grab NED coordinates due to invalid HomeLocation");
+			return new LatLng(0,0);
+		}
+
+		double lat, lon, alt;
+		lat = home.getField("Latitude").getDouble() / 10.0e6;
+		lon = home.getField("Longitude").getDouble() / 10.0e6;
+		alt = home.getField("Altitude").getDouble();
+
+		// Get the home coordinates
+		double T0, T1;
+		T0 = alt+6.378137E6;
+		T1 = Math.cos(lat * Math.PI / 180.0)*(alt+6.378137E6);
+
+		// Get the NED coordinates
+		double NED0, NED1;
+		NED0 = pos.getField("North").getDouble();
+		NED1 = pos.getField("East").getDouble();
+
+		// Compute the LLA coordinates
+		lat = lat + (NED0 / T0) * 180.0 / Math.PI;
+		lon = lon + (NED1 / T1) * 180.0 / Math.PI;
+
+		Log.d(TAG, "UAV location is currently lat / lon pair " + (lat * 1e6)+ " " + (lon * 1e6));
+		return new LatLng((int) (lat * 1e6), (int) (lon * 1e6));
+	}
+
 	// https://developers.google.com/maps/documentation/android/marker
 	/**
 	 * Called whenever any objects subscribed to via registerObjects
@@ -284,6 +329,7 @@ public class UAVLocation extends ObjectManagerActivity implements OnMyLocationCh
 
 		else if (obj.getName().compareTo("GPSPositionSensor") == 0) {
 			uavLocation = getUavLocation();
+			uavNEDLocation = getNEDUavLocation();
 			LatLng loc = new LatLng(uavLocation.latitude, uavLocation.longitude);
 			if (mUavMarker == null) {
 	                        Log.d(TAG, "uav marker is null so creating it");
