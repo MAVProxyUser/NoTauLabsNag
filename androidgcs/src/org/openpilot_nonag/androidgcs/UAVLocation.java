@@ -74,6 +74,7 @@ public class UAVLocation extends ObjectManagerActivity implements OnMyLocationCh
 	private SupportMapFragment mapFrag;
 	private Marker mUavMarker;
 	private Marker mHomeMarker;
+	private Marker mNEDUavMarker;
 
     	private LatLng homeLocation;
     	private LatLng uavLocation;
@@ -287,7 +288,7 @@ public class UAVLocation extends ObjectManagerActivity implements OnMyLocationCh
 		lat = lat + (NED0 / T0) * 180.0 / Math.PI;
 		lon = lon + (NED1 / T1) * 180.0 / Math.PI;
 
-		Log.d(TAG, "UAV NED location is currently lat / lon pair " + lat+ " " + lon);
+		//Log.d(TAG, "UAV NED location is currently lat / lon pair " + lat+ " " + lon);
 		return new LatLng(lat , lon);
 	}
 
@@ -330,39 +331,55 @@ public class UAVLocation extends ObjectManagerActivity implements OnMyLocationCh
 
 		else if (obj.getName().compareTo("GPSPositionSensor") == 0) {
 			uavLocation = getUavLocation();
-			uavNEDLocation = getNEDUavLocation();
 			LatLng loc = new LatLng(uavLocation.latitude, uavLocation.longitude);
-			LatLng NEDloc = new LatLng(uavNEDLocation.latitude, uavNEDLocation.longitude);
+
 			if (uavLocation.latitude !=0 && uavLocation.longitude !=0)
                        	{
 				if (mUavMarker == null) {
 		                        Log.d(TAG, "uav marker is null so creating it");
-					CameraPosition camPos = mMap.getCameraPosition();
-					LatLng lla = camPos.target;
 					mUavMarker = mMap.addMarker(new MarkerOptions()
-				       .position(new LatLng(lla.latitude, lla.longitude))
+				       .position(new LatLng(uavLocation.latitude, uavLocation.longitude))
 				       .title("UAV_LOCATION")
 				       .snippet(String.format("%g, %g", uavLocation.latitude, uavLocation.longitude))
 				       .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_uav)));
 				} else {
-//	        	                Log.d(TAG, "uav location is being updated");
 					mUavMarker.setPosition((new LatLng(uavLocation.latitude, uavLocation.longitude)));
+                                        mUavMarker.setSnippet(String.format("%g, %g", uavLocation.latitude, uavLocation.longitude));
 				}
                 	        UAVpathPoints.add(loc);
                 	        UAVpathLine.setPoints(UAVpathPoints);
-
-
-                       		if (uavNEDLocation.latitude !=0 && uavNEDLocation.longitude !=0)
-                       		{
-	                        	Log.d(TAG, "NEDLocation is at lat / lon pair " + uavNEDLocation.latitude + " " + uavNEDLocation.longitude);
-                        	        NEDUAVpathPoints.add(NEDloc);
-                        	        NEDUAVpathLine.setPoints(NEDUAVpathPoints);
-				}
 			}
 			else
                        	{
                                Log.d(TAG, "UAV location is at invalid lat / lon pair 0, 0");
                        	}
+
+
+			uavNEDLocation = getNEDUavLocation();
+			LatLng NEDloc = new LatLng(uavNEDLocation.latitude, uavNEDLocation.longitude);
+
+                       	if (uavNEDLocation.latitude !=0 && uavNEDLocation.longitude !=0)
+                       	{
+	                       	Log.d(TAG, "NEDLocation is at lat / lon pair " + uavNEDLocation.latitude + " " + uavNEDLocation.longitude);
+				if (mNEDUavMarker == null) {
+		                        Log.d(TAG, "NED uav marker is null so creating it");
+					mNEDUavMarker = mMap.addMarker(new MarkerOptions()
+				       .position(new LatLng(uavNEDLocation.latitude, uavNEDLocation.longitude))
+				       .title("UAV_NED_LOCATION")
+				       .snippet(String.format("%g, %g", uavNEDLocation.latitude, uavNEDLocation.longitude))
+				       .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_ned_uav)));
+				} else {
+					mNEDUavMarker.setPosition((new LatLng(uavNEDLocation.latitude, uavNEDLocation.longitude)));
+					mNEDUavMarker.setSnippet(String.format("%g, %g", uavNEDLocation.latitude, uavNEDLocation.longitude));
+				}
+                	        NEDUAVpathPoints.add(NEDloc);
+                	        NEDUAVpathLine.setPoints(NEDUAVpathPoints);
+			}
+			else
+                       	{
+                               Log.d(TAG, "NED UAV location is at invalid lat / lon pair 0, 0");
+                       	}
+
 		}
 	}
 
