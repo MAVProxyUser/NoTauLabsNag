@@ -77,6 +77,7 @@ public class UAVLocation extends ObjectManagerActivity implements OnMyLocationCh
 
     	private LatLng homeLocation;
     	private LatLng uavLocation;
+    	private LatLng uavNEDLocation;
     	private LatLng touchLocation;
     	private List<LatLng> UAVpathPoints = new ArrayList<LatLng>();
     	private List<LatLng> NEDUAVpathPoints = new ArrayList<LatLng>();
@@ -187,7 +188,7 @@ public class UAVLocation extends ObjectManagerActivity implements OnMyLocationCh
 
 		UAVObject obj = objMngr.getObject("HomeLocation");
 		if (obj != null) {
-			obj.updateRequested(); // Make sure this is correct and been updated
+			//obj.updateRequested(); // Make sure this is correct and been updated
 			registerObjectUpdates(obj);
 			objectUpdated(obj);
 		}
@@ -268,8 +269,8 @@ public class UAVLocation extends ObjectManagerActivity implements OnMyLocationCh
 		}
 
 		double lat, lon, alt;
-		lat = home.getField("Latitude").getDouble() / 10.0e6;
-		lon = home.getField("Longitude").getDouble() / 10.0e6;
+		lat = home.getField("Latitude").getDouble() * .0000001;
+		lon = home.getField("Longitude").getDouble() * .0000001;
 		alt = home.getField("Altitude").getDouble();
 
 		// Get the home coordinates
@@ -286,8 +287,8 @@ public class UAVLocation extends ObjectManagerActivity implements OnMyLocationCh
 		lat = lat + (NED0 / T0) * 180.0 / Math.PI;
 		lon = lon + (NED1 / T1) * 180.0 / Math.PI;
 
-		Log.d(TAG, "UAV location is currently lat / lon pair " + (lat * 1e6)+ " " + (lon * 1e6));
-		return new LatLng((int) (lat * 1e6), (int) (lon * 1e6));
+		Log.d(TAG, "UAV NED location is currently lat / lon pair " + lat+ " " + lon);
+		return new LatLng(lat , lon);
 	}
 
 	// https://developers.google.com/maps/documentation/android/marker
@@ -332,29 +333,36 @@ public class UAVLocation extends ObjectManagerActivity implements OnMyLocationCh
 			uavNEDLocation = getNEDUavLocation();
 			LatLng loc = new LatLng(uavLocation.latitude, uavLocation.longitude);
 			LatLng NEDloc = new LatLng(uavNEDLocation.latitude, uavNEDLocation.longitude);
-			if (mUavMarker == null) {
-	                        Log.d(TAG, "uav marker is null so creating it");
-				CameraPosition camPos = mMap.getCameraPosition();
-				LatLng lla = camPos.target;
-				mUavMarker = mMap.addMarker(new MarkerOptions()
-			       .position(new LatLng(lla.latitude, lla.longitude))
-			       .title("UAV_LOCATION")
-			       .snippet(String.format("%g, %g", uavLocation.latitude, uavLocation.longitude))
-			       .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_uav)));
-			} else {
-//	                        Log.d(TAG, "uav location is being updated");
-				mUavMarker.setPosition((new LatLng(uavLocation.latitude, uavLocation.longitude)));
-			}
-                        UAVpathPoints.add(loc);
-                        UAVpathLine.setPoints(UAVpathPoints);
-
-                        Log.d(TAG, "NEDLocation is at lat / lon pair " + uavNEDLocation.latitude + " " + uavNEDLocation.longitude);
-
-                       	if (uavNEDLocation.latitude !=0 && uavNEDLocation.longitude !=0)
+			if (uavLocation.latitude !=0 && uavLocation.longitude !=0)
                        	{
-                                NEDUAVpathPoints.add(NEDloc);
-                                NEDUAVpathLine.setPoints(NEDUAVpathPoints);
+				if (mUavMarker == null) {
+		                        Log.d(TAG, "uav marker is null so creating it");
+					CameraPosition camPos = mMap.getCameraPosition();
+					LatLng lla = camPos.target;
+					mUavMarker = mMap.addMarker(new MarkerOptions()
+				       .position(new LatLng(lla.latitude, lla.longitude))
+				       .title("UAV_LOCATION")
+				       .snippet(String.format("%g, %g", uavLocation.latitude, uavLocation.longitude))
+				       .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_uav)));
+				} else {
+//	        	                Log.d(TAG, "uav location is being updated");
+					mUavMarker.setPosition((new LatLng(uavLocation.latitude, uavLocation.longitude)));
+				}
+                	        UAVpathPoints.add(loc);
+                	        UAVpathLine.setPoints(UAVpathPoints);
+
+
+                       		if (uavNEDLocation.latitude !=0 && uavNEDLocation.longitude !=0)
+                       		{
+	                        	Log.d(TAG, "NEDLocation is at lat / lon pair " + uavNEDLocation.latitude + " " + uavNEDLocation.longitude);
+                        	        NEDUAVpathPoints.add(NEDloc);
+                        	        NEDUAVpathLine.setPoints(NEDUAVpathPoints);
+				}
 			}
+			else
+                       	{
+                               Log.d(TAG, "UAV location is at invalid lat / lon pair 0, 0");
+                       	}
 		}
 	}
 
