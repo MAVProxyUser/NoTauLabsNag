@@ -216,8 +216,7 @@ public class UAVLocation extends ObjectManagerActivity implements
 
 		UAVObject obj = objMngr.getObject("HomeLocation");
 		if (obj != null) {
-			// obj.updateRequested(); // Make sure this is correct and been
-			// updated
+			obj.updateRequested(); // Make sure this is correct and been updated
 			registerObjectUpdates(obj);
 			objectUpdated(obj);
 		} else {
