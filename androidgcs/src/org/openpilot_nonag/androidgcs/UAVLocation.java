@@ -23,6 +23,7 @@
 
 package org.openpilot_nonag.androidgcs;
 import org.openpilot_nonag.uavtalk.UAVObject;
+import org.openpilot_nonag.uavtalk.UAVObjectField;
 import java.math.BigDecimal;
 
 import android.location.Location;
@@ -34,6 +35,14 @@ import java.util.List;
 import android.graphics.Color;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+
+import android.view.ContextMenu;
+import android.view.LayoutInflater;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.ContextMenu.ContextMenuInfo;
 
 import com.google.android.gms.maps.GoogleMap;
 //import com.google.android.gms.maps.MapFragment;
@@ -68,9 +77,13 @@ public class UAVLocation extends ObjectManagerActivity implements OnMyLocationCh
 
     	private LatLng homeLocation;
     	private LatLng uavLocation;
+    	private LatLng uavNEDLocation;
+    	private LatLng touchLocation;
     	private List<LatLng> UAVpathPoints = new ArrayList<LatLng>();
+    	private List<LatLng> NEDUAVpathPoints = new ArrayList<LatLng>();
     	private List<LatLng> TabletpathPoints = new ArrayList<LatLng>();
     	private Polyline UAVpathLine;
+    	private Polyline NEDUAVpathLine;
     	private Polyline TabletpathLine;
 
     	@Override
@@ -90,19 +103,69 @@ public class UAVLocation extends ObjectManagerActivity implements OnMyLocationCh
 
                 UAVpathLine = mMap.addPolyline(new PolylineOptions().width(5).color(Color.WHITE));
                 UAVpathLine.setPoints(UAVpathPoints);
+                NEDUAVpathLine = mMap.addPolyline(new PolylineOptions().width(5).color(Color.RED));
+                NEDUAVpathLine.setPoints(NEDUAVpathPoints);
                 TabletpathLine = mMap.addPolyline(new PolylineOptions().width(5).color(Color.BLUE));
                 TabletpathLine.setPoints(TabletpathPoints);
 
+		registerForContextMenu(mapFrag.getView());
 		mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
                         @Override
                         public void onMapLongClick(LatLng arg0) {
                                 Log.d(TAG, "Click");
-                                // Animating to the touched position
-                		mMap.animateCamera(CameraUpdateFactory.newLatLng(arg0));
+				mapFrag.getView().showContextMenu();
+				touchLocation = arg0;
                 	}
 		});
 
     }
+
+        @Override
+        public void onCreateContextMenu(ContextMenu menu, View v,
+                                        ContextMenuInfo menuInfo) {
+            super.onCreateContextMenu(menu, v, menuInfo);
+	    Activity mapAct = (Activity) this;
+            MenuInflater inflater = mapAct.getMenuInflater();
+            inflater.inflate(R.menu.map_click_actions, menu);
+        }
+
+        @Override
+        public boolean onContextItemSelected(MenuItem item) {
+
+            switch (item.getItemId()) {
+                case R.id.map_action_jump_to_uav:
+			uavLocation = getUavLocation(); // null pointer somewhere around here. 
+                    if (uavLocation != null) {
+                        mMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(uavLocation.latitude, uavLocation.longitude)));
+                    }
+                    return true;
+                case R.id.map_action_clear_uav_path:
+                        UAVpathPoints.clear();
+                        UAVpathLine.setPoints(UAVpathPoints);
+                        return true;
+                case R.id.map_action_clear_NEDuav_path:
+                        NEDUAVpathPoints.clear();
+                        NEDUAVpathLine.setPoints(NEDUAVpathPoints);
+                        return true;
+                case R.id.map_action_clear_tablet_path:
+                        TabletpathPoints.clear();
+                        TabletpathLine.setPoints(TabletpathPoints);
+                        return true;
+                case R.id.map_action_set_home:
+			Log.d(TAG, "Touch point location is currently lat / lon pair " + touchLocation.latitude + " " + touchLocation.longitude);
+
+			// Make this code complete... 
+			if (objMngr != null) {
+				UAVObject obj = objMngr.getObject("HomeLocation");
+			 	UAVObjectField field = obj.getField("Lattitude");
+			}
+
+                        return true;
+                default:
+                    return super.onContextItemSelected(item);
+            }
+
+        }
 
 	@Override
     	public void onMyLocationChange(Location location) {
@@ -113,9 +176,8 @@ public class UAVLocation extends ObjectManagerActivity implements OnMyLocationCh
 	        // Creating a LatLng object for the current location
 	        LatLng latLng = new LatLng(latitude, longitude);
 
-                Log.d(TAG, "my location changed and is currently lat / lon pair " + latitude + " " + longitude);
+		Log.d(TAG, "Tablet location changed and is currently lat / lon pair " + latitude + " " + longitude);
                 TabletpathPoints.add(latLng);
-	        Log.d(TAG, "path point being added");
                 TabletpathLine.setPoints(TabletpathPoints);
 
 	    }
@@ -126,7 +188,7 @@ public class UAVLocation extends ObjectManagerActivity implements OnMyLocationCh
 
 		UAVObject obj = objMngr.getObject("HomeLocation");
 		if (obj != null) {
-			obj.updateRequested(); // Make sure this is correct and been updated
+			//obj.updateRequested(); // Make sure this is correct and been updated
 			registerObjectUpdates(obj);
 			objectUpdated(obj);
 		}
@@ -159,7 +221,21 @@ public class UAVLocation extends ObjectManagerActivity implements OnMyLocationCh
 	}
 
 	private LatLng getUavLocation() {
-		Log.d(TAG, "Getting Location.....");
+               // Original code was reliant upon the following behavior: 
+               //
+               // GPS sensor provides lat/long coordinates, you set a HomeLocation 
+               // UAV Position is converted in NED (North,East,Down) coordinates relative to HomeLocation.
+               //
+               // PositionActual is now PositionState
+               //
+               // http://forums.openpilot.org/topic/1578-changes-to-gps-objects/
+               // filled with the AHRS's filtered version of position, heading and velocity vectors.
+               // The GCS should be using the PositionActual object and not the GPSPosition directly. 
+               // The reason is that the PositionActual will contain the more accurate AHRS derived position (by using raw GPS, baro, and IMU data). 
+               //
+               // For now we want to visualize the *raw* GPS info
+
+
 		UAVObject pos = objMngr.getObject("GPSPositionSensor");
 		if (pos == null)
 		{
@@ -167,16 +243,52 @@ public class UAVLocation extends ObjectManagerActivity implements OnMyLocationCh
 		}
                 else
 		{
-                                Log.d(TAG, "PositionState info is valid");
+//                                Log.d(TAG, "PositionState info is valid");
                 }
 
 		double lat, lon;
 		lat = (pos.getField("Latitude").getDouble() * .0000001 );
 		lon = (pos.getField("Longitude").getDouble() * .0000001 );
-                Log.d(TAG, "returning lat / lon pair " + lat + " " + lon);
-		// needs value corrected 
+		Log.d(TAG, "UAV location is currently lat / lon pair " + lat + " " + lon);
 
 		return new LatLng(lat, lon);
+	}
+
+	private LatLng getNEDUavLocation() {
+		UAVObject pos = objMngr.getObject("PositionState");
+		if (pos == null)
+		{
+			Log.d(TAG, "unable to grab NED coordinates due to invalid PositionState");
+			return new LatLng(0,0);
+		}
+		UAVObject home = objMngr.getObject("HomeLocation");
+		if (home == null)
+		{
+			Log.d(TAG, "unable to grab NED coordinates due to invalid HomeLocation");
+			return new LatLng(0,0);
+		}
+
+		double lat, lon, alt;
+		lat = home.getField("Latitude").getDouble() * .0000001;
+		lon = home.getField("Longitude").getDouble() * .0000001;
+		alt = home.getField("Altitude").getDouble();
+
+		// Get the home coordinates
+		double T0, T1;
+		T0 = alt+6.378137E6;
+		T1 = Math.cos(lat * Math.PI / 180.0)*(alt+6.378137E6);
+
+		// Get the NED coordinates
+		double NED0, NED1;
+		NED0 = pos.getField("North").getDouble();
+		NED1 = pos.getField("East").getDouble();
+
+		// Compute the LLA coordinates
+		lat = lat + (NED0 / T0) * 180.0 / Math.PI;
+		lon = lon + (NED1 / T1) * 180.0 / Math.PI;
+
+		Log.d(TAG, "UAV NED location is currently lat / lon pair " + lat+ " " + lon);
+		return new LatLng(lat , lon);
 	}
 
 	// https://developers.google.com/maps/documentation/android/marker
@@ -189,44 +301,68 @@ public class UAVLocation extends ObjectManagerActivity implements OnMyLocationCh
 		if (obj == null)
 			return;
 		if (obj.getName().compareTo("HomeLocation") == 0) {
-			Double lat = obj.getField("Latitude").getDouble() / 10;
-			Double lon = obj.getField("Longitude").getDouble() / 10;
+			Double lat = obj.getField("Latitude").getDouble() * .0000001;
+			Double lon = obj.getField("Longitude").getDouble() * .0000001;
 
-	                Log.d(TAG, "home returns as lat / lon pair " + lat + " " + lon);
+			Log.d(TAG, "HomeLocation is at lat / lon pair " + lat + " " + lon);
 
-			homeLocation = new LatLng(lat.intValue(), lon.intValue());
-			if (mHomeMarker == null) {
-	                        Log.d(TAG, "home marker is null so creating it");
-				mHomeMarker = mMap.addMarker(new MarkerOptions().anchor(0.5f,0.5f)
-			       .position(new LatLng(homeLocation.latitude, homeLocation.longitude))
-			       .title("UAV_HOME")
-			       .snippet(String.format("%g, %g", homeLocation.latitude, homeLocation.longitude))
-			       .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_home)));
-			} else {
-	                        Log.d(TAG, "home location is being updated to " + homeLocation.latitude + " " + homeLocation.latitude);
-				mHomeMarker.setPosition((new LatLng(homeLocation.latitude, homeLocation.longitude)));
-			}
-		} 
+                       if (lat !=0 && lon !=0)
+                       {
+                               	homeLocation = new LatLng(lat, lon);
+                               	if (mHomeMarker == null) {
+                                       Log.d(TAG, "home marker is null so creating it");
+                                       mHomeMarker = mMap.addMarker(new MarkerOptions().anchor(0.5f,0.5f)
+                                       .position(new LatLng(homeLocation.latitude, homeLocation.longitude))
+                                       .title("UAV_HOME")
+                                       .snippet(String.format("%g, %g", homeLocation.latitude, homeLocation.longitude))
+                                       .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_home)));
+                               	} else {
+                                       Log.d(TAG, "home location marker has been updated to " + homeLocation.latitude + " " + homeLocation.latitude);
+                                       mHomeMarker.setPosition((new LatLng(homeLocation.latitude, homeLocation.longitude)));
+                                       mHomeMarker.setSnippet(String.format("%g, %g", homeLocation.latitude, homeLocation.longitude));
+                               	}
+                       }
+                       else
+                       {
+                               Log.d(TAG, "Home location is invalid lat / lon pair 0, 0");
+                       }
+               }
 
 		else if (obj.getName().compareTo("GPSPositionSensor") == 0) {
 			uavLocation = getUavLocation();
+			uavNEDLocation = getNEDUavLocation();
 			LatLng loc = new LatLng(uavLocation.latitude, uavLocation.longitude);
-			if (mUavMarker == null) {
-	                        Log.d(TAG, "uav marker is null so creating it");
-				CameraPosition camPos = mMap.getCameraPosition();
-				LatLng lla = camPos.target;
-				mUavMarker = mMap.addMarker(new MarkerOptions()
-			       .position(new LatLng(lla.latitude, lla.longitude))
-			       .title("UAV_LOCATION")
-			       .snippet(String.format("%g, %g", uavLocation.latitude, uavLocation.longitude))
-			       .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_uav)));
-			} else {
-	                        Log.d(TAG, "uav location is being updated");
-				mUavMarker.setPosition((new LatLng(uavLocation.latitude, uavLocation.longitude)));
+			LatLng NEDloc = new LatLng(uavNEDLocation.latitude, uavNEDLocation.longitude);
+			if (uavLocation.latitude !=0 && uavLocation.longitude !=0)
+                       	{
+				if (mUavMarker == null) {
+		                        Log.d(TAG, "uav marker is null so creating it");
+					CameraPosition camPos = mMap.getCameraPosition();
+					LatLng lla = camPos.target;
+					mUavMarker = mMap.addMarker(new MarkerOptions()
+				       .position(new LatLng(lla.latitude, lla.longitude))
+				       .title("UAV_LOCATION")
+				       .snippet(String.format("%g, %g", uavLocation.latitude, uavLocation.longitude))
+				       .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_uav)));
+				} else {
+//	        	                Log.d(TAG, "uav location is being updated");
+					mUavMarker.setPosition((new LatLng(uavLocation.latitude, uavLocation.longitude)));
+				}
+                	        UAVpathPoints.add(loc);
+                	        UAVpathLine.setPoints(UAVpathPoints);
+
+
+                       		if (uavNEDLocation.latitude !=0 && uavNEDLocation.longitude !=0)
+                       		{
+	                        	Log.d(TAG, "NEDLocation is at lat / lon pair " + uavNEDLocation.latitude + " " + uavNEDLocation.longitude);
+                        	        NEDUAVpathPoints.add(NEDloc);
+                        	        NEDUAVpathLine.setPoints(NEDUAVpathPoints);
+				}
 			}
-                        UAVpathPoints.add(loc);
-	                Log.d(TAG, "uav path point being added");
-                        UAVpathLine.setPoints(UAVpathPoints);
+			else
+                       	{
+                               Log.d(TAG, "UAV location is at invalid lat / lon pair 0, 0");
+                       	}
 		}
 	}
 
