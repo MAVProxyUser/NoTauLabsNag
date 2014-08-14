@@ -6,7 +6,7 @@
 	<string name="wizard_name">Wizard</string>
 	<string name="pfd_name">PFD</string>
 	<string name="tfr_name">TFR</string>
-	<string name="cc_name">Comand Center</string>
+	<string name="cc_name">Control Center</string>
         <string name="location_name">Map</string>
 	<string name="logger_name">Logging</string>
 	
