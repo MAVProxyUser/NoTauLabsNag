@@ -4,52 +4,83 @@
     android:versionCode="18"
     android:versionName="viperz28 FTW!" >
 
-    <uses-sdk android:minSdkVersion="10" android:targetSdkVersion="14"/>
+    <uses-sdk
+        android:minSdkVersion="10"
+        android:targetSdkVersion="14" />
 
-	<uses-feature
-  		android:glEsVersion="0x00020000"
-  		android:required="true"/>
-		
-	<permission
-          android:name="org.openpilot_nonag.androidgcs.permission.MAPS_RECEIVE"
-	  android:protectionLevel="signature"/>
-	<uses-permission android:name="org.openpilot_nonag.androidgcs.permission.MAPS_RECEIVE"  android:required="false" />
+    <uses-feature
+        android:glEsVersion="0x00020000"
+        android:required="true" />
 
-    <uses-permission android:name="android.permission.INTERNET" android:required="false" />
-    <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" android:required="false" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" android:required="false" />
-    <uses-permission android:name="android.permission.BLUETOOTH" android:required="false" />
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:required="false" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" android:required="false" />
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" android:required="false"  />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:required="false"  />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" android:required="false"  />
+    <permission
+        android:name="org.openpilot_nonag.androidgcs.permission.MAPS_RECEIVE"
+        android:protectionLevel="signature" />
 
-    <supports-screens android:smallScreens="true"/>
-    <supports-screens android:normalScreens="true"/>
-    <supports-screens android:largeScreens="true"/>
-    <supports-screens android:xlargeScreens="true"/>
-    <supports-screens android:resizeable="true"/>
-    <supports-screens android:anyDensity="true"/>
+    <uses-permission
+        android:name="org.openpilot_nonag.androidgcs.permission.MAPS_RECEIVE"
+        android:required="false" />
+    <uses-permission
+        android:name="android.permission.INTERNET"
+        android:required="false" />
+    <uses-permission
+        android:name="com.google.android.providers.gsf.permission.READ_GSERVICES"
+        android:required="false" />
+    <uses-permission
+        android:name="android.permission.ACCESS_NETWORK_STATE"
+        android:required="false" />
+    <uses-permission
+        android:name="android.permission.BLUETOOTH"
+        android:required="false" />
+    <uses-permission
+        android:name="android.permission.BLUETOOTH_ADMIN"
+        android:required="false" />
+    <uses-permission
+        android:name="android.permission.ACCESS_FINE_LOCATION"
+        android:required="false" />
+    <uses-permission
+        android:name="android.permission.ACCESS_WIFI_STATE"
+        android:required="false" />
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:required="false" />
+    <uses-permission
+        android:name="android.permission.ACCESS_COARSE_LOCATION"
+        android:required="false" />
 
-    <uses-feature android:name="android.hardware.usb.host" android:required="false" />
-    <uses-feature android:name="android.hardware.bluetooth" android:required="false" />
-    <uses-feature android:name="android.hardware.location.gps" android:required="false" />
+    <supports-screens android:smallScreens="true" />
+    <supports-screens android:normalScreens="true" />
+    <supports-screens android:largeScreens="true" />
+    <supports-screens android:xlargeScreens="true" />
+    <supports-screens android:resizeable="true" />
+    <supports-screens android:anyDensity="true" />
+
+    <uses-feature
+        android:name="android.hardware.usb.host"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.bluetooth"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.location.gps"
+        android:required="false" />
 
     <application
+        android:allowBackup="false"
         android:icon="@drawable/ic_logo"
         android:label="@string/app_name"
-        android:theme="@android:style/Theme.Holo" 
-        android:allowBackup="false">
-	
-	<meta-data android:name="com.google.android.gms.version" android:value="@integer/google_play_services_version" />
+        android:theme="@android:style/Theme.Holo" >
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
         <!-- for map overlay -->
-	<meta-data android:name="com.google.android.maps.v2.API_KEY" android:value="AIzaSyB0Jjb8-iDm5WTul6WJ4Av-1bHBh7IrE-s"/>
+        <meta-data
+            android:name="com.google.android.maps.v2.API_KEY"
+            android:value="AIzaSyB0Jjb8-iDm5WTul6WJ4Av-1bHBh7IrE-s" />
         <!-- Object browser - main activity at the moment -->
-	<!-- http://stackoverflow.com/questions/5726657/how-to-detect-orientation-change-in-layout-in-android -->
+        <!-- http://stackoverflow.com/questions/5726657/how-to-detect-orientation-change-in-layout-in-android -->
         <activity
             android:name="HomePage"
-	    android:configChanges="orientation|screenSize|keyboardHidden"
+            android:configChanges="orientation|screenSize|keyboardHidden"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -91,16 +122,18 @@
             android:name="Logger"
             android:label="Logger"
             android:theme="@android:style/Theme.Dialog" />
-
-        <activity android:name="TfrActivity" android:label="TFR" />
-        
-        <activity android:name="ControlCenterActivity" android:label="Control Center" />
-        
-		<activity android:name="LogManagerActivty" android:label="Manage GCS Logs" />
-
         <activity
-	    android:name="UAVLocation"
-	    android:label="@string/location_name" />
+            android:name="TfrActivity"
+            android:label="TFR" />
+        <activity
+            android:name="ControlCenterActivity"
+            android:label="Control Center" />
+        <activity
+            android:name="LogManagerActivty"
+            android:label="Manage GCS Logs" />
+        <activity
+            android:name="UAVLocation"
+            android:label="@string/location_name" />
 
         <receiver android:name="TelemetryWidget" >
             <intent-filter>

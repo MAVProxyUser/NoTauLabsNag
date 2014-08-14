@@ -126,14 +126,16 @@ public class MapPositioner extends ObjectManagerFragment {
 					switch (event.getActionMasked()) {
 					case MotionEvent.ACTION_DOWN:
 					case MotionEvent.ACTION_MOVE:
-						UAVObject desired = objMngr.getObject("PathDesired");
-						if (desired != null) {
-							if (DEBUG) Log.d(TAG, "Updating path desired");
-							desired.getField("End").setDouble(px_to_m(v, (int) event.getX() - v.getMeasuredWidth() / 2), 1);
-							desired.getField("End").setDouble(px_to_m(v, -(event.getY() - v.getMeasuredHeight() / 2)), 0);
-							desired.updated();
-							if (uav != null)
-								uav.invalidate();
+						if(objMngr != null){
+							UAVObject desired = objMngr.getObject("PathDesired");
+							if (desired != null) {
+								if (DEBUG) Log.d(TAG, "Updating path desired");
+								desired.getField("End").setDouble(px_to_m(v, (int) event.getX() - v.getMeasuredWidth() / 2), 1);
+								desired.getField("End").setDouble(px_to_m(v, -(event.getY() - v.getMeasuredHeight() / 2)), 0);
+								desired.updated();
+								if (uav != null)
+									uav.invalidate();
+							}
 						}
 						break;
 					}
