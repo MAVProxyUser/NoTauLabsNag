@@ -233,7 +233,6 @@ public class Map extends ObjectManagerFragment implements
 			Log.d(TAG, "Touch point location is currently lat / lon pair "
 					+ touchLocation.latitude + " " + touchLocation.longitude);
 
-			// TODO: Make this code complete...
 			if (objMngr != null) {
 				UAVObject obj = objMngr.getObject("HomeLocation");
 				if (obj != null) {
@@ -262,10 +261,8 @@ public class Map extends ObjectManagerFragment implements
 					// UAVObjectField altField = obj.getField("Altitude");
 					// altField.setDouble(alt);
 
-					Log.d(TAG, "Home location will be set to lat / lon pair "
+					Log.d(TAG, "Home location will be set to lat / long pair "
 							+ lat + " " + lon);
-
-					//homeLocation = new LatLng(lat, lon);
 
 				}
 			}
