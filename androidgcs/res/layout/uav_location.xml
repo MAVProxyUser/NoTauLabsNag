@@ -1,0 +1,35 @@
+<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/drawer_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <LinearLayout
+        android:baselineAligned="false"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
+        
+	
+	        <fragment
+	            android:id="@+id/map"
+	            android:name="org.openpilot_nonag.androidgcs.fragments.Map"
+	            android:layout_width="0dp"
+	            android:layout_weight="1.2"
+	            android:layout_height="match_parent"
+	            android:layout_marginLeft="5dp"  />
+    </LinearLayout>
+
+    <!-- The navigation drawer -->
+
+    <ListView
+        android:id="@+id/left_drawer"
+        android:layout_width="240dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:background="#111"
+        android:choiceMode="singleChoice"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="0dp" />
+    
+    
+ </android.support.v4.widget.DrawerLayout>

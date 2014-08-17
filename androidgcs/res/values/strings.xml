@@ -20,6 +20,7 @@
 	<string name="preference_checkbox_connection_type">Connection Type</string>
 	<string name="preference_checkbox_bluetooth">Bluetooth</string>
 	<string name="preference_connection_method_summary">Select the connection method</string>
+	<string name="preference_map_type">Select the type of Map to display</string>
 	
 	<string name="compass_name">Compass</string>
 	<string name="cardinal_north">N</string>

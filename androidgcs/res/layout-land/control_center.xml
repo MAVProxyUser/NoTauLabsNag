@@ -9,27 +9,20 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" >
 
-        <LinearLayout
+        <fragment
+            android:id="@+id/pfd"
+            android:name="org.openpilot_nonag.androidgcs.fragments.PFD"
             android:layout_width="0dp"
+            android:layout_weight="0.7"
+            android:layout_height="match_parent"  />
+
+        <fragment
+            android:id="@+id/map"
+            android:name="org.openpilot_nonag.androidgcs.fragments.Map"
+            android:layout_width="0dp"
+            android:layout_weight="1.2"
             android:layout_height="match_parent"
-            android:layout_weight="1.5"
-            android:orientation="vertical" >
-        
-	        <fragment
-	            android:id="@+id/pfd"
-	            android:name="org.openpilot_nonag.androidgcs.fragments.PFD"
-	            android:layout_width="0dp"
-	            android:layout_weight="0.7"
-	            android:layout_height="match_parent"  />
-	
-	        <fragment
-	            android:id="@+id/map"
-	            android:name="org.openpilot_nonag.androidgcs.fragments.Map"
-	            android:layout_width="0dp"
-	            android:layout_weight="1.2"
-	            android:layout_height="match_parent"
-	            android:layout_marginLeft="5dp"  />
-	    </LinearLayout>
+            android:layout_marginLeft="5dp"  />
 	
         <LinearLayout
             android:layout_width="wrap_content"

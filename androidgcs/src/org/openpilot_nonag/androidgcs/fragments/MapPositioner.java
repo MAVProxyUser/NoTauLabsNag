@@ -40,6 +40,7 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.SeekBar;
 
+@Deprecated
 public class MapPositioner extends ObjectManagerFragment {
 
 	private static final String TAG = ObjectManagerFragment.class

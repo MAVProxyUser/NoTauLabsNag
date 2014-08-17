@@ -48,51 +48,51 @@ public class ControlCenterActivity extends ObjectManagerActivity {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.control_center);
-		mapFrag = ((SupportMapFragment) getSupportFragmentManager()
-				.findFragmentById(R.id.map_view));
+//		mapFrag = ((SupportMapFragment) getSupportFragmentManager()
+//				.findFragmentById(R.id.map_view));
 
 		// something wrong *here* (only on versions with out Google Play
 		// Services) need to check instead of crashing. 
 		// (this should take care of it)
-		int status = GooglePlayServicesUtil.isGooglePlayServicesAvailable(getApplicationContext());
-		if(status == ConnectionResult.SUCCESS) {
-		    // Awesome!
-		
-
-			mMap = mapFrag.getMap();
-			mMap.setMyLocationEnabled(true);
-			mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-	
-			LatLng currentLatLng = null;
-	
-			if (mMap.isMyLocationEnabled()) {
-				if (DEBUG)
-					Log.d(TAG, "Map MyLocation is enabled");
-	
-				currentLatLng = getCurrentLatLng();
-	
-				if (currentLatLng != null) {
-					// Move the camera instantly to current location with a zoom of
-					// 15.
-					mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
-							currentLatLng, 20));
-	
-					// Zoom in, animating the camera.
-					mMap.animateCamera(CameraUpdateFactory.zoomTo(17), 2000, null);
-				}
-				else
-				{
-					if(VERBOSE)
-						Log.v(TAG,"currentLatLng is null!");
-				}
-			} else {
-				if (DEBUG)
-					Log.d(TAG, "get my location is disabled!");
-			}
-		}
-		else{
-			Toast.makeText(this, "Need to have GooglePlay Services installed to use maps.", Toast.LENGTH_SHORT).show();
-		}
+//		int status = GooglePlayServicesUtil.isGooglePlayServicesAvailable(getApplicationContext());
+//		if(status == ConnectionResult.SUCCESS) {
+//		    // Awesome!
+//		
+//
+//			mMap = mapFrag.getMap();
+//			mMap.setMyLocationEnabled(true);
+//			mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+//	
+//			LatLng currentLatLng = null;
+//	
+//			if (mMap.isMyLocationEnabled()) {
+//				if (DEBUG)
+//					Log.d(TAG, "Map MyLocation is enabled");
+//	
+//				currentLatLng = getCurrentLatLng();
+//	
+//				if (currentLatLng != null) {
+//					// Move the camera instantly to current location with a zoom of
+//					// 15.
+//					mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
+//							currentLatLng, 20));
+//	
+//					// Zoom in, animating the camera.
+//					mMap.animateCamera(CameraUpdateFactory.zoomTo(17), 2000, null);
+//				}
+//				else
+//				{
+//					if(VERBOSE)
+//						Log.v(TAG,"currentLatLng is null!");
+//				}
+//			} else {
+//				if (DEBUG)
+//					Log.d(TAG, "get my location is disabled!");
+//			}
+//		}
+//		else{
+//			Toast.makeText(this, "Need to have GooglePlay Services installed to use maps.", Toast.LENGTH_SHORT).show();
+//		}
 		// ((RadioGroup)
 		// findViewById(R.id.modeSelectRadio)).setOnCheckedChangeListener(ToggleListener);
 

@@ -19,5 +19,9 @@
 		    android:key="bluetooth_mac"
     		android:title="Bluetooth Device"
     		android:dialogTitle="Choose Bluetooth Device" />
+		<ListPreference android:title="Map Type"
+			android:key="map_type" android:summary="@string/preference_map_type"
+			android:defaultValue="3" android:entries="@array/mapTypeArray"
+			android:entryValues="@array/mapTypeValues" />
 	</PreferenceCategory>
 </PreferenceScreen>
