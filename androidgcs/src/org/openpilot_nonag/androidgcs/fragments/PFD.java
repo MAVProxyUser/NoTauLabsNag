@@ -53,7 +53,6 @@ public class PFD extends ObjectManagerFragment {
 	private String armedStatus ="";
 
 	
-	// @Override
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {

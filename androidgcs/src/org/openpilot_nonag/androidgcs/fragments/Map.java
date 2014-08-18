@@ -1,21 +1,63 @@
+/**
+ ******************************************************************************
+ * @file       Map.java
+ * @author     The OpenPilot Team, http://www.openpilot.org Copyright (C) 2012.
+ * @brief      A widget that shows the status of telemetry.
+ * @see        The GNU Public License (GPL) Version 3
+ *****************************************************************************/
+/*
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
+ * for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ */
 package org.openpilot_nonag.androidgcs.fragments;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.openpilot_nonag.androidgcs.R;
+import org.openpilot_nonag.androidgcs.util.SmartSave;
+import org.openpilot_nonag.uavtalk.UAVDataObject;
 import org.openpilot_nonag.uavtalk.UAVObject;
 import org.openpilot_nonag.uavtalk.UAVObjectField;
 import org.openpilot_nonag.uavtalk.UAVObjectManager;
 
+import android.app.Activity;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.util.Log;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
+import android.view.LayoutInflater;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.Toast;
+
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnMyLocationChangeListener;
-import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -27,43 +69,20 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
-import android.app.Activity;
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.graphics.Color;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
-import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.support.v4.app.FragmentManager;
-import android.util.Log;
-import android.view.ContextMenu;
-import android.view.LayoutInflater;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.view.ContextMenu.ContextMenuInfo;
-import android.widget.Toast;
-
 public class Map extends ObjectManagerFragment implements
 		OnMyLocationChangeListener {
 
 	private static final String TAG = Map.class.getSimpleName();
-	private static final int LOGLEVEL = 0;
+	private static final int LOGLEVEL = 1;
 	private static final boolean DEBUG = LOGLEVEL > 0;
 
 	private GoogleMap mMap;
 	private Marker mUavMarker;
 	private Marker mHomeMarker;
-	private SupportMapFragment mapFragment;
 	private MapView mapView;
 
 	private LatLng homeLocation;
 	private LatLng uavLocation;
-	private LatLng gcsLocation;
 	private LatLng uavNEDLocation;
 	private LatLng touchLocation;
 	private List<LatLng> UAVpathPoints = new ArrayList<LatLng>();
@@ -72,6 +91,9 @@ public class Map extends ObjectManagerFragment implements
 	private Polyline UAVpathLine;
 	private Polyline NEDUAVpathLine;
 	private Polyline TabletpathLine;
+	
+	private SmartSave smartSave;
+	private UAVDataObject homeLocationSettings;
 
 	
 	@Override
@@ -86,6 +108,8 @@ public class Map extends ObjectManagerFragment implements
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
+		
+		Log.d(TAG, "*** onCreateView");
 
 		// disable
 		this.getActivity().getWindow()
@@ -94,6 +118,22 @@ public class Map extends ObjectManagerFragment implements
 		// inflate and return the layout
 		View v = inflater.inflate(R.layout.map_fragment, container, false);
 
+		final Button buttonApply = (Button) v.findViewById(R.id.applyBtn);
+		buttonApply.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+            	updateObject();
+            }
+        });
+		buttonApply.setEnabled(false);
+		
+		final Button buttonSave = (Button) v.findViewById(R.id.saveBtn);
+		buttonSave.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+            	saveObject();
+            }
+        });
+		buttonSave.setEnabled(false);
+        
 		mapView = (MapView) v.findViewById(R.id.map_view_fragment);
 		mapView.onCreate(savedInstanceState);
 
@@ -118,16 +158,18 @@ public class Map extends ObjectManagerFragment implements
 
 			// Gets to GoogleMap from the MapView and does initialization stuff
 			mMap = mapView.getMap();
-			mMap.getUiSettings().setMyLocationButtonEnabled(false);
+			mMap.getUiSettings().setMyLocationButtonEnabled(true);
 			mMap.setMyLocationEnabled(true);
 			mMap.setOnMyLocationChangeListener(this);
 			
 			switch (map_type) {
 			case 0:
 				mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+				//mMap.getUiSettings().setIndoorLevelPickerEnabled(true);
 				break;
 			case 1:
 				mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+				//mMap.getUiSettings().setIndoorLevelPickerEnabled(true);
 				break;
 			case 2:
 				mMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
@@ -148,15 +190,59 @@ public class Map extends ObjectManagerFragment implements
 			TabletpathLine.setPoints(TabletpathPoints);
 
 			registerForContextMenu(mapView);
+//			mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+//				
+//				@Override
+//				public void onMapClick(LatLng arg0) {
+//					// TODO Auto-generated method stub
+//					Log.d(TAG, "Simple Click");
+//					
+//				}
+//			});
+			
 			mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
 				@Override
 				public void onMapLongClick(LatLng arg0) {
-					Log.d(TAG, "Click");
+					Log.d(TAG, "Long Click");
 					//getView().showContextMenu();
 					mapView.showContextMenu();
 					touchLocation = arg0;
 				}
 			});
+			
+			if (savedInstanceState != null) {
+				if (mMap != null) {
+					if (DEBUG) Log.d(TAG, "Initializing location from bundle");
+
+					CameraPosition camPos = mMap.getCameraPosition();
+
+					// Use current location as defaults in case not found
+					LocationManager locationManager =
+							(LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+					Location tabletLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+					if (tabletLocation == null) {
+						tabletLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+					}
+					LatLng lla = new LatLng(0,0);
+					if (tabletLocation != null) {
+						lla = new LatLng(tabletLocation.getLatitude(), tabletLocation.getLongitude());
+					}
+					
+					// Get the position from bundle
+					double map_lat = savedInstanceState.getDouble("org.openpilot.map_lat", lla.latitude);
+					double map_lon = savedInstanceState.getDouble("org.openpilot.map_lon", lla.longitude);
+					
+					// Start with default and see if one is stored
+					float zoom = 17;
+					zoom = (float) savedInstanceState.getDouble("org.openpilot.cam_zoom", zoom);
+					
+					// Move there
+					lla = new LatLng(map_lat, map_lon);
+					if (DEBUG) Log.d(TAG, "Init location: " + lla);
+					mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(lla, zoom));
+				}
+			} 
+			
 		} else {
 			Toast.makeText(getActivity(),
 					"Google Play Services are not enabled.", Toast.LENGTH_SHORT)
@@ -184,6 +270,57 @@ public class Map extends ObjectManagerFragment implements
 		super.onLowMemory();
 		mapView.onLowMemory();
 	}
+	
+	/**
+	 * Fetch the data back from the view and then send it to the UAV
+	 */
+	private boolean updateObject() {
+		
+		if(objMngr != null){
+			UAVDataObject dataObj = (UAVDataObject)objMngr.getObject("HomeLocation");
+			long objectID = dataObj.getObjID();
+			long instID = dataObj.getInstID();
+			
+			UAVObject obj = objMngr.getObject(objectID, instID);
+			if (obj == null)
+				return false;
+	
+			Log.d(TAG, "Updating object id " + obj.getObjID());
+					obj.updated();
+					
+			return true;
+		}
+	
+		return false;
+	}
+	/**
+	 * Fetch the data back from the view and then send it to the UAV
+	 */
+	private void saveObject() {
+
+		if(objMngr != null){
+			UAVObject objPer = objMngr.getObject("ObjectPersistence");
+	
+			if( !updateObject()  || objPer == null) {
+				Toast.makeText(getActivity(), "Save failed", Toast.LENGTH_LONG).show();
+				return;
+			}
+		
+			UAVDataObject obj = (UAVDataObject)objMngr.getObject("HomeLocation");
+			long objectID = obj.getObjID();
+			long instID = obj.getInstID();
+			
+			long thisId = objectID < 0 ? 0x100000000l + objectID : objectID;
+			objPer.getField("Operation").setValue("Save");
+			objPer.getField("Selection").setValue("SingleObject");
+			Log.d(TAG,"Saving with object id: " + objectID + " swapped to " + thisId);
+			objPer.getField("ObjectID").setValue(thisId);
+			objPer.getField("InstanceID").setValue(instID);
+			objPer.updated();
+	
+			Toast.makeText(getActivity(), "Save succeeded", Toast.LENGTH_LONG).show();
+		}
+	}
 
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v,
@@ -206,17 +343,6 @@ public class Map extends ObjectManagerFragment implements
 						uavLocation.latitude, uavLocation.longitude)));
 			}
 			return true;
-		case R.id.map_action_jump_to_gcs:
-			gcsLocation = getGcsLocation();
-			if (gcsLocation != null) {
-				mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(gcsLocation,
-						20));
-
-				// Zoom in, animating the camera.
-				mMap.animateCamera(CameraUpdateFactory.zoomTo(20), 2000, null);
-			}
-			return true;
-
 		case R.id.map_action_clear_uav_path:
 			UAVpathPoints.clear();
 			UAVpathLine.setPoints(UAVpathPoints);
@@ -230,7 +356,7 @@ public class Map extends ObjectManagerFragment implements
 			TabletpathLine.setPoints(TabletpathPoints);
 			return true;
 		case R.id.map_action_set_home:
-			Log.d(TAG, "Touch point location is currently lat / lon pair "
+			if (DEBUG) Log.d(TAG, "Touch point location is currently lat / lon pair "
 					+ touchLocation.latitude + " " + touchLocation.longitude);
 
 			if (objMngr != null) {
@@ -238,21 +364,18 @@ public class Map extends ObjectManagerFragment implements
 				if (obj != null) {
 
 					// LatLng is in degrees, Latitude and Longitude is stored as "deg * 10e6"
-					double lat = touchLocation.latitude * 10e6;
-					double lon = touchLocation.longitude * 10e6;
+					int lat = (int) (touchLocation.latitude * 1e6);
+					int lon = (int) (touchLocation.longitude * 1e6);
 					
-					Log.d(TAG, "setting home lat / lon pair "
+					if (DEBUG) Log.d(TAG, "setting home lat / lon pair "
 							+ lat + " " + lon);
 
 					UAVObjectField latField = obj.getField("Latitude");
-					latField.setDouble(lat);
+					latField.setInt(lat);
 					
-
 					UAVObjectField longField = obj.getField("Longitude");
-					longField.setDouble(lon);
+					longField.setInt(lon);
 					obj.updated();
-
-					obj.updateRequested();
 					
 					Toast.makeText(getActivity(), "Setting Home Location",
 							Toast.LENGTH_SHORT).show();
@@ -261,7 +384,7 @@ public class Map extends ObjectManagerFragment implements
 					// UAVObjectField altField = obj.getField("Altitude");
 					// altField.setDouble(alt);
 
-					Log.d(TAG, "Home location will be set to lat / long pair "
+					if (DEBUG) Log.d(TAG, "Home location will be set to lat / long pair "
 							+ lat + " " + lon);
 
 				}
@@ -294,8 +417,18 @@ public class Map extends ObjectManagerFragment implements
 	public void onOPConnected(UAVObjectManager objMngr) {
 		super.onOPConnected(objMngr);
 
-		UAVObject obj = objMngr.getObject("HomeLocation");
-		if (obj != null) {
+		final Button buttonSave = (Button) getView().findViewById(R.id.saveBtn);
+		buttonSave.setEnabled(true);
+		final Button buttonApply = (Button) getView().findViewById(R.id.applyBtn);
+		buttonApply.setEnabled(true);
+		
+		UAVDataObject obj  = (UAVDataObject) objMngr.getObject("HomeLocation");
+		if (homeLocationSettings != null) {
+			
+			smartSave = new SmartSave(objMngr, homeLocationSettings,
+				(Button) getView().findViewById(R.id.saveBtn),
+				(Button) getView().findViewById(R.id.applyBtn));
+			
 			obj.updateRequested(); // Make sure this is correct and been
 			registerObjectUpdates(obj);
 			objectUpdated(obj);
@@ -303,7 +436,7 @@ public class Map extends ObjectManagerFragment implements
 			Log.d(TAG, "HomeLocation is null");
 		}
 
-		obj = objMngr.getObject("PositionState");
+		obj = (UAVDataObject) objMngr.getObject("PositionState");
 		if (obj != null) {
 			obj.updateRequested(); // Make sure this is correct and been updated
 			registerObjectUpdates(obj);
@@ -312,7 +445,7 @@ public class Map extends ObjectManagerFragment implements
 			Log.d(TAG, "PositionState is null");
 		}
 
-		obj = objMngr.getObject("GPSPositionSensor");
+		obj = (UAVDataObject) objMngr.getObject("GPSPositionSensor");
 		if (obj != null) {
 			obj.updateRequested(); // Make sure this is correct and been updated
 			registerObjectUpdates(obj);
@@ -402,8 +535,8 @@ public class Map extends ObjectManagerFragment implements
 				// Log.d(TAG, "PositionState info is valid");
 			}
 
-			lat = (pos.getField("Latitude").getDouble() * .0000001);
-			lon = (pos.getField("Longitude").getDouble() * .0000001);
+			lat = (pos.getField("Latitude").getInt() * 10e-7);
+			lon = (pos.getField("Longitude").getInt() * 10e-7);
 			Log.d(TAG, "UAV location is currently lat / lon pair " + lat + " "
 					+ lon);
 		}
@@ -425,10 +558,13 @@ public class Map extends ObjectManagerFragment implements
 		}
 
 		double lat, lon, alt;
-		lat = home.getField("Latitude").getDouble() * .0000001;
-		lon = home.getField("Longitude").getDouble() * .0000001;
+		lat = home.getField("Latitude").getDouble() / 10e6;
+		lon = home.getField("Longitude").getDouble() / 10e6;
 		alt = home.getField("Altitude").getDouble();
-
+		
+		if(DEBUG) Log.d(TAG, "HomeLocation  is currently lat / lon pair " + lat + " "
+				+ lon);
+		
 		// Get the home coordinates
 		double T0, T1;
 		T0 = alt + 6.378137E6;
@@ -443,7 +579,7 @@ public class Map extends ObjectManagerFragment implements
 		lat = lat + (NED0 / T0) * 180.0 / Math.PI;
 		lon = lon + (NED1 / T1) * 180.0 / Math.PI;
 
-		Log.d(TAG, "UAV NED location is currently lat / lon pair " + lat + " "
+		if(DEBUG) Log.d(TAG, "UAV NED location is currently lat / lon pair " + lat + " "
 				+ lon);
 		return new LatLng(lat, lon);
 	}
@@ -534,4 +670,28 @@ public class Map extends ObjectManagerFragment implements
 			}
 		}
 	}
+	
+	@Override
+	public void onPause() {
+		super.onPause();
+		Log.d(TAG, "*** onPause");
+
+		
+	}
+	
+	@Override
+	public void onSaveInstanceState (Bundle outState) {
+		super.onSaveInstanceState(outState);
+		Log.d(TAG, "*** onSaveInstanceState");
+		
+		if (mMap != null) {
+			CameraPosition camPos = mMap.getCameraPosition();
+			LatLng lla = camPos.target;
+			outState.putDouble("org.openpilot.map_lat", lla.latitude);
+			outState.putDouble("org.openpilot.map_lon", lla.longitude);
+			outState.putDouble("org.openpilot.cam_zoom", camPos.zoom);
+			
+		}
+	}
+	
 }
