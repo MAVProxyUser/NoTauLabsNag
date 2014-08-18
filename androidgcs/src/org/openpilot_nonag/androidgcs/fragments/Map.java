@@ -159,17 +159,19 @@ public class Map extends ObjectManagerFragment implements
 			// Gets to GoogleMap from the MapView and does initialization stuff
 			mMap = mapView.getMap();
 			mMap.getUiSettings().setMyLocationButtonEnabled(true);
+			mMap.setIndoorEnabled(true);
 			mMap.setMyLocationEnabled(true);
 			mMap.setOnMyLocationChangeListener(this);
 			
 			switch (map_type) {
 			case 0:
 				mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-				//mMap.getUiSettings().setIndoorLevelPickerEnabled(true);
+				mMap.getUiSettings().setIndoorLevelPickerEnabled(true);
+			
 				break;
 			case 1:
 				mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
-				//mMap.getUiSettings().setIndoorLevelPickerEnabled(true);
+				mMap.getUiSettings().setIndoorLevelPickerEnabled(true);
 				break;
 			case 2:
 				mMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
