@@ -93,8 +93,6 @@ public class Map extends ObjectManagerFragment implements
 	private Polyline TabletpathLine;
 	
 	private SmartSave smartSave;
-	private UAVDataObject homeLocationSettings;
-
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState){
@@ -121,7 +119,7 @@ public class Map extends ObjectManagerFragment implements
 		final Button buttonApply = (Button) v.findViewById(R.id.applyBtn);
 		buttonApply.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-            	updateObject();
+            	updateObject("HomeLocation");
             }
         });
 		buttonApply.setEnabled(false);
@@ -129,7 +127,7 @@ public class Map extends ObjectManagerFragment implements
 		final Button buttonSave = (Button) v.findViewById(R.id.saveBtn);
 		buttonSave.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-            	saveObject();
+            	saveObject("HomeLocation");
             }
         });
 		buttonSave.setEnabled(false);
@@ -276,10 +274,10 @@ public class Map extends ObjectManagerFragment implements
 	/**
 	 * Fetch the data back from the view and then send it to the UAV
 	 */
-	private boolean updateObject() {
+	private boolean updateObject(String uavoName) {
 		
 		if(objMngr != null){
-			UAVDataObject dataObj = (UAVDataObject)objMngr.getObject("HomeLocation");
+			UAVDataObject dataObj = (UAVDataObject)objMngr.getObject(uavoName);
 			long objectID = dataObj.getObjID();
 			long instID = dataObj.getInstID();
 			
@@ -288,7 +286,7 @@ public class Map extends ObjectManagerFragment implements
 				return false;
 	
 			Log.d(TAG, "Updating object id " + obj.getObjID());
-					obj.updated();
+			obj.updated();
 					
 			return true;
 		}
@@ -298,17 +296,17 @@ public class Map extends ObjectManagerFragment implements
 	/**
 	 * Fetch the data back from the view and then send it to the UAV
 	 */
-	private void saveObject() {
+	private void saveObject(String uavoName) {
 
 		if(objMngr != null){
 			UAVObject objPer = objMngr.getObject("ObjectPersistence");
 	
-			if( !updateObject()  || objPer == null) {
+			if( !updateObject(uavoName)  || objPer == null) {
 				Toast.makeText(getActivity(), "Save failed", Toast.LENGTH_LONG).show();
 				return;
 			}
 		
-			UAVDataObject obj = (UAVDataObject)objMngr.getObject("HomeLocation");
+			UAVDataObject obj = (UAVDataObject)objMngr.getObject(uavoName);
 			long objectID = obj.getObjID();
 			long instID = obj.getInstID();
 			
@@ -366,18 +364,21 @@ public class Map extends ObjectManagerFragment implements
 				if (obj != null) {
 
 					// LatLng is in degrees, Latitude and Longitude is stored as "deg * 10e6"
-					int lat = (int) (touchLocation.latitude * 1e6);
-					int lon = (int) (touchLocation.longitude * 1e6);
+					int lat = (int) (touchLocation.latitude * 10e6);
+					int lon = (int) (touchLocation.longitude * 10e6);
 					
 					if (DEBUG) Log.d(TAG, "setting home lat / lon pair "
 							+ lat + " " + lon);
 
+					
 					UAVObjectField latField = obj.getField("Latitude");
 					latField.setInt(lat);
 					
 					UAVObjectField longField = obj.getField("Longitude");
 					longField.setInt(lon);
+					 
 					obj.updated();
+					obj.updateRequested();
 					
 					Toast.makeText(getActivity(), "Setting Home Location",
 							Toast.LENGTH_SHORT).show();
@@ -424,10 +425,10 @@ public class Map extends ObjectManagerFragment implements
 		final Button buttonApply = (Button) getView().findViewById(R.id.applyBtn);
 		buttonApply.setEnabled(true);
 		
-		UAVDataObject obj  = (UAVDataObject) objMngr.getObject("HomeLocation");
-		if (homeLocationSettings != null) {
+		UAVDataObject obj = (UAVDataObject) objMngr.getObject("HomeLocation");
+		if (obj != null) {
 			
-			smartSave = new SmartSave(objMngr, homeLocationSettings,
+			smartSave = new SmartSave(objMngr, obj,
 				(Button) getView().findViewById(R.id.saveBtn),
 				(Button) getView().findViewById(R.id.applyBtn));
 			
@@ -455,58 +456,6 @@ public class Map extends ObjectManagerFragment implements
 		} else {
 			Log.d(TAG, "GPSPositionSensor is null");
 		}
-	}
-
-	private LatLng getGcsLocation() {
-
-		LatLng currentLatLng = null;
-
-		try {
-			LocationManager locationMgr = (LocationManager) this.getActivity()
-					.getApplicationContext()
-					.getSystemService(Context.LOCATION_SERVICE);
-
-			if (locationMgr != null) {
-
-				List<String> providers = locationMgr.getProviders(true);
-				for (String provider : providers) {
-					locationMgr.requestLocationUpdates(provider, 1000, 0,
-							new LocationListener() {
-
-								@Override
-								public void onLocationChanged(Location location) {
-								}
-
-								@Override
-								public void onProviderDisabled(String provider) {
-								}
-
-								@Override
-								public void onProviderEnabled(String provider) {
-								}
-
-								@Override
-								public void onStatusChanged(String provider,
-										int status, Bundle extras) {
-								}
-							});
-					Location location = locationMgr
-							.getLastKnownLocation(provider);
-					if (location != null) {
-						double latitude = location.getLatitude();
-						double longitude = location.getLongitude();
-						currentLatLng = new LatLng(latitude, longitude);
-
-					}
-				}
-			}
-		} catch (Exception e) {
-			Log.e(TAG, "Exception thrown while determing current Location!");
-			e.printStackTrace();
-		}
-
-		return currentLatLng;
-
 	}
 
 	private LatLng getUavLocation() {
@@ -537,8 +486,8 @@ public class Map extends ObjectManagerFragment implements
 				// Log.d(TAG, "PositionState info is valid");
 			}
 
-			lat = (pos.getField("Latitude").getInt() * 10e-7);
-			lon = (pos.getField("Longitude").getInt() * 10e-7);
+			lat = (pos.getField("Latitude").getInt() * .0000001);
+			lon = (pos.getField("Longitude").getInt() * .0000001);
 			Log.d(TAG, "UAV location is currently lat / lon pair " + lat + " "
 					+ lon);
 		}
@@ -560,8 +509,8 @@ public class Map extends ObjectManagerFragment implements
 		}
 
 		double lat, lon, alt;
-		lat = home.getField("Latitude").getDouble() / 10e6;
-		lon = home.getField("Longitude").getDouble() / 10e6;
+		lat = home.getField("Latitude").getInt() * .0000001;
+		lon = home.getField("Longitude").getInt() * .0000001;
 		alt = home.getField("Altitude").getDouble();
 		
 		if(DEBUG) Log.d(TAG, "HomeLocation  is currently lat / lon pair " + lat + " "
@@ -596,8 +545,8 @@ public class Map extends ObjectManagerFragment implements
 		if (obj == null)
 			return;
 		if (obj.getName().compareTo("HomeLocation") == 0) {
-			Double lat = obj.getField("Latitude").getDouble() * .0000001;
-			Double lon = obj.getField("Longitude").getDouble() * .0000001;
+			Double lat = obj.getField("Latitude").getInt() * .0000001;
+			Double lon = obj.getField("Longitude").getInt() * .0000001;
 			
 			Log.d(TAG, "objUpdated ** HomeLocation is at lat / lon pair " + lat + " " + lon);
 
