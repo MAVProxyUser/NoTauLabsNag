@@ -73,7 +73,7 @@ public class Map extends ObjectManagerFragment implements
 		OnMyLocationChangeListener {
 
 	private static final String TAG = Map.class.getSimpleName();
-	private static final int LOGLEVEL = 1;
+	private static final int LOGLEVEL = 0;
 	private static final boolean DEBUG = LOGLEVEL > 0;
 
 	private GoogleMap mMap;
@@ -210,7 +210,13 @@ public class Map extends ObjectManagerFragment implements
 				}
 			});
 			
+			if(objMngr != null){
+				
+			}
+			
 			if (savedInstanceState != null) {
+				Log.d(TAG, "*** savedInstanceState != null");
+				
 				if (mMap != null) {
 					if (DEBUG) Log.d(TAG, "Initializing location from bundle");
 
@@ -334,8 +340,7 @@ public class Map extends ObjectManagerFragment implements
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
 
-		switch (item.getItemId()) {
-		case R.id.map_action_jump_to_uav:
+		if(item.getItemId() == R.id.map_action_jump_to_uav){
 			uavLocation = getUavLocation(); // null pointer somewhere around
 											// here.
 			if (uavLocation != null) {
@@ -343,19 +348,23 @@ public class Map extends ObjectManagerFragment implements
 						uavLocation.latitude, uavLocation.longitude)));
 			}
 			return true;
-		case R.id.map_action_clear_uav_path:
+		}
+		else if(item.getItemId() == R.id.map_action_clear_uav_path){
 			UAVpathPoints.clear();
 			UAVpathLine.setPoints(UAVpathPoints);
 			return true;
-		case R.id.map_action_clear_NEDuav_path:
+		}
+		else if(item.getItemId() == R.id.map_action_clear_NEDuav_path){
 			NEDUAVpathPoints.clear();
 			NEDUAVpathLine.setPoints(NEDUAVpathPoints);
 			return true;
-		case R.id.map_action_clear_tablet_path:
+		}
+		else if(item.getItemId() == R.id.map_action_clear_tablet_path){
 			TabletpathPoints.clear();
 			TabletpathLine.setPoints(TabletpathPoints);
 			return true;
-		case R.id.map_action_set_home:
+		}
+		else if(item.getItemId() == R.id.map_action_set_home){
 			if (DEBUG) Log.d(TAG, "Touch point location is currently lat / lon pair "
 					+ touchLocation.latitude + " " + touchLocation.longitude);
 
@@ -367,36 +376,46 @@ public class Map extends ObjectManagerFragment implements
 					int lat = (int) (touchLocation.latitude * 10e6);
 					int lon = (int) (touchLocation.longitude * 10e6);
 					
-					if (DEBUG) Log.d(TAG, "setting home lat / lon pair "
-							+ lat + " " + lon);
-
-					
-					UAVObjectField latField = obj.getField("Latitude");
-					latField.setInt(lat);
-					
-					UAVObjectField longField = obj.getField("Longitude");
-					longField.setInt(lon);
-					 
-					obj.updated();
-					obj.updateRequested();
-					
-					Toast.makeText(getActivity(), "Setting Home Location",
-							Toast.LENGTH_SHORT).show();
-
-					// TODO: altitude
-					// UAVObjectField altField = obj.getField("Altitude");
-					// altField.setDouble(alt);
-
-					if (DEBUG) Log.d(TAG, "Home location will be set to lat / long pair "
-							+ lat + " " + lon);
-
+					if(lat != 0.0 && lon != 0.0){
+						if (DEBUG) Log.d(TAG, "setting home lat / lon pair "
+								+ lat + " " + lon);
+	
+						
+						UAVObjectField latField = obj.getField("Latitude");
+						latField.setInt(lat);
+						
+						UAVObjectField longField = obj.getField("Longitude");
+						longField.setInt(lon);
+						
+						UAVObjectField setField = obj.getField("Set");
+						setField.setValue("FALSE");
+						 
+						obj.updated();
+						obj.updateRequested();
+						
+						Toast.makeText(getActivity(), "Setting Home Location",
+								Toast.LENGTH_SHORT).show();
+	
+						// TODO: altitude
+						// UAVObjectField altField = obj.getField("Altitude");
+						// altField.setDouble(alt);
+	
+						if (DEBUG) Log.d(TAG, "Home location will be set to lat / long pair "
+								+ lat + " " + lon);
+					}else{
+						if (DEBUG) Log.d(TAG, "Invalid Home location, will not be set. values: "
+								+ lat + " " + lon);
+					}
+				
 				}
 			}
 
 			return true;
-		default:
+		}
+		else{
 			return super.onContextItemSelected(item);
 		}
+		
 
 	}
 
@@ -419,6 +438,7 @@ public class Map extends ObjectManagerFragment implements
 	@Override
 	public void onOPConnected(UAVObjectManager objMngr) {
 		super.onOPConnected(objMngr);
+		this.objMngr = objMngr;
 
 		final Button buttonSave = (Button) getView().findViewById(R.id.saveBtn);
 		buttonSave.setEnabled(true);
@@ -432,7 +452,7 @@ public class Map extends ObjectManagerFragment implements
 				(Button) getView().findViewById(R.id.saveBtn),
 				(Button) getView().findViewById(R.id.applyBtn));
 			
-			obj.updateRequested(); // Make sure this is correct and been
+			//obj.updateRequested(); // Make sure this is correct and been
 			registerObjectUpdates(obj);
 			objectUpdated(obj);
 		} else {
@@ -457,7 +477,7 @@ public class Map extends ObjectManagerFragment implements
 			Log.d(TAG, "GPSPositionSensor is null");
 		}
 	}
-
+	
 	private LatLng getUavLocation() {
 		// Original code was reliant upon the following behavior:
 		//
