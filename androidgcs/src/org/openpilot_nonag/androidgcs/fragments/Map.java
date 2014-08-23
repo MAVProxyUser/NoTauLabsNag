@@ -24,23 +24,18 @@ package org.openpilot_nonag.androidgcs.fragments;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ListIterator;
 
-import org.openpilot_nonag.androidgcs.ObjectEditView;
-import org.openpilot_nonag.androidgcs.R;
 import org.openpilot_nonag.androidgcs.util.SmartSave;
 import org.openpilot_nonag.uavtalk.UAVDataObject;
 import org.openpilot_nonag.uavtalk.UAVObject;
 import org.openpilot_nonag.uavtalk.UAVObjectField;
 import org.openpilot_nonag.uavtalk.UAVObjectManager;
 
+import android.R;
 import android.app.Activity;
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -52,26 +47,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.Spinner;
 import android.widget.Toast;
-
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.GoogleMap.OnMyLocationChangeListener;
-import com.google.android.gms.maps.MapView;
-import com.google.android.gms.maps.MapsInitializer;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CameraPosition;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.Polyline;
-import com.google.android.gms.maps.model.PolylineOptions;
 
 public class Map extends ObjectManagerFragment implements
 		OnMyLocationChangeListener {
@@ -306,14 +282,14 @@ public class Map extends ObjectManagerFragment implements
 						setField.setValue("TRUE");
 						 
 						home.updated();
-						home.updateRequested();
-						
-						// persist to flash
-						saveObject(home);
 						
 						Toast.makeText(getActivity(), "Setting Home Location",
 								Toast.LENGTH_SHORT).show();
 	
+						// persist to flash
+						saveObject(home);
+						
+						
 						// TODO: altitude
 						// UAVObjectField altField = obj.getField("Altitude");
 						// altField.setDouble(alt);
@@ -393,6 +369,8 @@ public class Map extends ObjectManagerFragment implements
 		} else {
 			Log.d(TAG, "GPSPositionSensor is null");
 		}
+		
+		
 	}
 	
 	private LatLng getUavLocation() {
@@ -486,8 +464,12 @@ public class Map extends ObjectManagerFragment implements
 			Double lon = obj.getField("Longitude").getInt() * .0000001;
 			
 			Log.d(TAG, "objUpdated ** HomeLocation is at lat / lon pair " + lat + " " + lon);
-
+			
 			if (lat != 0 && lon != 0) {
+				
+				Toast.makeText(getActivity(),
+						"HomeLocation was updated, lat: " + lat +", long: " + lon, Toast.LENGTH_SHORT).show();
+				
 				homeLocation = new LatLng(lat, lon);
 				if (mHomeMarker == null) {
 					Log.d(TAG, "home marker is null so creating it");
