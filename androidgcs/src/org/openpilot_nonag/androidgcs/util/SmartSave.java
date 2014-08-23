@@ -48,7 +48,7 @@ public class SmartSave {
 	private final static String TAG = SmartSave.class.getSimpleName();
 	private final static boolean DEBUG = false;
 
-	//! Create a smart save button attached to the object manager and an apply and save button
+	//! Create a smart save button attached to the object manager and an apply and ave button
 	public SmartSave(UAVObjectManager objMngr, UAVObject obj, Button saveButton, Button applyButton) {
 		controlFieldMapping = new HashMap<ObjectFieldMappable,FieldPairing>();
 			this.objMngr = objMngr;

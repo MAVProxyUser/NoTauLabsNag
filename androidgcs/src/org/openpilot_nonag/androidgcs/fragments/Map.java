@@ -24,7 +24,9 @@ package org.openpilot_nonag.androidgcs.fragments;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
 
+import org.openpilot_nonag.androidgcs.ObjectEditView;
 import org.openpilot_nonag.androidgcs.R;
 import org.openpilot_nonag.androidgcs.util.SmartSave;
 import org.openpilot_nonag.uavtalk.UAVDataObject;
@@ -51,6 +53,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -73,7 +77,7 @@ public class Map extends ObjectManagerFragment implements
 		OnMyLocationChangeListener {
 
 	private static final String TAG = Map.class.getSimpleName();
-	private static final int LOGLEVEL = 0;
+	private static final int LOGLEVEL = 1;
 	private static final boolean DEBUG = LOGLEVEL > 0;
 
 	private GoogleMap mMap;
@@ -107,31 +111,31 @@ public class Map extends ObjectManagerFragment implements
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		
+		//disable the screen from turning off
 		Log.d(TAG, "*** onCreateView");
 
-		// disable
 		this.getActivity().getWindow()
 				.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
 		// inflate and return the layout
 		View v = inflater.inflate(R.layout.map_fragment, container, false);
-
-		final Button buttonApply = (Button) v.findViewById(R.id.applyBtn);
-		buttonApply.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-            	updateObject("HomeLocation");
-            }
-        });
-		buttonApply.setEnabled(false);
-		
-		final Button buttonSave = (Button) v.findViewById(R.id.saveBtn);
-		buttonSave.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-            	saveObject("HomeLocation");
-            }
-        });
-		buttonSave.setEnabled(false);
         
+//		final Button buttonApply = (Button) v.findViewById(R.id.applyBtn);
+//		buttonApply.setOnClickListener(new View.OnClickListener() {
+//            public void onClick(View v) {
+//            	updateObject(homeLocationObject.getObjID(),homeLocationObject.getInstID());
+//            }
+//        });
+//		buttonApply.setEnabled(false);
+//		
+//		final Button buttonSave = (Button) v.findViewById(R.id.saveBtn);
+//		buttonSave.setOnClickListener(new View.OnClickListener() {
+//            public void onClick(View v) {
+//            	saveObject(homeLocationObject);
+//            }
+//        });
+//		buttonSave.setEnabled(false);
+		
 		mapView = (MapView) v.findViewById(R.id.map_view_fragment);
 		mapView.onCreate(savedInstanceState);
 
@@ -210,44 +214,6 @@ public class Map extends ObjectManagerFragment implements
 				}
 			});
 			
-			if(objMngr != null){
-				
-			}
-			
-			if (savedInstanceState != null) {
-				Log.d(TAG, "*** savedInstanceState != null");
-				
-				if (mMap != null) {
-					if (DEBUG) Log.d(TAG, "Initializing location from bundle");
-
-					CameraPosition camPos = mMap.getCameraPosition();
-
-					// Use current location as defaults in case not found
-					LocationManager locationManager =
-							(LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
-					Location tabletLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-					if (tabletLocation == null) {
-						tabletLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-					}
-					LatLng lla = new LatLng(0,0);
-					if (tabletLocation != null) {
-						lla = new LatLng(tabletLocation.getLatitude(), tabletLocation.getLongitude());
-					}
-					
-					// Get the position from bundle
-					double map_lat = savedInstanceState.getDouble("org.openpilot.map_lat", lla.latitude);
-					double map_lon = savedInstanceState.getDouble("org.openpilot.map_lon", lla.longitude);
-					
-					// Start with default and see if one is stored
-					float zoom = 17;
-					zoom = (float) savedInstanceState.getDouble("org.openpilot.cam_zoom", zoom);
-					
-					// Move there
-					lla = new LatLng(map_lat, map_lon);
-					if (DEBUG) Log.d(TAG, "Init location: " + lla);
-					mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(lla, zoom));
-				}
-			} 
 			
 		} else {
 			Toast.makeText(getActivity(),
@@ -277,57 +243,6 @@ public class Map extends ObjectManagerFragment implements
 		mapView.onLowMemory();
 	}
 	
-	/**
-	 * Fetch the data back from the view and then send it to the UAV
-	 */
-	private boolean updateObject(String uavoName) {
-		
-		if(objMngr != null){
-			UAVDataObject dataObj = (UAVDataObject)objMngr.getObject(uavoName);
-			long objectID = dataObj.getObjID();
-			long instID = dataObj.getInstID();
-			
-			UAVObject obj = objMngr.getObject(objectID, instID);
-			if (obj == null)
-				return false;
-	
-			Log.d(TAG, "Updating object id " + obj.getObjID());
-			obj.updated();
-					
-			return true;
-		}
-	
-		return false;
-	}
-	/**
-	 * Fetch the data back from the view and then send it to the UAV
-	 */
-	private void saveObject(String uavoName) {
-
-		if(objMngr != null){
-			UAVObject objPer = objMngr.getObject("ObjectPersistence");
-	
-			if( !updateObject(uavoName)  || objPer == null) {
-				Toast.makeText(getActivity(), "Save failed", Toast.LENGTH_LONG).show();
-				return;
-			}
-		
-			UAVDataObject obj = (UAVDataObject)objMngr.getObject(uavoName);
-			long objectID = obj.getObjID();
-			long instID = obj.getInstID();
-			
-			long thisId = objectID < 0 ? 0x100000000l + objectID : objectID;
-			objPer.getField("Operation").setValue("Save");
-			objPer.getField("Selection").setValue("SingleObject");
-			Log.d(TAG,"Saving with object id: " + objectID + " swapped to " + thisId);
-			objPer.getField("ObjectID").setValue(thisId);
-			objPer.getField("InstanceID").setValue(instID);
-			objPer.updated();
-	
-			Toast.makeText(getActivity(), "Save succeeded", Toast.LENGTH_LONG).show();
-		}
-	}
-
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v,
 			ContextMenuInfo menuInfo) {
@@ -369,8 +284,8 @@ public class Map extends ObjectManagerFragment implements
 					+ touchLocation.latitude + " " + touchLocation.longitude);
 
 			if (objMngr != null) {
-				UAVObject obj = objMngr.getObject("HomeLocation");
-				if (obj != null) {
+				UAVDataObject home = (UAVDataObject) objMngr.getObject("HomeLocation");
+				if (home != null) {
 
 					// LatLng is in degrees, Latitude and Longitude is stored as "deg * 10e6"
 					int lat = (int) (touchLocation.latitude * 10e6);
@@ -381,17 +296,20 @@ public class Map extends ObjectManagerFragment implements
 								+ lat + " " + lon);
 	
 						
-						UAVObjectField latField = obj.getField("Latitude");
+						UAVObjectField latField = home.getField("Latitude");
 						latField.setInt(lat);
 						
-						UAVObjectField longField = obj.getField("Longitude");
+						UAVObjectField longField = home.getField("Longitude");
 						longField.setInt(lon);
 						
-						UAVObjectField setField = obj.getField("Set");
-						setField.setValue("FALSE");
+						UAVObjectField setField = home.getField("Set");
+						setField.setValue("TRUE");
 						 
-						obj.updated();
-						obj.updateRequested();
+						home.updated();
+						home.updateRequested();
+						
+						// persist to flash
+						saveObject(home);
 						
 						Toast.makeText(getActivity(), "Setting Home Location",
 								Toast.LENGTH_SHORT).show();
@@ -438,23 +356,22 @@ public class Map extends ObjectManagerFragment implements
 	@Override
 	public void onOPConnected(UAVObjectManager objMngr) {
 		super.onOPConnected(objMngr);
+		
+		Log.d(TAG, "******* onOPConnected");
+		
 		this.objMngr = objMngr;
-
-		final Button buttonSave = (Button) getView().findViewById(R.id.saveBtn);
-		buttonSave.setEnabled(true);
-		final Button buttonApply = (Button) getView().findViewById(R.id.applyBtn);
-		buttonApply.setEnabled(true);
 		
 		UAVDataObject obj = (UAVDataObject) objMngr.getObject("HomeLocation");
 		if (obj != null) {
 			
-			smartSave = new SmartSave(objMngr, obj,
-				(Button) getView().findViewById(R.id.saveBtn),
-				(Button) getView().findViewById(R.id.applyBtn));
+			// will load HomeLocation if stored in flash
+			loadObject(obj);
 			
-			//obj.updateRequested(); // Make sure this is correct and been
 			registerObjectUpdates(obj);
 			objectUpdated(obj);
+			obj.updateRequested(); // Make sure this is correct and been
+			
+			
 		} else {
 			Log.d(TAG, "HomeLocation is null");
 		}
@@ -664,5 +581,71 @@ public class Map extends ObjectManagerFragment implements
 			
 		}
 	}
+	
+	private void loadObject(UAVObject obj){
+		if(obj == null)
+			return;
+		
+		long objectID = obj.getObjID() ;
+		long instID = obj.getInstID();
+		
+		UAVObject objPer = objMngr.getObject("ObjectPersistence");
+		if( !updateObject(objectID, instID)  || objPer == null) {
+			Toast.makeText(getActivity(), "Load failed", Toast.LENGTH_LONG).show();
+			return;
+		}
+
+		long thisId = objectID < 0 ? 0x100000000l + objectID : objectID;
+		objPer.getField("Operation").setValue("Load");
+		objPer.getField("Selection").setValue("SingleObject");
+		
+		Log.d(TAG,"Reading object id: " + objectID + " swapped to " + thisId);
+		objPer.getField("ObjectID").setValue(thisId);
+		objPer.getField("InstanceID").setValue(instID);
+		objPer.updated();
+		Toast.makeText(getActivity(), "Load succeeded", Toast.LENGTH_LONG).show();
+	}
+	/**
+	 * Fetch the data back from the view and then send it to the UAV
+	 */
+	private void saveObject(UAVObject obj) {
+		if(obj == null)
+			return;
+
+		long objectID = obj.getObjID() ;
+		long instID = obj.getInstID();
+		
+		UAVObject objPer = objMngr.getObject("ObjectPersistence");
+		if( !updateObject(objectID, instID)  || objPer == null) {
+			Toast.makeText(getActivity(), "Save failed", Toast.LENGTH_LONG).show();
+			return;
+		}
+
+		long thisId = objectID < 0 ? 0x100000000l + objectID : objectID;
+		objPer.getField("Operation").setValue("Save");
+		objPer.getField("Selection").setValue("SingleObject");
+		
+		Log.d(TAG,"Saving with object id: " + objectID + " swapped to " + thisId);
+		objPer.getField("ObjectID").setValue(thisId);
+		objPer.getField("InstanceID").setValue(instID);
+		objPer.updated();
+		Toast.makeText(getActivity(), "Save succeeded", Toast.LENGTH_LONG).show();
+	}
+
+	/**
+	 * Fetch the data back from the view and then send it to the UAV
+	 */
+	private boolean updateObject(long objectID, long instID) {
+		UAVObject obj = objMngr.getObject(objectID, instID);
+		if (obj == null)
+			return false;
+
+		Log.d(TAG, "Updating object id " + obj.getObjID());
+		obj.updated();
+
+		return true;
+	}
+
+	
 	
 }
