@@ -217,6 +217,19 @@ public class Map extends ObjectManagerFragment implements
 				}
 			});
 			
+			LocationManager locationManager =
+					(LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+			Location currentLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+			if (currentLocation == null) {
+				currentLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+			}
+			LatLng currentLatLng = new LatLng(0,0);
+			if (currentLocation != null) {
+				currentLatLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
+			}
+			// zoom to cuurent location
+			mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 17));
+			
 			
 		} else {
 			Toast.makeText(getActivity(),
