@@ -36,39 +36,56 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.Set;
 
-import org.openpilot_nonag.androidgcs.R;
+import org.openpilot_nonag.androidgcs.drawer.NavDrawerActivityConfiguration;
+import org.openpilot_nonag.androidgcs.drawer.NavDrawerAdapter;
+import org.openpilot_nonag.androidgcs.drawer.NavDrawerItem;
+import org.openpilot_nonag.androidgcs.drawer.NavMenuActivity;
+import org.openpilot_nonag.androidgcs.drawer.NavMenuItem;
+import org.openpilot_nonag.androidgcs.drawer.NavMenuSection;
+import org.openpilot_nonag.androidgcs.fragments.Map;
 import org.openpilot_nonag.androidgcs.fragments.ObjectManagerFragment;
+import org.openpilot_nonag.androidgcs.fragments.PFD;
+import org.openpilot_nonag.androidgcs.fragments.SystemAlarmsFragment;
 import org.openpilot_nonag.androidgcs.telemetry.OPTelemetryService;
+import org.openpilot_nonag.androidgcs.telemetry.OPTelemetryService.ConnectionState;
 import org.openpilot_nonag.androidgcs.telemetry.OPTelemetryService.LocalBinder;
 import org.openpilot_nonag.androidgcs.telemetry.OPTelemetryService.TelemTask;
+import org.openpilot_nonag.androidgcs.telemetry.tasks.LoggingTask;
+import org.openpilot_nonag.androidgcs.views.AlarmsSummary;
+import org.openpilot_nonag.androidgcs.views.AlarmsSummary.AlarmsStatus;
 import org.openpilot_nonag.uavtalk.UAVObject;
+import org.openpilot_nonag.uavtalk.UAVObjectField;
 import org.openpilot_nonag.uavtalk.UAVObjectManager;
 
 import android.app.Activity;
+import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.ViewGroup;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.BaseAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentTransaction;
-import android.widget.Toast;
+public abstract class ObjectManagerActivity extends Activity {
 
-public abstract class ObjectManagerActivity extends FragmentActivity {
-
-	private final String TAG = "ObjectManagerActivity";
+	private final String TAG = ObjectManagerActivity.class.getSimpleName();
 	private static int LOGLEVEL = 0;
 	private static boolean WARN = LOGLEVEL > 1;
 	private static boolean DEBUG = LOGLEVEL > 0;
@@ -88,11 +105,65 @@ public abstract class ObjectManagerActivity extends FragmentActivity {
 	//! Maintain a list of all the UAVObject listeners for this activity
 	private HashMap<Observer, UAVObject> listeners;
 	/** Called when the activity is first created. */
+	
+	LoggingTask loggingTask= new LoggingTask();
+	
+	private DrawerLayout mDrawerLayout;
+	private ActionBarDrawerToggle mDrawerToggle;
+	private ListView mDrawerList;
+	private CharSequence mDrawerTitle;
+	private CharSequence mTitle;
+	
+	//! Updated whenever the alarms are
+	
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-	}
 
+		navConf = getNavDrawerConfiguration();
+		setContentView(navConf.getMainLayout());
+
+		mTitle = mDrawerTitle = getTitle();
+
+		mDrawerLayout = (DrawerLayout) findViewById(navConf.getDrawerLayoutId());
+		mDrawerList = (ListView) findViewById(navConf.getLeftDrawerId());
+		
+		BaseAdapter baseAdapter = navConf.getBaseAdapter();
+		mDrawerList.setAdapter(baseAdapter);
+		mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
+
+		this.initDrawerShadow();
+		
+		// enable ActionBar app icon to behave as action to toggle nav drawer
+		getActionBar().setDisplayHomeAsUpEnabled(true);
+		getActionBar().setHomeButtonEnabled(true);
+
+		mDrawerToggle = new ActionBarDrawerToggle(
+				this,
+				mDrawerLayout,
+				getDrawerIcon(),
+				navConf.getDrawerOpenDesc(),
+				navConf.getDrawerCloseDesc()
+				) {
+			public void onDrawerClosed(View view) {
+				getActionBar().setTitle(mTitle);
+				invalidateOptionsMenu();
+			}
+
+			public void onDrawerOpened(View drawerView) {
+				getActionBar().setTitle(mDrawerTitle);
+				invalidateOptionsMenu();
+			}
+		};
+		mDrawerLayout.setDrawerListener(mDrawerToggle);
+
+		if (savedInstanceState == null) {
+			selectItem(0);
+		}
+		
+	}
+	 
 	/**
 	 * Called whenever any objects subscribed to via registerObjects
 	 * whenever this Activity is not paused
@@ -150,7 +221,15 @@ public abstract class ObjectManagerActivity extends FragmentActivity {
 			telemetryStatsConnected = true;
 		}
 		updateStats();
+		
+		loggingTask.connect(objMngr, this);
 
+		UAVObject alarms = objMngr.getObject("SystemAlarms");
+		if (alarms != null)
+			alarms.addUpdatedObserver(alarmsObserver);
+		updateAlarmSummary();
+		
+		
 		if (DEBUG) Log.d(TAG, "Notifying listeners about connection.  There are " + connectionListeners.countObservers());
 		connectionListeners.connected();
 	}
@@ -167,6 +246,9 @@ public abstract class ObjectManagerActivity extends FragmentActivity {
 		rxRate.setText("");
 		txRate.setText("");
 
+		if(loggingTask != null){
+			loggingTask.disconnect();
+		}
 		// Providing a null update triggers a disconnect on fragments
 		connectionListeners.disconnected();
 
@@ -181,6 +263,11 @@ public abstract class ObjectManagerActivity extends FragmentActivity {
 				stats.removeUpdatedObserver(telemetryObserver);
 			}
 			telemetryStatsConnected = false;
+			
+			UAVObject alarms = objMngr.getObject("SystemAlarms");
+			if (alarms != null) {
+				alarms.removeUpdatedObserver(alarmsObserver);
+			}
 		}
 
 		// Disconnect from any UAVO updates
@@ -201,9 +288,15 @@ public abstract class ObjectManagerActivity extends FragmentActivity {
 
 			stats.addUpdatedObserver(telemetryObserver);
 			telemetryStatsConnected = true;
+			
+			UAVObject alarms = objMngr.getObject("SystemAlarms");
+			if (alarms != null)
+				alarms.addUpdatedObserver(alarmsObserver);
+			updateAlarmSummary();
 		}
 
 		resumeObjectUpdates();
+		invalidateOptionsMenu();
 	}
 
 	@Override
@@ -215,6 +308,11 @@ public abstract class ObjectManagerActivity extends FragmentActivity {
 
 			stats.removeUpdatedObserver(telemetryObserver);
 			telemetryStatsConnected = false;
+			
+			UAVObject alarms = objMngr.getObject("SystemAlarms");
+			if (alarms != null) {
+				alarms.removeUpdatedObserver(alarmsObserver);
+			}
 		}
 
 		pauseObjectUpdates();
@@ -233,7 +331,10 @@ public abstract class ObjectManagerActivity extends FragmentActivity {
 				if (DEBUG)
 					Log.d(TAG, "Received intent");
 				TelemTask task;
-				if(intent.getAction().compareTo(OPTelemetryService.INTENT_ACTION_CONNECTED) == 0) {
+				
+				if(intent.getAction().compareTo(OPTelemetryService.INTENT_CHANNEL_OPENED) == 0) {
+					invalidateOptionsMenu();
+				} else if(intent.getAction().compareTo(OPTelemetryService.INTENT_ACTION_CONNECTED) == 0) {
 					if(binder  == null)
 						return;
 					if((task = binder.getTelemTask(0)) == null)
@@ -242,11 +343,13 @@ public abstract class ObjectManagerActivity extends FragmentActivity {
 					mConnected = true;
 					onOPConnected();
 					Log.d(TAG, "Connected()");
+					invalidateOptionsMenu();
 				} else if (intent.getAction().compareTo(OPTelemetryService.INTENT_ACTION_DISCONNECTED) == 0) {
 					onOPDisconnected();
 					objMngr = null;
 					mConnected = false;
 					Log.d(TAG, "Disonnected()");
+					invalidateOptionsMenu();
 				}
 			}
 		};
@@ -254,6 +357,7 @@ public abstract class ObjectManagerActivity extends FragmentActivity {
 		// Set up the filters
 		IntentFilter filter = new IntentFilter();
 		filter.addCategory(OPTelemetryService.INTENT_CATEGORY_GCS);
+		filter.addAction(OPTelemetryService.INTENT_CHANNEL_OPENED);
 		filter.addAction(OPTelemetryService.INTENT_ACTION_CONNECTED);
 		filter.addAction(OPTelemetryService.INTENT_ACTION_DISCONNECTED);
 		registerReceiver(connectedReceiver, filter);
@@ -344,11 +448,11 @@ public abstract class ObjectManagerActivity extends FragmentActivity {
 			{
 				obj.removeUpdatedObserver(o);
 			}
-                        catch (NullPointerException e)
-                        {
-                                //Toast.makeText(this, "Catching Nulls on UAVObjects, link may be failing", Toast.LENGTH_SHORT).show();
-                                Log.d("pauseObjectUpdates", "Catching Nulls on UAVObjects, link may be failing");
-                        }
+            catch (NullPointerException e)
+            {
+                    //Toast.makeText(this, "Catching Nulls on UAVObjects, link may be failing", Toast.LENGTH_SHORT).show();
+                    Log.d("pauseObjectUpdates", "Catching Nulls on UAVObjects, link may be failing");
+            }
 		}
 		paused = true;
 
@@ -422,6 +526,65 @@ public abstract class ObjectManagerActivity extends FragmentActivity {
 		}
 	}
 
+	/*********** Deals with the default visualization of all activities *******/
+
+	//! Store reference to alarm widget from menu inflation
+	private AlarmsSummary summary;
+
+	/**
+	 * @brief Look for the worst alarm level and update the
+	 * widget view accordingly
+	 */
+	private void updateAlarmSummary() {
+		if (summary == null)
+			return;
+
+		if (objMngr == null)
+			return;
+
+		UAVObject alarms = objMngr.getObject("SystemAlarms");
+		if (alarms == null)
+			return;
+		UAVObjectField alarmField = alarms.getField("Alarm");
+		if (alarmField == null)
+			return;
+
+		int worst = 0;
+		for (int i = 0; i < alarmField.getNumElements(); i++) {
+			if (alarmField.getDouble(i) > worst)
+				worst = (int) alarmField.getDouble(i);
+		}
+
+		String worstAlarm = alarmField.getOptions().get(worst);
+
+		// Map from string to the enum value
+		if (worstAlarm.equals("OK"))
+			summary.setAlarmsStatus(AlarmsStatus.GOOD);
+		else if (worstAlarm.equals("Warning"))
+			summary.setAlarmsStatus(AlarmsStatus.WARNING);
+		else if (worstAlarm.equals("Error"))
+			summary.setAlarmsStatus(AlarmsStatus.ERROR);
+		else if (worstAlarm.equals("Critical"))
+			summary.setAlarmsStatus(AlarmsStatus.CRITICAL);
+		else
+			// Should not happen (e.g. Uninitialized)
+			summary.setAlarmsStatus(AlarmsStatus.CRITICAL);
+	}
+
+	//! Updated whenever the alarms are
+	private final Observer alarmsObserver = new Observer() {
+		@Override
+		public void update(Observable observable, Object data) {
+			uavobjHandler.post(new Runnable() {
+				@Override
+				public void run() {
+					updateAlarmSummary();
+				}
+			});
+		}
+	};
+
+	
 	/*********** Deals with fragments listening for connections ***************/
 
 	/**
@@ -462,7 +625,11 @@ public abstract class ObjectManagerActivity extends FragmentActivity {
 	public void addOnConnectionListenerFragment(ObjectManagerFragment frag) {
 		connectionListeners.addObserver(new OnConnectionListener(frag));
 		if (DEBUG) Log.d(TAG, "Connecting " + frag + " there are now " + connectionListeners.countObservers());
-		if (mConnected)
+		
+		// We have to check the connected called flag to make sure that the activity
+				// has acknowledged the connection already.
+		if (getConnectionState() == ConnectionState.CONNECTED &&
+				mConnected)
 			frag.onOPConnected(objMngr);
 	}
 
@@ -482,10 +649,11 @@ public abstract class ObjectManagerActivity extends FragmentActivity {
 				TelemTask task;
 				if((task = binder.getTelemTask(0)) != null) {
 					objMngr = task.getObjectManager();
-					mConnected = true;
+					//mConnected = true;
 					try
 					{
 						onOPConnected();
+						invalidateOptionsMenu();
 					}
 					catch (NullPointerException e)
 					{
@@ -501,45 +669,253 @@ public abstract class ObjectManagerActivity extends FragmentActivity {
 			onOPDisconnected();
 			mBound = false;
 			binder = null;
-			mConnected = false;
+			//mConnected = false;
 			objMngr = null;
-			objMngr = null;
-			mConnected = false;
+			invalidateOptionsMenu();
 		}
 	};
 
 	/************* Deals with menus *****************/
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
+		
+		// The action bar home/up action should open or close the drawer.
+		// ActionBarDrawerToggle will take care of this.
+		if (mDrawerToggle.onOptionsItemSelected(item)) {
+			return true;
+		}
+				
 		if (!mBound || binder == null) {
 			Log.e(TAG, "Unable to connect to service");
 			return super.onOptionsItemSelected(item);
 		}
-		switch(item.getItemId()) {
-		case R.id.menu_connect:
+		
+		if(item.getItemId() == R.id.menu_connect){
 			binder.openConnection();
 			return true;
-		case R.id.menu_disconnect:
+		}
+		else if(item.getItemId() == R.id.menu_disconnect){
 			binder.stopConnection();
 			return true;
-		case R.id.menu_settings:
+		}
+		else if(item.getItemId() == R.id.menu_settings){
 			startActivity(new Intent(this, Preferences.class));
 			return true;
-		case R.id.menu_manage_logs:
+		}
+		else if(item.getItemId() == R.id.menu_manage_logs){
 			 startActivity(new Intent(this, LogManagerActivty.class));
 			 return true;
-		default:
+		}else{
 			return super.onOptionsItemSelected(item);
 		}
 
 	}
+	
+	//! Get the current connection state
+	private ConnectionState getConnectionState() {
+		if (binder == null)
+			return ConnectionState.DISCONNECTED;
+		return binder.getConnectionState();
+	}
+	
+	@Override
+	public boolean onPrepareOptionsMenu (Menu menu) {
+
+		// Query the telemetry service for the current state
+		boolean channelOpen = getConnectionState() != ConnectionState.DISCONNECTED;
+
+		// Show the connect button based on the status reported by the telemetry
+		// service
+		MenuItem connectionButton = menu.findItem(R.id.menu_connect);
+		if (connectionButton != null) {
+			connectionButton.setEnabled(!channelOpen).setVisible(!channelOpen);
+		}
+
+		MenuItem disconnectionButton = menu.findItem(R.id.menu_disconnect);
+		if (disconnectionButton != null) {
+			disconnectionButton.setEnabled(channelOpen).setVisible(channelOpen);
+		}
+
+		return super.onPrepareOptionsMenu(menu);
+	}
+
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
+		
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.status_menu, menu);
 		inflater.inflate(R.menu.options_menu, menu);
-		return true;
+		
+		return super.onCreateOptionsMenu(menu);
+	}
+	
+	/************ Deals with drawer navigation ************/
+	private NavDrawerActivityConfiguration navConf ;
+	protected abstract NavDrawerActivityConfiguration getNavDrawerConfiguration();
+	protected NavDrawerActivityConfiguration getDefaultNavDrawerConfiguration() {
+
+		NavDrawerActivityConfiguration navDrawerActivityConfiguration = new NavDrawerActivityConfiguration();
+		navDrawerActivityConfiguration.setDrawerLayoutId(R.id.drawer_layout);
+		navDrawerActivityConfiguration.setLeftDrawerId(R.id.left_drawer);
+		navDrawerActivityConfiguration.setDrawerShadow(R.drawable.drawer_shadow);       
+		navDrawerActivityConfiguration.setDrawerOpenDesc(R.string.drawer_open);
+		navDrawerActivityConfiguration.setDrawerCloseDesc(R.string.drawer_close);
+
+		// The main two things that can be overridden are the layout (must be) and the menu options
+
+		//navDrawerActivityConfiguration.setMainLayout(R.layout.main);
+
+		// Set up the menu
+		NavDrawerItem[] menu = new NavDrawerItem[] {
+				NavMenuSection.create( 100, "Main Screens"),
+				NavMenuItem.create(101, "PFD", "ic_pfd", true, this),
+				NavMenuItem.create(102, "Map", "ic_map", true, this),
+				NavMenuItem.create(103, "Alarms", "ic_alarms", true, this),
+				NavMenuActivity.create(104, "Tuning", "ic_tuning", TuningActivity.class, true, this),
+				//NavMenuActivity.create(105, "Home Adjustment", "ic_map", HomeAdjustment.class, true, this),
+				NavMenuActivity.create(106, "Browser", "ic_browser", ObjectBrowserActivity.class, true, this),
+				//NavMenuActivity.create(107, "Logging", "ic_logging", Logging.class, true, this),
+				//NavMenuActivity.create(108, "Control", "ic_controller", Controller.class, true, this),
+				NavMenuActivity.create(109, "TFR", "ic_tfr", TfrActivity.class, true, this),
+				NavMenuActivity.create(1010, "Control Center", "ic_cc", ControlCenterActivity.class, true, this),
+		};
+
+		navDrawerActivityConfiguration.setNavItems(menu);
+		navDrawerActivityConfiguration.setBaseAdapter(
+				new NavDrawerAdapter(this, R.layout.navdrawer_item, menu ));
+
+		return navDrawerActivityConfiguration;
+	}
+
+	protected void initDrawerShadow() {
+		mDrawerLayout.setDrawerShadow(navConf.getDrawerShadow(), GravityCompat.START);
+	}
+
+	protected int getDrawerIcon() {
+		return R.drawable.ic_drawer;
+	}
+
+	/* The click listener for ListView in the navigation drawer */
+	private class DrawerItemClickListener implements ListView.OnItemClickListener {
+		@Override
+		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+			selectItem(position);
+		}
+	}
+
+	/**
+	 * Map the IDs to the fragments for the default layout. These should
+	 * match the values used when creating the NavDrawerItems.
+	 * @param id of the fragment to fetch
+	 * @return the new fragment
+	 */
+	protected Fragment getFragmentById(int id) {
+		switch (id) {
+		case 101:
+			return new PFD();
+		case 102:
+			return new Map();
+		case 103:
+			return new SystemAlarmsFragment();
+		}
+		return null;
+	}
+	
+	private void selectItem(int position) {
+		
+		NavDrawerItem selectedItem = navConf.getNavItems()[position];
+
+		// Selected item indicates an activity to launch
+		if (selectedItem.getType() == NavMenuActivity.ACTIVITY_TYPE) {
+			NavMenuActivity launcherItem = (NavMenuActivity) selectedItem;
+			if (launcherItem.getLaunchClass() != null) {
+				Log.d(TAG, "ID: " + selectedItem.getId() + " " + selectedItem.getLabel() + " position: " + position);
+
+				mDrawerList.setItemChecked(position, true);
+
+				if ( selectedItem.updateActionBarTitle()) {
+					setTitle(selectedItem.getLabel());
+				}
+
+				if ( this.mDrawerLayout.isDrawerOpen(this.mDrawerList)) {
+					mDrawerLayout.closeDrawer(mDrawerList);
+				}
+
+				startActivity(new Intent(this, launcherItem.getLaunchClass()));
+			}
+			
+			return;
+		}
+
+		// Selected item indicates the contents to put in the main frame
+		if (selectedItem.getType() == NavMenuItem.ITEM_TYPE) {
+
+			if (findViewById(navConf.getMainLayout()) == null) {
+				// If not the new main activity should be activated.
+
+				// Close drawer first
+				mDrawerList.setItemChecked(position, true);
+				if ( this.mDrawerLayout.isDrawerOpen(this.mDrawerList)) {
+					mDrawerLayout.closeDrawer(mDrawerList);
+				}
+
+				// Activate main activity, indicating the fragment it should show 
+				Intent mainScreen = new Intent(this, MainActivity.class);
+				mainScreen.putExtra("ContentFrag",  selectedItem.getId());
+				if ( selectedItem.updateActionBarTitle())
+					mainScreen.putExtra("ContentName", selectedItem.getLabel());
+				startActivity(mainScreen);
+				
+				return;
+			} else {
+
+				int id = (int) selectedItem.getId();
+				FragmentTransaction trans = getFragmentManager().beginTransaction();
+				trans.replace(navConf.getMainLayout(), getFragmentById(id));
+				trans.addToBackStack(null);
+				trans.commit();
+				
+				mDrawerList.setItemChecked(position, true);
+	
+				if ( selectedItem.updateActionBarTitle()) {
+					Log.d(TAG, "Selected item title: " + selectedItem.getLabel());
+					setTitle(selectedItem.getLabel());
+				}
+	
+				if ( this.mDrawerLayout.isDrawerOpen(this.mDrawerList)) {
+					mDrawerLayout.closeDrawer(mDrawerList);
+				}
+			}
+		}
+		
+
+	}
+
+	@Override
+	public void setTitle(CharSequence title) {
+		mTitle = title;
+		getActionBar().setTitle(mTitle);
+	}
+
+
+	/**
+	 * When using the ActionBarDrawerToggle, you must call it during
+	 * onPostCreate() and onConfigurationChanged()...
+	 */
+
+	@Override
+	protected void onPostCreate(Bundle savedInstanceState) {
+		super.onPostCreate(savedInstanceState);
+		// Sync the toggle state after onRestoreInstanceState has occurred.
+		mDrawerToggle.syncState();
+	}
+
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+		super.onConfigurationChanged(newConfig);
+		// Pass any configuration change to the drawer toggls
+		mDrawerToggle.onConfigurationChanged(newConfig);
 	}
 
 }

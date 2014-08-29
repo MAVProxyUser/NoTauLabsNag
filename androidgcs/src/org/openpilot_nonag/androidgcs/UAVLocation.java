@@ -23,6 +23,8 @@
 
 package org.openpilot_nonag.androidgcs;
 
+import org.openpilot_nonag.androidgcs.drawer.NavDrawerActivityConfiguration;
+
 import android.os.Bundle;
 
 public class UAVLocation extends ObjectManagerActivity {
@@ -34,6 +36,12 @@ public class UAVLocation extends ObjectManagerActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.uav_location);
+	}
+	
+	@Override
+	protected NavDrawerActivityConfiguration getNavDrawerConfiguration() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

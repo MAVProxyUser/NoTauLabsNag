@@ -23,18 +23,20 @@
 
 package org.openpilot_nonag.androidgcs;
 
+import org.openpilot_nonag.androidgcs.drawer.NavDrawerActivityConfiguration;
+
 import android.app.Activity;
 import android.os.Bundle;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-public class TfrActivity extends Activity {
+public class TfrActivity extends ObjectManagerActivity {
  
 	private WebView webView;
  
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.main);
+		
  
 		webView = (WebView) findViewById(R.id.webView1);
 
@@ -53,6 +55,13 @@ public class TfrActivity extends Activity {
 
 		webView.loadUrl("http://tfr.faa.gov/tfr2/list.html");
  
+	}
+
+	@Override
+	protected NavDrawerActivityConfiguration getNavDrawerConfiguration() {
+		NavDrawerActivityConfiguration navDrawer = getDefaultNavDrawerConfiguration();
+		navDrawer.setMainLayout(R.layout.main);
+		return navDrawer;
 	}
  
 }

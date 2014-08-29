@@ -31,6 +31,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.openpilot_nonag.androidgcs.R;
+import org.openpilot_nonag.androidgcs.drawer.NavDrawerActivityConfiguration;
 import org.openpilot_nonag.uavtalk.UAVObject;
 import org.openpilot_nonag.uavtalk.UAVTalk;
 
@@ -186,5 +187,10 @@ public class Logger extends ObjectManagerActivity {
 			((TextView) findViewById(R.id.logger_number_of_bytes)).setText(Integer.valueOf(writtenBytes).toString());
 			((TextView) findViewById(R.id.logger_number_of_objects)).setText(Integer.valueOf(writtenObjects).toString());
 		}
+	}
+	@Override
+	protected NavDrawerActivityConfiguration getNavDrawerConfiguration() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

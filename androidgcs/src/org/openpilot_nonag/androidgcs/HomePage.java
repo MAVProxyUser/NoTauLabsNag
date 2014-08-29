@@ -24,11 +24,13 @@
 package org.openpilot_nonag.androidgcs;
 
 import org.openpilot_nonag.androidgcs.R;
+import org.openpilot_nonag.androidgcs.drawer.NavDrawerActivityConfiguration;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.Toast;
 import android.content.res.Configuration;
@@ -50,23 +52,26 @@ public class HomePage extends ObjectManagerActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
 		setContentView(R.layout.gcs_home);
-
+		
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+				
 		Button objectBrowser = (Button) findViewById(R.id.launch_object_browser);
 		objectBrowser.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
-				startActivity(new Intent(HomePage.this, ObjectBrowser.class));
+				startActivity(new Intent(HomePage.this, ObjectBrowserActivity.class));
 			}
 		});
 
-		Button pfd = (Button) findViewById(R.id.launch_pfd);
-		pfd.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View arg0) {
-				startActivity(new Intent(HomePage.this, PfdActivity.class));
-			}
-		});
+//		Button pfd = (Button) findViewById(R.id.launch_pfd);
+//		pfd.setOnClickListener(new OnClickListener() {
+//			@Override
+//			public void onClick(View arg0) {
+//				startActivity(new Intent(HomePage.this, PfdActivity.class));
+//			}
+//		});
 
 		Button tfr = (Button) findViewById(R.id.launch_tfr);
 		tfr.setOnClickListener(new OnClickListener() {
@@ -125,5 +130,9 @@ public class HomePage extends ObjectManagerActivity {
 		});
 
 	}
-
+	@Override
+	protected NavDrawerActivityConfiguration getNavDrawerConfiguration() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

@@ -1,59 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.GridLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res/org.openpilot_nonag.androidgcs" xmlns:grid="http://schemas.android.com/apk/res-auto"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_alignParentLeft="true"
-    android:layout_gravity="center_horizontal" >
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+         >
 
     <TextView
         android:id="@+id/logger_number_of_objects_title"
         android:layout_width="132dp"
         android:layout_height="wrap_content"
-        android:layout_column="0"
-        android:layout_gravity="center"
-        android:layout_row="0"
-        android:layout_rowSpan="1"
+        android:layout_weight=".5"
         android:text="@string/number_of_objects" />
-
-    <TextView
-        android:id="@+id/logger_number_of_objects"
-        android:layout_width="132dp"
-        android:layout_height="wrap_content"
-        android:layout_column="1"
-        android:layout_gravity="center"
-        android:layout_row="0"
-        android:layout_rowSpan="1"
-        android:text="" />
     
     <TextView
         android:id="@+id/logger_number_of_bytes_title"
         android:layout_width="132dp"
         android:layout_height="wrap_content"
-        android:layout_column="0"
-        android:layout_gravity="center"
-        android:layout_row="1"
-        android:layout_rowSpan="1"
+        android:layout_weight=".5"
+        
         android:text="@string/number_of_bytes" />
+
+    </LinearLayout>
+    
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+    <TextView
+        android:id="@+id/logger_number_of_objects"
+        android:layout_width="132dp"
+        android:layout_height="wrap_content"
+        android:layout_weight=".5"
+        android:text="" />
  
     <TextView
         android:id="@+id/logger_number_of_bytes"
         android:layout_width="132dp"
         android:layout_height="wrap_content"
-        android:layout_column="1"
-        android:layout_gravity="center"
-        android:layout_row="1"
-        android:layout_rowSpan="1"
+        android:layout_weight=".5"
         android:text="" />
+
+    </LinearLayout>
     
-    <android.support.v7.widget.Space
-        android:layout_width="1dp"
-        android:layout_height="32dp"
-        android:layout_column="0"
-        android:layout_row="0" />
+   
 
-    <android.support.v7.widget.Space
-        android:layout_width="100dp"
-        android:layout_height="69dp"
-        android:layout_row="1" />
-
-</android.support.v7.widget.GridLayout>
+</LinearLayout>

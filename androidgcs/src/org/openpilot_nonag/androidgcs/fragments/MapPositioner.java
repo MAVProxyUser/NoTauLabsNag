@@ -228,5 +228,9 @@ public class MapPositioner extends ObjectManagerFragment {
 		}
 	}
 
+	@Override
+	protected String getDebugTag() {
+		return TAG;
+	}
 
 }

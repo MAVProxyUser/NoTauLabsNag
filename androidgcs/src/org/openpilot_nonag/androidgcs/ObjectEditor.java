@@ -27,6 +27,8 @@ import java.util.List;
 import java.util.ListIterator;
 
 import org.openpilot_nonag.androidgcs.R;
+import org.openpilot_nonag.androidgcs.drawer.NavDrawerActivityConfiguration;
+import org.openpilot_nonag.androidgcs.views.ObjectEditView;
 import org.openpilot_nonag.uavtalk.UAVObject;
 import org.openpilot_nonag.uavtalk.UAVObjectField;
 
@@ -162,6 +164,11 @@ public class ObjectEditor extends ObjectManagerActivity {
 		obj.updated();
 
 		return true;
+	}
+	@Override
+	protected NavDrawerActivityConfiguration getNavDrawerConfiguration() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

@@ -24,7 +24,10 @@
 package org.openpilot_nonag.androidgcs;
 
 import org.openpilot_nonag.androidgcs.R;
+import org.openpilot_nonag.androidgcs.drawer.NavDrawerActivityConfiguration;
+import org.openpilot_nonag.androidgcs.fragments.SystemAlarmsFragment;
 
+import android.app.FragmentTransaction;
 import android.os.Bundle;
 
 /**
@@ -34,6 +37,19 @@ public class SystemAlarmActivity extends ObjectManagerActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.system_alarms);
+		
+		if (savedInstanceState == null) {
+			FragmentTransaction fragmentTransaction = getFragmentManager()
+					.beginTransaction();
+			fragmentTransaction.add(R.id.content_frame, new SystemAlarmsFragment());
+			fragmentTransaction.commit();
+		}
+	}
+	
+	@Override
+	protected NavDrawerActivityConfiguration getNavDrawerConfiguration() {
+		NavDrawerActivityConfiguration navDrawer = getDefaultNavDrawerConfiguration();
+		navDrawer.setMainLayout(R.layout.drawer);
+		return navDrawer;
 	}
 }

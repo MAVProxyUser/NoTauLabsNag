@@ -48,7 +48,7 @@ public class Telemetry {
 	 */
 
 	private final String TAG = "Telemetry";
-	public static int LOGLEVEL = 1;
+	public static int LOGLEVEL = 0;
 	public static boolean DEBUG = LOGLEVEL > 2;
 	public static boolean WARN  = LOGLEVEL > 1;
 	public static boolean ERROR = LOGLEVEL > 0;
@@ -523,10 +523,11 @@ public class Telemetry {
 	/**
 	 * Private constants
 	 */
-	private static final int REQ_TIMEOUT_MS = 8000;
-	private static final int MAX_RETRIES = 3;
-	private static final int MAX_UPDATE_PERIOD_MS = 4000;
+	private static final int REQ_TIMEOUT_MS = 4000;
+	private static final int MAX_RETRIES = 2;
+	private static final int MAX_UPDATE_PERIOD_MS = 8000;
 	private static final int MIN_UPDATE_PERIOD_MS = 1;
+	private static final int MAX_QUEUE_SIZE=20;
 
 	static private ObjectUpdateHandler handler;
 
@@ -562,8 +563,15 @@ public class Telemetry {
 				if (objQueue.contains(objInfo)) {
 					if (WARN) Log.w(TAG, "Found previously scheduled queue element: " + objInfo.obj.getName());
 				} else {
-					objQueue.add(objInfo);
-					post(new ObjectRunnable(objInfo));
+					if(objQueue.size() < MAX_QUEUE_SIZE){
+						objQueue.add(objInfo);
+						post(new ObjectRunnable(objInfo));
+					}
+					else
+					{
+						if (WARN) Log.w(TAG, "Telemetry - !!! event queue is full, event lost! Element: " + objInfo.obj.getName());
+						txErrors++;
+					}
 				}
 			}
 		}

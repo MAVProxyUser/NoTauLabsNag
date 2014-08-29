@@ -32,4 +32,20 @@
         <item>2</item>
         <item>3</item>
    </string-array>
+   
+    <string-array name="nav_drawer_items">
+        <item>Map</item>
+        <item>PFD</item>
+        <item>Browser</item>
+        <item>Alarms</item>
+        <item>Control Center</item>
+    </string-array>
+    <array name="nav_drawer_icons">
+        <item>@drawable/ic_map</item>
+        <item>@drawable/ic_pfd</item>
+        <item>@drawable/ic_browser</item>
+        <item>@drawable/ic_alarms</item>
+        <item>@drawable/ic_cc</item>
+    </array>
+    
 </resources>
