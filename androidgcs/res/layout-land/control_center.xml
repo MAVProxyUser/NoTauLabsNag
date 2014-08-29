@@ -4,32 +4,33 @@
     android:layout_height="match_parent" >
 
     <LinearLayout
-        android:baselineAligned="false"
-        android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" >
+        android:layout_height="match_parent"
+        android:baselineAligned="false"
+        android:orientation="horizontal" >
 
         <fragment
             android:id="@+id/pfd"
             android:name="org.openpilot_nonag.androidgcs.fragments.PFD"
             android:layout_width="0dp"
-            android:layout_weight="0.7"
-            android:layout_height="match_parent"  />
+            android:layout_height="match_parent"
+            android:layout_weight="0.7" />
 
         <fragment
             android:id="@+id/map"
             android:name="org.openpilot_nonag.androidgcs.fragments.Map"
             android:layout_width="0dp"
-            android:layout_weight="1.2"
             android:layout_height="match_parent"
-            android:layout_marginLeft="5dp"  />
-	
+            android:layout_marginLeft="5dp"
+            android:layout_weight="1.2" />
+
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:orientation="vertical" >
 
-            <!-- <RadioGroup
+            <!--
+            <RadioGroup
                 android:id="@+id/modeSelectRadio"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -119,11 +120,8 @@
                     android:textOff="@string/land"
                     android:textOn="@string/land" />
             </RadioGroup>
+            -->
 
- -->
-
-            
-            
         </LinearLayout>
     </LinearLayout>
 
@@ -134,10 +132,10 @@
         android:layout_width="240dp"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:background="#111"
+        android:background="@color/list_background"
         android:choiceMode="singleChoice"
-        android:divider="@android:color/transparent"
-        android:dividerHeight="0dp" />
-    
-    
- </android.support.v4.widget.DrawerLayout>
+        android:divider="@color/list_divider"
+        android:dividerHeight="1dp"
+        android:listSelector="@drawable/list_selector" />
+
+</android.support.v4.widget.DrawerLayout>

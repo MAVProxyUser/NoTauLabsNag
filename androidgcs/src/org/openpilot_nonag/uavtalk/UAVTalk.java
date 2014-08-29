@@ -473,11 +473,7 @@ public class UAVTalk {
 				if (rxType == TYPE_OBJ_REQ || rxType == TYPE_ACK || rxType == TYPE_NACK) {
 					rxLength = 0;
 				} else {
-	                if (rxObj != null) {
-						rxLength = rxObj.getNumBytes();
-					} else {
-						rxLength = packetSize - rxPacketLength;
-					}
+					rxLength = rxObj.getNumBytes();
 				}
 				
 				// Check length

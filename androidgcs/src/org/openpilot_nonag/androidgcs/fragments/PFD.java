@@ -24,12 +24,14 @@
 
 package org.openpilot_nonag.androidgcs.fragments;
 
-import org.openpilot_nonag.androidgcs.AltitudeView;
-import org.openpilot_nonag.androidgcs.AttitudeView;
-import org.openpilot_nonag.androidgcs.BatteryView;
-import org.openpilot_nonag.androidgcs.FlightStatusView;
-import org.openpilot_nonag.androidgcs.GpsView;
-import org.openpilot_nonag.androidgcs.HeadingView;
+import org.openpilot_nonag.androidgcs.views.FlightStatusView;
+import org.openpilot_nonag.androidgcs.views.GpsView;
+import org.openpilot_nonag.androidgcs.views.HeadingView;
+import org.openpilot_nonag.androidgcs.views.AltitudeView;
+import org.openpilot_nonag.androidgcs.views.AttitudeView;
+import org.openpilot_nonag.androidgcs.views.BatteryView;
+
+
 import org.openpilot_nonag.androidgcs.R;
 import org.openpilot_nonag.uavtalk.UAVObject;
 import org.openpilot_nonag.uavtalk.UAVObjectManager;
@@ -219,5 +221,10 @@ public class PFD extends ObjectManagerFragment {
 		}
 		
 
+	}
+	
+	@Override
+	protected String getDebugTag() {
+		return TAG;
 	}
 }

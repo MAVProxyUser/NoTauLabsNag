@@ -59,9 +59,10 @@ public class SystemAlarmsFragment extends ObjectManagerFragment {
 			Log.d(TAG, "On connected");
 
     	UAVObject obj = objMngr.getObject("SystemAlarms");
-		if (obj != null)
+		if (obj != null){
 			registerObjectUpdates(obj);
-		objectUpdated(obj);
+			objectUpdated(obj);
+		}
     }
 
 	/**
@@ -69,8 +70,13 @@ public class SystemAlarmsFragment extends ObjectManagerFragment {
 	 */
     @Override
 	public void objectUpdated(UAVObject obj) {
-		if (DEBUG)
+		
+    	if (DEBUG)
 			Log.d(TAG, "Updated");
+		
+		if(obj == null)
+			return;
+		
 		if (obj.getName().compareTo("SystemAlarms") == 0) {
 			TextView alarms = (TextView) getActivity().findViewById(R.id.system_alarms_fragment_field);
 			UAVObjectField a = obj.getField("Alarm");
@@ -89,5 +95,9 @@ public class SystemAlarmsFragment extends ObjectManagerFragment {
 		}
 	}
 
+    @Override
+	protected String getDebugTag() {
+		return TAG;
+	}
 
 }

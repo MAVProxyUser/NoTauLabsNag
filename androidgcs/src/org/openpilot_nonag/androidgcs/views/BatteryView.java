@@ -1,8 +1,8 @@
 /**
  ******************************************************************************
- * @file       GpsView.java
- * @author     Tau Labs, http://taulabs.org, Copyright (C) 2012-2013
- * @brief      A view of the compass heading.
+ * @file       BatteryView.java
+ * @author     Tau Labs, http://taulabs.org, Copyright (C) 2013
+ * @brief      A view of the voltage and current.
  * @see        The GNU Public License (GPL) Version 3
  *****************************************************************************/
 /*
@@ -21,8 +21,9 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-package org.openpilot_nonag.androidgcs;
+package org.openpilot_nonag.androidgcs.views;
 import  org.openpilot_nonag.androidgcs.R;
+import org.openpilot_nonag.androidgcs.R.drawable;
 
 import android.R.color;
 import android.content.Context;
@@ -35,32 +36,31 @@ import android.util.AttributeSet;
 import android.view.View;
 
 /**
- * @class GpsView show the current GPS status with the
- * number of satellites and PDOP
+ * @class BatteryView show the current and voltage data
  */
-public class GpsView extends View {
+public class BatteryView extends View {
 
-	private static final String GPS_FORMAT = "GPS: %d   PDOP: %.2f";
+	private static final String BATTERY_FORMAT = "%.2fV %.2fA";
 
-	public GpsView(Context context) {
+	public BatteryView(Context context) {
 		super(context);
-		initGpsView();
+		initBatteryView();
 	}
 
-	public GpsView(Context context, AttributeSet ats, int defaultStyle) {
+	public BatteryView(Context context, AttributeSet ats, int defaultStyle) {
 		super(context, ats, defaultStyle);
-		initGpsView();
+		initBatteryView();
 	}
 
-	public GpsView(Context context, AttributeSet ats) {
+	public BatteryView(Context context, AttributeSet ats) {
 		super(context, ats);
-		initGpsView();
+		initBatteryView();
 	}
 
 	private final Rect textBounds = new Rect();
 	private final Rect smallTextBounds = new Rect();
 
-	protected void initGpsView() {
+	protected void initBatteryView() {
 		setFocusable(true);
 
 		// Set a slightly dark background with white border
@@ -140,8 +140,8 @@ public class GpsView extends View {
             result = specSize;
         } else {
             // Measure the text
-        	String gpsMessage = String.format(GPS_FORMAT, 3, 3.4f);
-    		int textWidth = (int)textPaint.measureText(gpsMessage);
+        	String batteryMessage = String.format(BATTERY_FORMAT, 11.2f, 80.4f);
+    		int textWidth = (int)textPaint.measureText(batteryMessage);
             result = textWidth + 50;
             if (specMode == MeasureSpec.AT_MOST) {
                 // Respect AT_MOST value if that was what is called for by measureSpec
@@ -152,15 +152,15 @@ public class GpsView extends View {
         return result;
     }
 
-	private double pdop;
-	public void setPDOP(double pdop) {
-		this.pdop = pdop;
+	private double voltage;
+	public void setVoltage(double voltage) {
+		this.voltage = voltage;
 		invalidate();
 	}
 
-	private int satellites;
-	public void setSatellites(int satellites) {
-		this.satellites = satellites;
+	private double current;
+	public void setCurrent(double current) {
+		this.current = current;
 		invalidate();
 	}
 
@@ -175,12 +175,11 @@ public class GpsView extends View {
 		int px = getMeasuredWidth() / 2;
 		int py = getMeasuredHeight() / 2;
 
-		String gpsMessage = String.format(GPS_FORMAT, satellites, pdop);
-		int textWidth = (int)textPaint.measureText(gpsMessage);
+		String batteryMessage = String.format(BATTERY_FORMAT, voltage, current);
+		int textWidth = (int)textPaint.measureText(batteryMessage);
 
 		int textHeight = textBounds.height();
 
-		canvas.drawText(gpsMessage, px - textWidth / 2, py + textHeight / 2, textPaint);
-
+		canvas.drawText(batteryMessage, px - textWidth / 2, py + textHeight / 2, textPaint);
 	}
 }

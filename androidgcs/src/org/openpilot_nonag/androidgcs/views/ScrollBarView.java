@@ -18,6 +18,7 @@ import android.widget.TextView;
 
 public class ScrollBarView extends GridLayout implements ObjectFieldMappable {
 
+	@SuppressWarnings("unused")
 	private final static String TAG = ScrollBarView.class.getSimpleName();
 
 	private final TextView lbl;
@@ -25,13 +26,13 @@ public class ScrollBarView extends GridLayout implements ObjectFieldMappable {
 	private final SeekBar bar;
 	private double value;
 	private String name;
+	private boolean localUpdate = false;
 
 	private final double SCALE = 1000000;
+	private Runnable changeListener = null;
 
 	public ScrollBarView(Context context, AttributeSet attrs) {
 		super(context, attrs);
-
-		Log.d(TAG, "Scroll bar init called");
 
 		setOrientation(LinearLayout.VERTICAL);
 		setColumnCount(2);
@@ -58,6 +59,8 @@ public class ScrollBarView extends GridLayout implements ObjectFieldMappable {
 					boolean fromUser) {
 				value = progress / SCALE;
 				edit.setText(Double.toString(value));
+				if (changeListener != null && localUpdate == false)
+					changeListener.run();
 			}
 
 			@Override
@@ -74,8 +77,10 @@ public class ScrollBarView extends GridLayout implements ObjectFieldMappable {
 
 			@Override
 			public void afterTextChanged(Editable s) {
-				value = Double.parseDouble(s.toString());
+				value = Float.parseFloat(s.toString());
 				bar.setProgress((int) (SCALE * value));
+				if (changeListener != null && localUpdate == false)
+					changeListener.run();
 			}
 
 			@Override
@@ -122,8 +127,15 @@ public class ScrollBarView extends GridLayout implements ObjectFieldMappable {
 
 	@Override
 	public void setValue(double val) {
+		localUpdate = true;
 		value = val;
-		edit.setText(Double.toString(value));
+		edit.setText(Float.toString((float) value));
 		bar.setProgress((int) (SCALE * value));
+		localUpdate = false;
+	}
+
+	@Override
+	public void setOnChangedListener(Runnable run) {
+		changeListener = run;
 	}
 }

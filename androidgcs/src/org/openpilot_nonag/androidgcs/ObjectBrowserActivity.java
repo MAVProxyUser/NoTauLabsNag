@@ -31,6 +31,7 @@ import java.util.Observable;
 import java.util.Observer;
 
 import org.openpilot_nonag.androidgcs.R;
+import org.openpilot_nonag.androidgcs.drawer.NavDrawerActivityConfiguration;
 import org.openpilot_nonag.uavtalk.UAVDataObject;
 import org.openpilot_nonag.uavtalk.UAVObject;
 
@@ -54,9 +55,10 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.view.WindowManager;
 
-public class ObjectBrowser extends ObjectManagerActivity implements OnSharedPreferenceChangeListener {
+public class ObjectBrowserActivity extends ObjectManagerActivity implements
+		OnSharedPreferenceChangeListener {
 
-	private final String TAG = "ObjectBrower";
+	private final String TAG = ObjectBrowserActivity.class.getSimpleName();
 	int selected_index = -1;
 	boolean connected;
 	SharedPreferences prefs;
@@ -81,11 +83,15 @@ public class ObjectBrowser extends ObjectManagerActivity implements OnSharedPref
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-                getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON); // disable sleep
-		setContentView(R.layout.object_browser);
+		
+		super.onCreate(savedInstanceState);
+		
+		// disable sleep
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON); 
+
 		prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		prefs.registerOnSharedPreferenceChangeListener(this);
-		super.onCreate(savedInstanceState);
+		
 	}
 
 	@Override
@@ -101,39 +107,55 @@ public class ObjectBrowser extends ObjectManagerActivity implements OnSharedPref
 			}
 		};
 
-		((CheckBox) findViewById(R.id.dataCheck)).setOnCheckedChangeListener(checkListener);
-		((CheckBox) findViewById(R.id.settingsCheck)).setOnCheckedChangeListener(checkListener);
+		((CheckBox) findViewById(R.id.dataCheck))
+				.setOnCheckedChangeListener(checkListener);
+		((CheckBox) findViewById(R.id.settingsCheck))
+				.setOnCheckedChangeListener(checkListener);
 
-		((Button) findViewById(R.id.editButton)).setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				if (selected_index > 0) {
-					Intent intent = new Intent(ObjectBrowser.this, ObjectEditor.class);
-					intent.putExtra("org.openpilot_nonag.androidgcs.ObjectName", allObjects.get(selected_index).getName());
-					intent.putExtra("org.openpilot_nonag.androidgcs.ObjectId", allObjects.get(selected_index).getObjID());
-					intent.putExtra("org.openpilot_nonag.androidgcs.InstId", allObjects.get(selected_index).getInstID());
-					startActivity(intent);
-				}
-			}
-		});
+		((Button) findViewById(R.id.editButton))
+				.setOnClickListener(new OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						if (selected_index > 0) {
+							Intent intent = new Intent(
+									ObjectBrowserActivity.this,
+									ObjectEditor.class);
+							intent.putExtra(
+									"org.openpilot_nonag.androidgcs.ObjectName",
+									allObjects.get(selected_index).getName());
+							intent.putExtra(
+									"org.openpilot_nonag.androidgcs.ObjectId",
+									allObjects.get(selected_index).getObjID());
+							intent.putExtra(
+									"org.openpilot_nonag.androidgcs.InstId",
+									allObjects.get(selected_index).getInstID());
+							startActivity(intent);
+						}
+					}
+				});
 
-		((Button) findViewById(R.id.object_load_button)).setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				UAVObject objPer = objMngr.getObject("ObjectPersistence");
+		((Button) findViewById(R.id.object_load_button))
+				.setOnClickListener(new OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						UAVObject objPer = objMngr
+								.getObject("ObjectPersistence");
 
-				if (selected_index > 0 && objPer != null) {
-					objPer.getField("Operation").setValue("Load");
-					objPer.getField("Selection").setValue("SingleObject");
-					Log.d(TAG,"Loading with object id: " + allObjects.get(selected_index).getObjID());
-					objPer.getField("ObjectID").setValue(allObjects.get(selected_index).getObjID());
-					objPer.getField("InstanceID").setValue(0);
-					objPer.updated();
+						if (selected_index > 0 && objPer != null) {
+							objPer.getField("Operation").setValue("Load");
+							objPer.getField("Selection").setValue(
+									"SingleObject");
+							Log.d(TAG, "Loading with object id: "
+									+ allObjects.get(selected_index).getObjID());
+							objPer.getField("ObjectID").setValue(
+									allObjects.get(selected_index).getObjID());
+							objPer.getField("InstanceID").setValue(0);
+							objPer.updated();
 
-					allObjects.get(selected_index).updateRequested();
-				}
-			}
-		});
+							allObjects.get(selected_index).updateRequested();
+						}
+					}
+				});
 
 		updateList();
 	}
@@ -144,24 +166,28 @@ public class ObjectBrowser extends ObjectManagerActivity implements OnSharedPref
 	private void updateList() {
 		// Disconnect any previous signals
 		if (selected_index > 0)
-			allObjects.get(selected_index).removeUpdatedObserver(updatedObserver);
+			allObjects.get(selected_index).removeUpdatedObserver(
+					updatedObserver);
 		selected_index = -1;
 
-		boolean includeData = ((CheckBox) findViewById(R.id.dataCheck)).isChecked();
-		boolean includeSettings = ((CheckBox) findViewById(R.id.settingsCheck)).isChecked();
+		boolean includeData = ((CheckBox) findViewById(R.id.dataCheck))
+				.isChecked();
+		boolean includeSettings = ((CheckBox) findViewById(R.id.settingsCheck))
+				.isChecked();
 
 		List<List<UAVDataObject>> allobjects = objMngr.getDataObjects();
 		allObjects = new ArrayList<UAVDataObject>();
 		ListIterator<List<UAVDataObject>> li = allobjects.listIterator();
-		while(li.hasNext()) {
+		while (li.hasNext()) {
 			List<UAVDataObject> objects = li.next();
-			if(includeSettings && objects.get(0).isSettings())
+			if (includeSettings && objects.get(0).isSettings())
 				allObjects.addAll(objects);
 			else if (includeData && !objects.get(0).isSettings())
 				allObjects.addAll(objects);
 		}
 
-		adapter = new ArrayAdapter<UAVDataObject>(this,R.layout.object_view, allObjects);
+		adapter = new ArrayAdapter<UAVDataObject>(this, R.layout.object_view,
+				allObjects);
 		ListView objects = (ListView) findViewById(R.id.object_list);
 		objects.setAdapter(adapter);
 
@@ -171,7 +197,8 @@ public class ObjectBrowser extends ObjectManagerActivity implements OnSharedPref
 					int position, long id) {
 
 				if (selected_index > 0)
-					allObjects.get(selected_index).removeUpdatedObserver(updatedObserver);
+					allObjects.get(selected_index).removeUpdatedObserver(
+							updatedObserver);
 
 				selected_index = position;
 				allObjects.get(position).addUpdatedObserver(updatedObserver);
@@ -183,18 +210,34 @@ public class ObjectBrowser extends ObjectManagerActivity implements OnSharedPref
 	}
 
 	private void updateObject() {
-		//adapter.notifyDataSetChanged();
+		// adapter.notifyDataSetChanged();
 		TextView text = (TextView) findViewById(R.id.object_information);
 		if (selected_index >= 0 && selected_index < allObjects.size())
 			text.setText(allObjects.get(selected_index).toStringData());
 		else
-			Log.d(TAG,"Update called but invalid index: " + selected_index);
+			Log.d(TAG, "Update called but invalid index: " + selected_index);
 	}
 
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
 			String key) {
-		// TODO Auto-generated method stub
+		Log.d(TAG, "Settings updated");
+		if (key.equals("browser_show_data")) {
+			((CheckBox) findViewById(R.id.dataCheck)).setChecked(prefs
+					.getBoolean("browser_show_data", true));
+			updateList();
+		}
+		if (key.equals("browser_show_settings")) {
+			((CheckBox) findViewById(R.id.settingsCheck)).setChecked(prefs
+					.getBoolean("browser_show_settings", true));
+			updateList();
+		}
+	}
 
+	@Override
+	protected NavDrawerActivityConfiguration getNavDrawerConfiguration() {
+		NavDrawerActivityConfiguration navDrawer = getDefaultNavDrawerConfiguration();
+		navDrawer.setMainLayout(R.layout.object_browser);
+		return navDrawer;
 	}
 }

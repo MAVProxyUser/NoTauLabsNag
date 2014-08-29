@@ -1,8 +1,8 @@
 /**
  ******************************************************************************
- * @file       BatteryView.java
- * @author     Tau Labs, http://taulabs.org, Copyright (C) 2013
- * @brief      A view of the voltage and current.
+ * @file       HeadingView.java
+ * @author     Tau Labs, http://taulabs.org, Copyright (C) 2012-2013
+ * @brief      A horizontal view of the current heading heading.
  * @see        The GNU Public License (GPL) Version 3
  *****************************************************************************/
 /*
@@ -21,7 +21,7 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-package org.openpilot_nonag.androidgcs;
+package org.openpilot_nonag.androidgcs.views;
 import  org.openpilot_nonag.androidgcs.R;
 
 import android.R.color;
@@ -35,31 +35,33 @@ import android.util.AttributeSet;
 import android.view.View;
 
 /**
- * @class BatteryView show the current and voltage data
+ * @class HeadingView a compass indicator for the PFD
+ * The indicator will span +/- 45 degrees in each direction
+ * and have lines on the 5 degree bars
  */
-public class BatteryView extends View {
+public class HeadingView extends View {
 
-	private static final String BATTERY_FORMAT = "%.2fV %.2fA";
+	final static String[] headingsLabels = {"N", "NE", "E", "SE", "S", "SW", "W", "NW"};
 
-	public BatteryView(Context context) {
+	public HeadingView(Context context) {
 		super(context);
-		initBatteryView();
+		initHeadingView();
 	}
 
-	public BatteryView(Context context, AttributeSet ats, int defaultStyle) {
+	public HeadingView(Context context, AttributeSet ats, int defaultStyle) {
 		super(context, ats, defaultStyle);
-		initBatteryView();
+		initHeadingView();
 	}
 
-	public BatteryView(Context context, AttributeSet ats) {
+	public HeadingView(Context context, AttributeSet ats) {
 		super(context, ats);
-		initBatteryView();
+		initHeadingView();
 	}
 
 	private final Rect textBounds = new Rect();
 	private final Rect smallTextBounds = new Rect();
 
-	protected void initBatteryView() {
+	protected void initHeadingView() {
 		setFocusable(true);
 
 		// Set a slightly dark background with white border
@@ -139,9 +141,7 @@ public class BatteryView extends View {
             result = specSize;
         } else {
             // Measure the text
-        	String batteryMessage = String.format(BATTERY_FORMAT, 11.2f, 80.4f);
-    		int textWidth = (int)textPaint.measureText(batteryMessage);
-            result = textWidth + 50;
+            result = 600;
             if (specMode == MeasureSpec.AT_MOST) {
                 // Respect AT_MOST value if that was what is called for by measureSpec
                 result = Math.min(result, specSize);
@@ -151,15 +151,9 @@ public class BatteryView extends View {
         return result;
     }
 
-	private double voltage;
-	public void setVoltage(double voltage) {
-		this.voltage = voltage;
-		invalidate();
-	}
-
-	private double current;
-	public void setCurrent(double current) {
-		this.current = current;
+	private double bearing;
+	public void setBearing(double bearing) {
+		this.bearing = bearing;
 		invalidate();
 	}
 
@@ -172,13 +166,56 @@ public class BatteryView extends View {
 	@Override
 	protected void onDraw(Canvas canvas) {
 		int px = getMeasuredWidth() / 2;
-		int py = getMeasuredHeight() / 2;
+		int py = getMeasuredHeight() /2 ;
 
-		String batteryMessage = String.format(BATTERY_FORMAT, voltage, current);
-		int textWidth = (int)textPaint.measureText(batteryMessage);
+		// Make the whole width span +/- 55 degrees to show three letters
+		float deg_per_px = 55.0f / px;
 
+		float f_letter = ((float) bearing) / 45.0f;
+		int   i_letter = Math.round(f_letter);
+		int   center_angle = 45 * i_letter;
+		float offset_deg = (float) (bearing - center_angle);
+		if (i_letter >= 8)
+			i_letter = 7;
+
+		// Funny math forces it to end up positive
+		String middleLabel = headingsLabels[((i_letter) % 8 + 8) % 8];
+		String rightLabel = headingsLabels[((i_letter + 1) % 8 + 8) % 8];
+		String leftLabel = headingsLabels[((i_letter - 1) % 8 + 8) % 8];
+
+		int textWidth  = textBounds.width();
 		int textHeight = textBounds.height();
 
-		canvas.drawText(batteryMessage, px - textWidth / 2, py + textHeight / 2, textPaint);
+		int cardinalX = px - textWidth / 2;
+		int cardinalY = py + textHeight / 2;
+
+		canvas.drawLine(px-textWidth, 0, px-textWidth, getMeasuredHeight(), centerLinePaint);
+		canvas.drawLine(px+textWidth, 0, px+textWidth, getMeasuredHeight(), centerLinePaint);
+
+		canvas.save();
+		canvas.translate(-offset_deg / deg_per_px, 0);
+
+		canvas.drawText(middleLabel, cardinalX, cardinalY, textPaint);
+		canvas.drawText(leftLabel, cardinalX - 45.0f / deg_per_px , cardinalY, textPaint);
+		canvas.drawText(rightLabel, cardinalX + 45.0f / deg_per_px , cardinalY, textPaint);
+
+		int [] dotAngles = {-50, -40, -35, -25, -20, -10, 10, 20, 25, 35, 40, 50};
+		for (int i = 0; i < dotAngles.length; i++) {
+			float angle = dotAngles[i];
+			canvas.drawCircle(px + angle / deg_per_px, cardinalY - textHeight / 2, 2, markerPaint);
+		}
+
+		int [] textAngles = {-60, -30, -15, 15, 30, 60};
+		for (int i = 0; i < textAngles.length; i++) {
+			float centerX = px - smallTextBounds.width() / 2;
+			float angle = textAngles[i];
+			String text = Integer.toString(((int) angle + center_angle + 360) % 360);
+			canvas.drawText(text,
+					centerX + angle / deg_per_px - smallTextBounds.width() / 2,
+					py + smallTextBounds.height() / 2, smallTextPaint);
+		}
+
+		canvas.restore();
+
 	}
 }

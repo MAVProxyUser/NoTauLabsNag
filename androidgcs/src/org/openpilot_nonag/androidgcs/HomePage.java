@@ -24,6 +24,7 @@
 package org.openpilot_nonag.androidgcs;
 
 import org.openpilot_nonag.androidgcs.R;
+import org.openpilot_nonag.androidgcs.drawer.NavDrawerActivityConfiguration;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -60,17 +61,17 @@ public class HomePage extends ObjectManagerActivity {
 		objectBrowser.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
-				startActivity(new Intent(HomePage.this, ObjectBrowser.class));
+				startActivity(new Intent(HomePage.this, ObjectBrowserActivity.class));
 			}
 		});
 
-		Button pfd = (Button) findViewById(R.id.launch_pfd);
-		pfd.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View arg0) {
-				startActivity(new Intent(HomePage.this, PfdActivity.class));
-			}
-		});
+//		Button pfd = (Button) findViewById(R.id.launch_pfd);
+//		pfd.setOnClickListener(new OnClickListener() {
+//			@Override
+//			public void onClick(View arg0) {
+//				startActivity(new Intent(HomePage.this, PfdActivity.class));
+//			}
+//		});
 
 		Button tfr = (Button) findViewById(R.id.launch_tfr);
 		tfr.setOnClickListener(new OnClickListener() {
@@ -129,5 +130,9 @@ public class HomePage extends ObjectManagerActivity {
 		});
 
 	}
-
+	@Override
+	protected NavDrawerActivityConfiguration getNavDrawerConfiguration() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

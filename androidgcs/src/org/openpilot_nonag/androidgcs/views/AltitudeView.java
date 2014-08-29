@@ -21,8 +21,9 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-package org.openpilot_nonag.androidgcs;
+package org.openpilot_nonag.androidgcs.views;
 import  org.openpilot_nonag.androidgcs.R;
+import org.openpilot_nonag.androidgcs.R.drawable;
 
 import android.R.color;
 import android.content.Context;

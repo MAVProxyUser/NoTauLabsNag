@@ -16,6 +16,7 @@
 package org.openpilot_nonag.androidgcs;
 
 import org.openpilot_nonag.androidgcs.R;
+import org.openpilot_nonag.androidgcs.drawer.NavDrawerActivityConfiguration;
 import org.openpilot_nonag.androidgcs.util.SmartSave;
 //import org.openpilot_nonag.androidgcs.views.DropdownBoxView;
 import org.openpilot_nonag.uavtalk.UAVDataObject;
@@ -63,5 +64,11 @@ public class Wizard extends ObjectManagerActivity {
                 }
 */
         }
+        
+        @Override
+    	protected NavDrawerActivityConfiguration getNavDrawerConfiguration() {
+    		// TODO Auto-generated method stub
+    		return null;
+    	}
 
 }

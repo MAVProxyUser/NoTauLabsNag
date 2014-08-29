@@ -4,14 +4,14 @@
     android:layout_height="wrap_content"
     android:orientation="vertical" >
 
-    <org.openpilot_nonag.androidgcs.AttitudeView
+    <org.openpilot_nonag.androidgcs.views.AttitudeView
         android:id="@+id/attitude_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true" />
 
-    <org.openpilot_nonag.androidgcs.HeadingView
+    <org.openpilot_nonag.androidgcs.views.HeadingView
         android:id="@+id/heading_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -19,15 +19,14 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="5dp" />
 
-
-    <org.openpilot_nonag.androidgcs.AltitudeView
+	<org.openpilot_nonag.androidgcs.views.AltitudeView
         android:id="@+id/altitude_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignRight="@+id/attitude_view"
         android:layout_centerVertical="true" />
     
-    <org.openpilot_nonag.androidgcs.FlightStatusView
+    <org.openpilot_nonag.androidgcs.views.FlightStatusView
         android:id="@+id/flight_status_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -35,7 +34,7 @@
         android:layout_marginBottom="5dp"
         android:layout_centerHorizontal="true" />
 
-    <org.openpilot_nonag.androidgcs.BatteryView
+    <org.openpilot_nonag.androidgcs.views.BatteryView
         android:id="@+id/battery_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -44,7 +43,7 @@
         android:layout_marginBottom="5dp"
         android:visibility="invisible" />
 
-    <org.openpilot_nonag.androidgcs.GpsView
+    <org.openpilot_nonag.androidgcs.views.GpsView
         android:id="@+id/gps_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

@@ -26,9 +26,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 
-import org.openpilot_nonag.androidgcs.ObjectEditView;
 import org.openpilot_nonag.androidgcs.R;
 import org.openpilot_nonag.androidgcs.util.SmartSave;
+import org.openpilot_nonag.androidgcs.views.ObjectEditView;
 import org.openpilot_nonag.uavtalk.UAVDataObject;
 import org.openpilot_nonag.uavtalk.UAVObject;
 import org.openpilot_nonag.uavtalk.UAVObjectField;
@@ -122,22 +122,7 @@ public class Map extends ObjectManagerFragment implements
 
 		// inflate and return the layout
 		View v = inflater.inflate(R.layout.map_fragment, container, false);
-        
-//		final Button buttonApply = (Button) v.findViewById(R.id.applyBtn);
-//		buttonApply.setOnClickListener(new View.OnClickListener() {
-//            public void onClick(View v) {
-//            	updateObject(homeLocationObject.getObjID(),homeLocationObject.getInstID());
-//            }
-//        });
-//		buttonApply.setEnabled(false);
-//		
-//		final Button buttonSave = (Button) v.findViewById(R.id.saveBtn);
-//		buttonSave.setOnClickListener(new View.OnClickListener() {
-//            public void onClick(View v) {
-//            	saveObject(homeLocationObject);
-//            }
-//        });
-//		buttonSave.setEnabled(false);
+       
 		
 		mapView = (MapView) v.findViewById(R.id.map_view_fragment);
 		mapView.onCreate(savedInstanceState);
@@ -667,7 +652,10 @@ public class Map extends ObjectManagerFragment implements
 
 		return true;
 	}
-
+	@Override
+	protected String getDebugTag() {
+		return TAG;
+	}
 	
 	
 }

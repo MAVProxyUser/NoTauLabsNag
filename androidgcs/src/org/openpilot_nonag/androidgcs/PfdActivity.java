@@ -23,6 +23,7 @@
 
 package org.openpilot_nonag.androidgcs;
 
+import org.openpilot_nonag.androidgcs.drawer.NavDrawerActivityConfiguration;
 import org.openpilot_nonag.androidgcs.fragments.PFD;
 
 //import android.app.FragmentTransaction;
@@ -31,9 +32,9 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.content.ContentResolver;
 
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentTransaction;
+import android.app.Fragment;
+import android.app.FragmentTransaction;
+
 
 public class PfdActivity extends ObjectManagerActivity {
 
@@ -52,10 +53,16 @@ public class PfdActivity extends ObjectManagerActivity {
 				LinearLayout.LayoutParams.WRAP_CONTENT));
 		layout.setId(0x101);
 		{
-			FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+			FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
 			fragmentTransaction.add(0x101, new PFD());
 			fragmentTransaction.commit();
 		}
 		return layout;
+	}
+	
+	@Override
+	protected NavDrawerActivityConfiguration getNavDrawerConfiguration() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

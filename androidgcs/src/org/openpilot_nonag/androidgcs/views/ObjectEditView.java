@@ -1,4 +1,4 @@
-package org.openpilot_nonag.androidgcs;
+package org.openpilot_nonag.androidgcs.views;
 
 import java.util.ArrayList;
 import java.util.List;

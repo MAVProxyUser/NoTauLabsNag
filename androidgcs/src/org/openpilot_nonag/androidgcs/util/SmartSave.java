@@ -33,36 +33,98 @@ import java.util.Observer;
 import java.util.Set;
 
 import junit.framework.Assert;
-import junit.framework.AssertionFailedError; 
+import junit.framework.AssertionFailedError;
 
 import org.openpilot_nonag.uavtalk.UAVObject;
+import org.openpilot_nonag.uavtalk.UAVObject.TransactionResult;
+import org.openpilot_nonag.uavtalk.UAVObjectField;
 import org.openpilot_nonag.uavtalk.UAVObjectManager;
 
+import android.app.Activity;
+import android.graphics.LightingColorFilter;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.Toast;
 
 public class SmartSave {
 
 	private final static String TAG = SmartSave.class.getSimpleName();
 	private final static boolean DEBUG = false;
 
-	//! Create a smart save button attached to the object manager and an apply and ave button
-	public SmartSave(UAVObjectManager objMngr, UAVObject obj, Button saveButton, Button applyButton) {
-		controlFieldMapping = new HashMap<ObjectFieldMappable,FieldPairing>();
-			this.objMngr = objMngr;
-			this.applyBtn = applyButton;
-			this.obj = obj;
+	private final Activity parentActivity;
 
-			obj.addUpdatedObserver(ObjectUpdated);
+	private boolean validObject = true;
+
+	private final int MAX_FAIL_COUNTS = 3;
+
+	// ! Map of all the UAVO field <-> control mappings. The key is the control.
+	private final Map<ObjectFieldMappable, FieldPairing> controlFieldMapping;
+
+	// ! Handle to the object manager
+	private final UAVObjectManager objMngr;
+
+	// ! Handle to the apply button
+	private Button applyBtn;
+
+	// ! Handle to the save button
+	private Button saveBtn;
+
+	// ! Handle to the load button
+	private Button loadBtn;
+
+	// ! Handle to the UAVO this class works with
+	private final UAVObject obj;
+
+	// ! Indicate if Object Persistence was updated
+	private boolean persistenceUpdated;
+
+	// ! Indicate if the object was updated
+	private boolean objectUpdated;
+
+	// ! Create a smart save button attached to the object manager and an apply
+	// and ave button
+	public SmartSave(UAVObjectManager objMngr, Activity parent, UAVObject obj,
+			Button saveButton, Button applyButton, Button loadButton) {
+
+		Assert.assertNotNull(objMngr);
+		this.objMngr = objMngr;
+		this.parentActivity = parent;
+		this.applyBtn = applyButton;
+		this.obj = obj;
+
+		controlFieldMapping = new HashMap<ObjectFieldMappable, FieldPairing>();
+
+		if (obj == null) {
+			validObject = false;
+			if (saveButton != null)
+				saveButton.setEnabled(false);
+			if (applyButton != null)
+				applyButton.setEnabled(false);
+			if (loadButton != null)
+				loadButton.setEnabled(false);
+			return;
+		}
+
+		obj.addUpdatedObserver(ObjectUpdated);
 
 		if (saveButton != null) {
 			saveBtn = saveButton;
 			saveBtn.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					saveSettings();
+					if (saveSettings())
+						saveBtn.getBackground()
+								.setColorFilter(
+										new LightingColorFilter(0x11111111,
+												0xFF00FF00));
+					else
+						saveBtn.getBackground()
+								.setColorFilter(
+										new LightingColorFilter(0x11111111,
+												0xFFFF0000));
+
 				}
 			});
 		} else
@@ -73,40 +135,73 @@ public class SmartSave {
 			applyBtn.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					applySettings();
+					if (applySettings())
+						applyBtn.getBackground()
+								.setColorFilter(
+										new LightingColorFilter(0x11111111,
+												0xFF00FF00));
+					else
+						applyBtn.getBackground()
+								.setColorFilter(
+										new LightingColorFilter(0x11111111,
+												0xFFFF0000));
 				}
 			});
 		} else
 			applyBtn = null;
 
+		if (loadButton != null) {
+			loadBtn = loadButton;
+			loadBtn.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					if (loadSettings())
+						loadBtn.getBackground()
+								.setColorFilter(
+										new LightingColorFilter(0x11111111,
+												0xFF00FF00));
+					else
+						loadBtn.getBackground()
+								.setColorFilter(
+										new LightingColorFilter(0x11111111,
+												0xFFFF0000));
+				}
+			});
+		} else
+			loadBtn = null;
 
-		
 	}
 
-	//! Disconnect any listeners when this object is destroyed
+	// ! Disconnect any listeners when this object is destroyed
 	public void disconnect() {
 		obj.removeUpdatedObserver(ObjectUpdated);
 	}
 
 	/**
-	 * Add a control to this SmartSave object which maps between a particular control
-	 * and a UAVO field.
-	 * @param control The control to associate with
-	 * @param fieldName The name of the UAVO field
-	 * @param fieldIndex The index of the UAVO field
+	 * Add a control to this SmartSave object which maps between a particular
+	 * control and a UAVO field.
+	 * 
+	 * @param control
+	 *            The control to associate with
+	 * @param fieldName
+	 *            The name of the UAVO field
+	 * @param fieldIndex
+	 *            The index of the UAVO field
 	 */
-	public void addControlMapping(ObjectFieldMappable control, String fieldName, int fieldIndex) {
+	public void addControlMapping(ObjectFieldMappable control,
+			String fieldName, int fieldIndex) {
 		FieldPairing pairing = new FieldPairing(fieldName, fieldIndex);
 		controlFieldMapping.put(control, pairing);
 	}
 
-	//! Update the settings in the UI from the mappings
+	// ! Update the settings in the UI from the mappings
 	public void refreshSettingsDisplay() {
-		if (DEBUG) Log.d(TAG, "Refreshing display");
+		if (DEBUG)
+			Log.d(TAG, "Refreshing display");
 
 		Set<ObjectFieldMappable> keys = controlFieldMapping.keySet();
 		Iterator<ObjectFieldMappable> iter = keys.iterator();
-		while(iter.hasNext()) {
+		while (iter.hasNext()) {
 			ObjectFieldMappable mappable = iter.next();
 			FieldPairing field = controlFieldMapping.get(mappable);
 			mappable.setValue(field.getValue(obj));
@@ -115,141 +210,341 @@ public class SmartSave {
 
 	/**
 	 * Call applySettings() and then save them
+	 * 
 	 * @return True if the save succeeded or false otherwise
 	 */
 	private boolean saveSettings() {
 		/*
-		 * 1. Update object
-		 * 2. Install listener on object persistence
-		 * 3. Send save operation
-		 * 4. Wait for completed
-		 * 5. Remove listener
+		 * 1. Update object 2. Install listener on object persistence 3. Send
+		 * save operation 4. Wait for completed 5. Remove listener
 		 */
 
 		// 1. Update object
-		if(!applySettings())
+		if (!applySettings()) {
+			Toast.makeText(parentActivity.getApplicationContext(),
+					"Failed to apply settings", Toast.LENGTH_LONG);
 			return false;
+		}
 
 		UAVObject persistence = objMngr.getObject("ObjectPersistence");
 		Assert.assertNotNull(persistence);
 
-		// 2. Install listener
-		persistence.addUpdatedObserver(ObjectPersistenceUpdated);
+		synchronized (ObjectPersistenceUpdated) {
+			// 2. Install listener
+			persistence.addUpdatedObserver(ObjectPersistenceUpdated);
 
-		// 3. Send save operation
-		Long objId = obj.getObjID();
-		if (DEBUG) Log.d(TAG, "Saving object ID: " + objId);
-		persistence.getField("ObjectID").setValue(objId);
-		persistence.getField("Operation").setValue("Save");
-		persistence.getField("Selection").setValue("SingleObject");
-		persistence.updated();
+			// 3. Send save operation
+			persistenceUpdated = false;
+			Long objId = obj.getObjID();
+			if (DEBUG)
+				Log.d(TAG, "Saving object ID: " + objId);
+			persistence.getField("ObjectID").setValue(objId);
+			persistence.getField("Operation").setValue("Save");
+			persistence.getField("Selection").setValue("SingleObject");
 
-		return true;
+			// 4. Wait for ack
+			int attempts = 0;
+			while (persistenceUpdated == false && attempts < MAX_FAIL_COUNTS) {
+				persistence.updated();
+				try {
+					ObjectPersistenceUpdated.wait(500);
+				} catch (InterruptedException e) {
+					if (DEBUG)
+						Log.d(TAG, "No ack for object persistence");
+					persistence.removeUpdatedObserver(ObjectPersistenceUpdated);
+					return false;
+				}
+				attempts = attempts + 1;
+			}
+
+			// 5. Remove listener
+			persistence.removeUpdatedObserver(ObjectPersistenceUpdated);
+		}
+
+		return persistenceUpdated;
 	}
 
 	/**
 	 * Robustly apply the settings to the UAV
+	 * 
 	 * @return True if the apply is ack'd, False if not
 	 */
 	private boolean applySettings() {
 		/*
-		 * 1. Set the values from the fields into the object
-		 * 2. Install the listener on the object
-		 * 3. Update object
-		 * 4. Wait for the acknowledgment or timeout
-		 * 5. Uninstall the listener
+		 * 1. Set the values from the fields into the object 2. Install the
+		 * listener on the object 3. Update object 4. Wait for the
+		 * acknowledgment or timeout 5. Uninstall the listener
 		 */
 
 		// 1. Set the fields in the object from the UI
 		Set<ObjectFieldMappable> keys = controlFieldMapping.keySet();
 		Iterator<ObjectFieldMappable> iter = keys.iterator();
-		while(iter.hasNext()) {
+		while (iter.hasNext()) {
 			ObjectFieldMappable mappable = iter.next();
 			FieldPairing field = controlFieldMapping.get(mappable);
-			field.setValue(obj,mappable.getValue());
+			field.setValue(obj, mappable.getValue());
 		}
 
-		// 2. Install the listener on the object
-		obj.addTransactionCompleted(ApplyCompleted);
+		synchronized (ApplyCompleted) {
+			if (DEBUG)
+				Log.d(TAG, "Sending apply");
 
-		// 3. Update the object
-		obj.updated();
+			// 2. Install the listener on the object
+			obj.addTransactionCompleted(ApplyCompleted);
 
-		// 4. Wait for acknowledgment
-		// TODO: Set up some semaphore with timeout
-		// sem.wait(1000);
+			// 3. Update the object
+			objectUpdated = false;
 
-		// 5. Uninstall the listener
-		//obj.removeTransactionCompleted(ApplyCompleted);
+			// 4. Wait for acknowledgment
+			int attempts = 0;
+			while (objectUpdated == false && attempts < MAX_FAIL_COUNTS) {
+				obj.updated();
+				try {
+					ApplyCompleted.wait(1000);
+				} catch (InterruptedException e) {
+					if (DEBUG)
+						Log.d(TAG, "Apply failed");
+					obj.removeTransactionCompleted(ApplyCompleted);
+					return false;
+				}
+				attempts = attempts + 1;
+			}
 
-		return true;
+			if (DEBUG)
+				Log.d(TAG, "Apply succeeded");
+
+			// 5. Uninstall the listener
+			obj.removeTransactionCompleted(ApplyCompleted);
+		}
+
+		return objectUpdated;
 	}
 
-	//! Private class to store the field mapping information
+	/**
+	 * Robustly fetch the settings in the UAV ram
+	 * 
+	 * @return True if the fetch is ack'd, False if not
+	 */
+	public boolean fetchSettings() {
+		/*
+		 * 1. Install listener on object 2. Request update 3. Wait for
+		 * completion 4. Uninstall the listener
+		 */
+
+		synchronized (ApplyCompleted) {
+			if (DEBUG)
+				Log.d(TAG, "Requesting update");
+
+			if (obj == null)
+				return false;
+
+			// 1. Install the listener on the object
+			obj.addTransactionCompleted(ApplyCompleted);
+
+			// 2. Update the object
+			objectUpdated = false;
+
+			// 3. Wait for acknowledgment
+			int attempts = 0;
+			while (objectUpdated == false && attempts < MAX_FAIL_COUNTS) {
+				obj.updateRequested();
+				try {
+					ApplyCompleted.wait(1000);
+				} catch (InterruptedException e) {
+					if (DEBUG)
+						Log.d(TAG, "Apply failed");
+					obj.removeTransactionCompleted(ApplyCompleted);
+					return false;
+				}
+				attempts = attempts + 1;
+			}
+
+			if (DEBUG)
+				Log.d(TAG, "Fetch success: " + objectUpdated + ".  Attemps: "
+						+ attempts);
+
+			// 4. Uninstall the listener
+			obj.removeTransactionCompleted(ApplyCompleted);
+		}
+
+		return objectUpdated;
+	}
+
+	/**
+	 * Robustly apply the settings to the UAV
+	 * 
+	 * @return True if the apply is ack'd, False if not
+	 */
+	private boolean loadSettings() {
+		/*
+		 * 1. Update object 2. Install listener on object persistence 3. Send
+		 * save operation 4. Wait for completed 5. Remove listener 6. Request
+		 * update 7. Wait for completion
+		 */
+
+		UAVObject persistence = objMngr.getObject("ObjectPersistence");
+		Assert.assertNotNull(persistence);
+
+		synchronized (ObjectPersistenceUpdated) {
+			// 2. Install listener
+			persistence.addUpdatedObserver(ObjectPersistenceUpdated);
+
+			// 3. Send load operation
+			persistenceUpdated = false;
+			Long objId = obj.getObjID();
+			if (DEBUG)
+				Log.d(TAG, "Load object ID: " + objId);
+			persistence.getField("ObjectID").setValue(objId);
+			persistence.getField("Operation").setValue("Load");
+			persistence.getField("Selection").setValue("SingleObject");
+
+			// 4. Wait for the update
+			int attempts = 0;
+			while (persistenceUpdated == false && attempts < MAX_FAIL_COUNTS) {
+				persistence.updated();
+				try {
+					ObjectPersistenceUpdated.wait(1000);
+				} catch (InterruptedException e) {
+					persistence.removeUpdatedObserver(ObjectPersistenceUpdated);
+					return false;
+				}
+				attempts = attempts + 1;
+			}
+
+			// 5. Remove the listener
+			persistence.removeUpdatedObserver(ObjectPersistenceUpdated);
+		}
+
+		// Only continue if the load worked
+		if (persistenceUpdated == false)
+			return false;
+
+		return fetchSettings();
+	}
+
+	// ! Private class to store the field mapping information
 	private class FieldPairing {
 		FieldPairing(String fieldName, int fieldIndex) {
 			this.fieldName = fieldName;
 			this.fieldIndex = fieldIndex;
 		}
 
-		//! Update the field in the UAVO
+		// ! Update the field in the UAVO
 		void setValue(UAVObject obj, double value) {
-			Assert.assertNotNull(obj);
-			obj.getField(fieldName).setDouble(value,fieldIndex);
+			
+			try {
+				Assert.assertNotNull(obj);
+				
+				if (DEBUG)
+					Log.d(TAG, "setting " + fieldName + ", fieldIndex: " + fieldIndex + "on " + obj.getName());
+				
+				UAVObjectField field = obj.getField(fieldName);
+				if(field == null)
+					Log.d(TAG, "field == null ");
+						
+				obj.getField(fieldName).setDouble(value, fieldIndex);
+			} catch (Exception e) {
+				Toast.makeText(parentActivity.getApplicationContext(), "Error setting " + fieldName + ", check forums.", Toast.LENGTH_LONG);
+				Log.e(TAG, "Error setting " + fieldName + "of obj: " + obj.getName(),e);
+			}
 		}
 
-		//! Get the value from the UAVO field
+		// ! Get the value from the UAVO field
 		double getValue(UAVObject obj) {
-			double val = obj.getField(fieldName).getDouble(fieldIndex);
-			if (DEBUG) Log.d(TAG, "Getting value from: " + fieldName + " " + val);
-			return obj.getField(fieldName).getDouble(fieldIndex);
+			
+			Assert.assertNotNull(obj);
+			
+			if (DEBUG) Log.d(TAG, "reading " + fieldName);
+			
+			double dVal;
+			try {
+				double val = obj.getField(fieldName).getDouble(fieldIndex);
+				if (DEBUG)
+					Log.d(TAG, "Getting value from: " + fieldName + " " + val);
+				
+				dVal = obj.getField(fieldName).getDouble(fieldIndex);
+			} catch (Exception e) {
+				Toast.makeText(parentActivity.getApplicationContext(), "Error reading " + fieldName + ", check forums.", Toast.LENGTH_LONG);
+				Log.e(TAG, "Error reading " + fieldName + "of obj: " + obj.getName(),e);
+				return -1;
+			}
+			
+			return dVal;
 		}
 
-		//! Cache the name of the field
+		// ! Cache the name of the field
 		private final String fieldName;
 
-		//! Cache the field index
+		// ! Cache the field index
 		private final int fieldIndex;
 	}
 
-	//! Installed on monitored object to know when an object is updated
+	// ! Installed on monitored object to know when an object is updated
 	private final Observer ApplyCompleted = new Observer() {
 		@Override
 		public void update(Observable observable, Object data) {
-			if (DEBUG) Log.d(TAG, "Apply called");
+			synchronized (this) {
+				TransactionResult transaction = (TransactionResult) data;
+				if (transaction != null && transaction.success == true) {
+					objectUpdated = true;
+					if (DEBUG)
+						Log.d(TAG, "ApplyCompleted succeeded transaction");
+				} else if (DEBUG)
+					Log.d(TAG, "ApplyCompleted failed transaction");
+				notify();
+			}
 		}
 	};
 
-	//! Installed on monitored object to know when an object is updated
+	// ! Installed on monitored object to know when an object is updated
 	private final Observer ObjectUpdated = new Observer() {
 		@Override
 		public void update(Observable observable, Object data) {
-			if (DEBUG) Log.d(TAG, "Object updated");
-			refreshSettingsDisplay();
+			if (DEBUG)
+				Log.d(TAG, "Object updated");
+			parentActivity.runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					refreshSettingsDisplay();
+				}
+			});
 		}
 	};
 
-	//! Installed on object persistence to know when save completes
+	// ! Installed on object persistence to know when save completes
 	private final Observer ObjectPersistenceUpdated = new Observer() {
 		@Override
 		public void update(Observable observable, Object data) {
-			if (DEBUG) Log.d(TAG, "Object persistence updated");
+			if (DEBUG)
+				Log.d(TAG, "Object persistence updated");
+			synchronized (this) {
+				UAVObject persistence = objMngr.getObject("ObjectPersistence");
+				Assert.assertNotNull(persistence);
+
+				// Check the correct operation succeeded
+				if (persistence.getField("Operation").getValue()
+						.equals("Completed")
+						&& ((Long) persistence.getField("ObjectID").getValue())
+								.equals(obj.getObjID())) {
+					persistenceUpdated = true;
+				}
+				notify();
+			}
 		}
 	};
 
-	//! Map of all the UAVO field <-> control mappings.  The key is the control.
-	private final Map<ObjectFieldMappable,FieldPairing> controlFieldMapping;
-
-	//! Handle to the object manager
-	private final UAVObjectManager objMngr;
-
-	//! Handle to the apply button
-	private Button applyBtn;
-
-	//! Handle to the save button
-	private Button saveBtn;
-
-	//! Handle to the UAVO this class works with
-	private final UAVObject obj;
+	// ! When the fields change this will reset the button to default appearance
+	private final Runnable markDirty = new Runnable() {
+		@Override
+		public void run() {
+			Log.d(TAG, "Marking dirty");
+			if (applyBtn != null)
+				applyBtn.getBackground().setColorFilter(null);
+			if (loadBtn != null)
+				loadBtn.getBackground().setColorFilter(null);
+			if (saveBtn != null)
+				saveBtn.getBackground().setColorFilter(null);
+		}
+	};
 
 }

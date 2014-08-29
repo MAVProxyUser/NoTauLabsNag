@@ -35,17 +35,19 @@ import org.openpilot_nonag.uavtalk.UAVObjectManager;
 import android.app.Activity;
 import android.content.Intent;
 import android.speech.tts.TextToSpeech;
-//import android.app.Fragment;
-import android.support.v4.app.Fragment;
+import android.app.Fragment;
+//import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.util.Log;
 
-public class ObjectManagerFragment extends Fragment {
+public abstract class ObjectManagerFragment extends Fragment {
 
 	private static final String TAG = ObjectManagerFragment.class.getSimpleName();
 	private static final int LOGLEVEL = 0;
 	private static boolean WARN = LOGLEVEL > 1;
 	private static final boolean DEBUG = LOGLEVEL > 0;
+	
+	abstract protected String getDebugTag();
 	
 	UAVObjectManager objMngr;
 	TextToSpeech tts = null;
@@ -84,13 +86,13 @@ public class ObjectManagerFragment extends Fragment {
 	 * changed
 	 */
     @Override
-	public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        if (DEBUG) Log.d(TAG,"onAttach");
+    public void onAttach(Activity activity) {
+    	super.onAttach(activity);
+    	if (DEBUG) Log.d(TAG,"onAttach: " + getDebugTag());
 
         ObjectManagerActivity castActivity = null;
         try {
-        	castActivity = (ObjectManagerActivity)activity;
+        	castActivity = (ObjectManagerActivity)getActivity();
         } catch (ClassCastException e) {
         	throw new android.app.Fragment.InstantiationException(
         			"Attaching a ObjectManagerFragment to an activity failed because the parent activity is not a ObjectManagerActivity",
@@ -98,7 +100,6 @@ public class ObjectManagerFragment extends Fragment {
         }
         castActivity.addOnConnectionListenerFragment(this);
     }
-
 
 	// The below methods should all be called by the parent activity at the appropriate times
 	public void onOPConnected(UAVObjectManager objMngr) {
