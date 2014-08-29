@@ -777,7 +777,7 @@ public abstract class ObjectManagerActivity extends Activity {
 				NavMenuActivity.create(106, "Browser", "ic_browser", ObjectBrowserActivity.class, true, this),
 				//NavMenuActivity.create(107, "Logging", "ic_logging", Logging.class, true, this),
 				//NavMenuActivity.create(108, "Control", "ic_controller", Controller.class, true, this),
-				//NavMenuActivity.create(109, "Tablet Control", "ic_tabletcontrol", TabletControl.class, true, this),
+				NavMenuActivity.create(109, "TFR", "ic_tfr", TfrActivity.class, true, this),
 				NavMenuActivity.create(1010, "Control Center", "ic_cc", ControlCenterActivity.class, true, this),
 		};
 
