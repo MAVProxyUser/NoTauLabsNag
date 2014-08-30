@@ -1,6 +1,10 @@
 NoTauLabsNag
 ============
 
+## Operating
+
+When AndroidGCS first connects it loads ~140 uavo objects onto a queue, the queue listener has to process all those messages before additional messages can be processed. This takes about a minute and half, a message will be displayed on your screen saying connected.
+
 ## Dev Setup
 
 set/export ANDROID_HOME environmental variable, point to Android SDK folder
