@@ -80,7 +80,7 @@ public class Map extends ObjectManagerFragment implements
 		OnMyLocationChangeListener {
 
 	private static final String TAG = Map.class.getSimpleName();
-	private static final int LOGLEVEL = 1;
+	private static final int LOGLEVEL = 0;
 	private static final boolean DEBUG = LOGLEVEL > 0;
 
 	private GoogleMap mMap;
@@ -115,7 +115,7 @@ public class Map extends ObjectManagerFragment implements
 			Bundle savedInstanceState) {
 		
 		//disable the screen from turning off
-		Log.d(TAG, "*** onCreateView");
+		if(DEBUG) Log.d(TAG, "*** onCreateView");
 
 		this.getActivity().getWindow()
 				.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -146,6 +146,7 @@ public class Map extends ObjectManagerFragment implements
 		
 		if (status == ConnectionResult.SUCCESS) {
 
+			if(DEBUG) Log.d(TAG, "*** ConnectionResult.SUCCESS");
 			// Gets to GoogleMap from the MapView and does initialization stuff
 			mMap = mapView.getMap();
 			mMap.getUiSettings().setMyLocationButtonEnabled(true);
@@ -202,19 +203,23 @@ public class Map extends ObjectManagerFragment implements
 				}
 			});
 			
+			if(DEBUG) Log.d(TAG, "*** 1");
 			LocationManager locationManager =
 					(LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
-			
+			if(DEBUG) Log.d(TAG, "*** 2");
 			Location currentLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 			if (currentLocation == null) {
 				currentLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
 			}
+			if(DEBUG) Log.d(TAG, "*** 3");
 			LatLng currentLatLng = new LatLng(0,0);
 			if (currentLocation != null) {
 				currentLatLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
 			}
+			if(DEBUG) Log.d(TAG, "*** 4, currentLatLng = " + currentLatLng);
 			// zoom to cuurent location
 			mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 17));
+			if(DEBUG) Log.d(TAG, "*** 5");
 			
 			
 		} else {
@@ -489,7 +494,7 @@ public class Map extends ObjectManagerFragment implements
 			Double lat = obj.getField("Latitude").getInt() * .0000001;
 			Double lon = obj.getField("Longitude").getInt() * .0000001;
 			
-			Log.d(TAG, "objUpdated ** HomeLocation is at lat / lon pair " + lat + " " + lon);
+			if(DEBUG) Log.d(TAG, "objUpdated ** HomeLocation is at lat / lon pair " + lat + " " + lon);
 			
 			if (lat != 0 && lon != 0) {
 				
@@ -555,7 +560,7 @@ public class Map extends ObjectManagerFragment implements
 
 				if (uavNEDLocation.latitude != 0
 						&& uavNEDLocation.longitude != 0) {
-					Log.d(TAG, "NEDLocation is at lat / lon pair "
+					if(DEBUG) Log.d(TAG, "NEDLocation is at lat / lon pair "
 							+ uavNEDLocation.latitude + " "
 							+ uavNEDLocation.longitude);
 					NEDUAVpathPoints.add(NEDloc);

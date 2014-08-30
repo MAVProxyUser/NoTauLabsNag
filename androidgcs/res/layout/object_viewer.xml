@@ -15,11 +15,10 @@
         android:layout_marginLeft="4dip"
         android:layout_weight="1.56" >
 
-        <org.openpilot_nonag.androidgcs.views.ObjectEditView
-            android:id="@+id/object_edit_view"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-        </org.openpilot_nonag.androidgcs.views.ObjectEditView>
+        <TextView
+            android:id="@+id/object_info_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
     </ScrollView>
 
     <View
@@ -42,53 +41,25 @@
             android:background="?android:attr/dividerVertical" />
         
         <Button
-            android:id="@+id/object_edit_load_button"
+            android:id="@+id/editButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            
+            android:background="?android:attr/selectableItemBackground"
+            android:text="@string/edit" />
+
+        <View
+            android:layout_width="1dip"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="4dip"
+            android:layout_marginRight="4dip"
+            android:background="?android:attr/dividerVertical" />
+
+        <Button
+            android:id="@+id/object_load_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?android:attr/selectableItemBackground"
             android:text="@string/load" />
-
-        <View
-            android:layout_width="1dip"
-            android:layout_height="match_parent"
-            android:layout_marginLeft="4dip"
-            android:layout_marginRight="4dip"
-            android:background="?android:attr/dividerVertical" />
-
-        <Button
-            android:id="@+id/object_edit_apply_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            
-            android:text="@string/apply_button" />
-
-        <View
-            android:layout_width="1dip"
-            android:layout_height="match_parent"
-            android:layout_marginLeft="4dip"
-            android:layout_marginRight="4dip"
-            android:background="?android:attr/dividerVertical" />
-
-        <Button
-            android:id="@+id/object_edit_save_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            
-            android:text="@string/save_button" />
-
-        <!-- View
-            android:layout_width="1dip"
-            android:layout_height="match_parent"
-            android:layout_marginLeft="4dip"
-            android:layout_marginRight="4dip"
-            android:background="?android:attr/dividerVertical" />
-
-        <Button
-            android:id="@+id/object_edit_close_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            
-            android:text="@string/close_button" /-->
     </LinearLayout>
 
 </LinearLayout>

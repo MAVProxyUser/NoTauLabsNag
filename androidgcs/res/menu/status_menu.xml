@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <item android:id="@+id/alarms_status"
+        android:title="AlarmsStatus"
+		android:actionViewClass="org.openpilot_nonag.androidgcs.views.AlarmsSummary"
+        android:showAsAction="always" />
+    
     <item   android:id="@+id/menuItemProgress"
         android:title="Progress"
         android:actionLayout="@layout/telemetry_stats"

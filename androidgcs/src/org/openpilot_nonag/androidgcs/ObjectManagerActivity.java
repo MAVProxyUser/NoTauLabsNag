@@ -407,22 +407,7 @@ public abstract class ObjectManagerActivity extends Activity {
 			});
 		}
 	};
-	private class FragmentUpdatedObserver implements Observer  {
-		UAVObject obj;
-		ObjectManagerFragment frag;
-		FragmentUpdatedObserver(UAVObject obj, ObjectManagerFragment frag) {
-			this.obj = obj;
-			this.frag = frag;
-		};
-		@Override
-		public void update(Observable observable, Object data) {
-			uavobjHandler.post(new Runnable() {
-				@Override
-				public void run() { frag.objectUpdated(obj); }
-			});
-		}
-	};
-
+	
 	/**
 	 * Unregister all the objects connected to this activity
 	 */
@@ -487,7 +472,7 @@ public abstract class ObjectManagerActivity extends Activity {
 	 */
 	public void registerObjectUpdates(UAVObject object,
 			ObjectManagerFragment frag) {
-		Observer o = new FragmentUpdatedObserver(object, frag);
+		Observer o = new ActivityUpdatedObserver(object);
 		listeners.put(o, object);
 		if (!paused)
 			object.addUpdatedObserver(o);
@@ -774,7 +759,7 @@ public abstract class ObjectManagerActivity extends Activity {
 				NavMenuItem.create(103, "Alarms", "ic_alarms", true, this),
 				NavMenuActivity.create(104, "Tuning", "ic_tuning", TuningActivity.class, true, this),
 				//NavMenuActivity.create(105, "Home Adjustment", "ic_map", HomeAdjustment.class, true, this),
-				NavMenuActivity.create(106, "Browser", "ic_browser", ObjectBrowserActivity.class, true, this),
+				NavMenuActivity.create(106, "Browser", "ic_browser", ObjectBrowser.class, true, this),
 				//NavMenuActivity.create(107, "Logging", "ic_logging", Logging.class, true, this),
 				//NavMenuActivity.create(108, "Control", "ic_controller", Controller.class, true, this),
 				NavMenuActivity.create(109, "TFR", "ic_tfr", TfrActivity.class, true, this),
