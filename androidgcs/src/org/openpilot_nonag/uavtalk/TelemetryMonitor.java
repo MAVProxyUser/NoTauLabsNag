@@ -42,7 +42,7 @@ import android.util.Log;
 public class TelemetryMonitor extends Observable {
 
 	private static final String TAG = "TelemetryMonitor";
-	public static final int LOGLEVEL = 1;
+	public static final int LOGLEVEL = 0;
 	public static boolean DEBUG = LOGLEVEL > 2;
 	public static final boolean WARN = LOGLEVEL > 1;
 	public static final boolean ERROR = LOGLEVEL > 0;
@@ -221,6 +221,7 @@ public class TelemetryMonitor extends Observable {
 	 */
 	public synchronized void retrieveNextObject() throws IOException {
 		// If queue is empty return
+		Log.d(TAG, "queue size = " + queue.size());
 		if (queue.isEmpty()) {
 			if (telemService != null)
 				telemService.toastMessage("Connected");
@@ -236,7 +237,7 @@ public class TelemetryMonitor extends Observable {
 		UAVObject obj = queue.remove(0);
 
 		if (obj == null) {
-			throw new Error("Got null object forom transaction queue");
+			throw new Error("Got null object from transaction queue");
 		}
 
 		if (WARN)
@@ -294,7 +295,7 @@ public class TelemetryMonitor extends Observable {
 			Log.d(TAG, "Flight Status: "
 					+ flightStatsObj.getField("Status").getValue());
 		if (((String) gcsStatsObj.getField("Status").getValue())
-				.compareTo("Connected") == 0
+				.compareTo("Connected") != 0
 				|| ((String) flightStatsObj.getField("Status").getValue())
 						.compareTo("Connected") == 0) {
 			processStatsUpdates();

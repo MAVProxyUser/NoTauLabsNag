@@ -40,7 +40,7 @@ import android.util.Log;
 public class UAVTalk {
 
 	static final String TAG = "UAVTalk";
-	public static int LOGLEVEL = 1;
+	public static int LOGLEVEL = 0;
 	public static boolean VERBOSE = LOGLEVEL > 3;
 	public static boolean WARN = LOGLEVEL > 2;
 	public static boolean DEBUG = LOGLEVEL > 1;
@@ -164,6 +164,12 @@ public class UAVTalk {
 	//! Currently only one UAVTalk transaction is permitted at a time.  If this is null none are in process
 	//! otherwise points to the pending object
 	UAVObject respObj;
+	
+	//! The type of response we are expecting
+	int respType;
+		
+	//! If the pending transaction is for all the instances
+	boolean respAllInstances;
 
 	/**
 	 * Comm stats
@@ -266,23 +272,35 @@ public class UAVTalk {
 	}
 
 	/**
+	 * This is the code that sets up a new UAVTalk packet that expects a response.
+	 */
+	private void setupTransaction(UAVObject obj, boolean allInstances, int type) {
+		synchronized (this) {
+			// Only cancel if it is for a different object
+			if(respObj != null && respObj.getObjID() != obj.getObjID())
+				cancelPendingTransaction(obj);
+
+			respObj = obj;
+			respAllInstances = allInstances;
+			respType = type;
+		}
+	}
+	/**
 	 * UAVTalk takes care of it's own transactions but if the caller knows
 	 * it wants to give up on one (after a timeout) then it can cancel it
 	 * @return True if that object was pending, False otherwise
 	 */
 	public boolean cancelPendingTransaction(UAVObject obj) {
-		synchronized (transMap) {
-			Transaction trans = findTransaction(obj.getObjID(), obj.getInstID()); 
-			if (trans != null) {
-				closeTransaction(trans);
-				if (transactionListener != null) {
-					Log.d(TAG,"Canceling transaction: " + toHex(obj.getObjID()) + " " + obj.getName());
-					transactionListener.TransactionFailed(obj);
+		synchronized (respObj) {
+			if(respObj != null && respObj.getObjID() == obj.getObjID()) {
+				if(transactionListener != null) {
+					Log.d(TAG,"Canceling transaction: " + respObj.getName());
+					transactionListener.TransactionFailed(respObj);
 				}
+				respObj = null;
 				return true;
-			} else {
+			} else
 				return false;
-			}
 		}
 	}
 
@@ -812,22 +830,22 @@ public class UAVTalk {
 					Assert.assertNotSame(type, TYPE_OBJ_ACK); // catch any buggy calls
 
 					UAVObject o = objMngr.getObject(obj.getObjID(), i);
-					if (!transmitSingleObject(type, objId, i, o)) {
+					if (!transmitSingleObject(type, objId, i, o, allInstances)) {
 						ret = false;
 						break;
 					}
 				}
 			} else {
 				if (DEBUG) Log.d(TAG, "transmitSingleObject " + getTypeString(type) + " " + toHex(objId) + " " + instId + " " + (obj != null ? obj.toStringBrief() : ""));
-				ret = transmitSingleObject(type, objId, instId, obj);
+				ret = transmitSingleObject(type, objId, instId, obj, allInstances);
 			}
 		} else if (type == TYPE_OBJ_REQ) {
 			if (DEBUG) Log.d(TAG, "transmitSingleObject : type = TYPE_OBJ_REQ " + getTypeString(type) + " " + toHex(objId) + " " + instId + " " + (obj != null ? obj.toStringBrief() : ""));
-			ret = transmitSingleObject(TYPE_OBJ_REQ, objId, instId, obj);
+			ret = transmitSingleObject(TYPE_OBJ_REQ, objId, instId, obj, allInstances);
 		} else if (type == TYPE_ACK) {
 			if (DEBUG) Log.d(TAG, "transmitSingleObject : type = TYPE_ACK " + getTypeString(type) + " " + toHex(objId) + " " + instId + " " + (obj != null ? obj.toStringBrief() : ""));
 			if (!allInstances) {
-				ret = transmitSingleObject(TYPE_ACK, objId, instId, obj);
+				ret = transmitSingleObject(TYPE_ACK, objId, instId, obj, allInstances);
 			}
 		}
 		
@@ -844,9 +862,11 @@ public class UAVTalk {
 	 * @param[in] obj Object handle to send
 	 * @param[in] type Transaction type \return Success (true), Failure (false)
 	 */
-	private boolean transmitSingleObject(int type, long objId, long instId, UAVObject obj) throws IOException {
+	
+	private boolean transmitSingleObject(int type, long objId, long instId, UAVObject obj, boolean allInstances) throws IOException {
 		int length = 0;
-
+		int allInstId = ALL_INSTANCES;
+		
 		assert (objMngr != null && outStream != null);
 
 	    // IMPORTANT : obj can be null (when type is NACK for example)
@@ -897,6 +917,10 @@ public class UAVTalk {
 		byte[] dst = new byte[packlen];
 		bbuf.get(dst, 0, packlen);
 
+		if (type == TYPE_OBJ_ACK || type == TYPE_OBJ_REQ){
+			setupTransaction(obj, allInstances, type);
+		}
+		
 		outStream.write(dst);
 
 		// Update stats
@@ -946,22 +970,7 @@ public class UAVTalk {
 	    }
 	}
 	
-	private void closeAllTransactions() {
-/*	
-	    foreach(quint32 objId, transMap.keys()) {
-	        QMap<quint32, Transaction *> *objTransactions = transMap.value(objId);
-	        foreach(quint32 instId, objTransactions->keys()) {
-	            Transaction *trans = objTransactions->value(instId);
 	
-	            qWarning() << "UAVTalk - closing active transaction for object" << trans->respObjId;
-	            objTransactions->remove(instId);
-	            delete trans;
-	        }
-	        transMap.remove(objId);
-	        delete objTransactions;
-	    }
-*/	    
-	}
 
 	/**
 	 * Update the crc value with new data.
@@ -986,9 +995,9 @@ public class UAVTalk {
 
 	private OnTransactionCompletedListener transactionListener = null;
 
-	abstract class OnTransactionCompletedListener {
-    	abstract void TransactionSucceeded(UAVObject data);
-    	abstract void TransactionFailed(UAVObject data);
+	public abstract class OnTransactionCompletedListener {
+    	public abstract void TransactionSucceeded(UAVObject data);
+    	public abstract void TransactionFailed(UAVObject data);
     };
 
     void setOnTransactionCompletedListener(OnTransactionCompletedListener onTransactionListener) {

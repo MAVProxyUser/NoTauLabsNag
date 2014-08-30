@@ -151,12 +151,12 @@ public class Telemetry {
 		// Listen to transaction completions from uavtalk
 		utalk.setOnTransactionCompletedListener(utalk.new OnTransactionCompletedListener() {
 			@Override
-			void TransactionSucceeded(UAVObject data) {
+			public void TransactionSucceeded(UAVObject data) {
 				transactionCompleted(data, true);
 			}
 
 			@Override
-			void TransactionFailed(UAVObject data) {
+			public void TransactionFailed(UAVObject data) {
 				if (DEBUG)
 					Log.d(TAG, "TransactionFailed(" + data.getName() + ")");
 
@@ -523,11 +523,10 @@ public class Telemetry {
 	/**
 	 * Private constants
 	 */
-	private static final int REQ_TIMEOUT_MS = 4000;
+	private static final int REQ_TIMEOUT_MS = 500;
 	private static final int MAX_RETRIES = 2;
-	private static final int MAX_UPDATE_PERIOD_MS = 8000;
+	private static final int MAX_UPDATE_PERIOD_MS = 1000;
 	private static final int MIN_UPDATE_PERIOD_MS = 1;
-	private static final int MAX_QUEUE_SIZE=20;
 
 	static private ObjectUpdateHandler handler;
 
@@ -563,25 +562,20 @@ public class Telemetry {
 				if (objQueue.contains(objInfo)) {
 					if (WARN) Log.w(TAG, "Found previously scheduled queue element: " + objInfo.obj.getName());
 				} else {
-					if(objQueue.size() < MAX_QUEUE_SIZE){
-						objQueue.add(objInfo);
-						post(new ObjectRunnable(objInfo));
-					}
-					else
-					{
-						if (WARN) Log.w(TAG, "Telemetry - !!! event queue is full, event lost! Element: " + objInfo.obj.getName());
-						txErrors++;
-					}
+					objQueue.add(objInfo);
+					post(new ObjectRunnable(objInfo));
+				
 				}
 			}
 		}
 
 		public boolean removeActivatedQueue(ObjectQueueInfo objInfo) {
 			synchronized(objQueue) {
-				if (objQueue.remove(objInfo)) {
-					if (WARN) Log.w(TAG, "Unable to find queue element to remove");
+				if (objQueue.remove(objInfo) == false) {
+					if (WARN) Log.w(TAG, "Unable to find queue element to remove: " + objInfo.obj.getName());
 					return false;
 				}
+				else if (DEBUG) Log.d(TAG, "Removed queue element: " + objInfo.obj.getName());
 			}
 			return true;
 		}
@@ -654,6 +648,7 @@ public class Telemetry {
 			// 2. Setup transaction (skip if unpack event)
 			UAVObject.Metadata metadata = objInfo.obj.getMetadata();
 			UAVObject.UpdateMode updateMode = metadata.GetGcsTelemetryUpdateMode();
+			
 
 			ObjectTransactionInfo newTrans = new ObjectTransactionInfo();
 			boolean newTransactionPending = false;
