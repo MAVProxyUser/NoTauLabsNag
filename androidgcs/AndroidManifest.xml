@@ -5,7 +5,7 @@
     android:versionName="viperz28 FTW!" >
 
     <uses-sdk
-        android:minSdkVersion="14"
+        android:minSdkVersion="10"
         android:targetSdkVersion="14" />
 
     <uses-feature
@@ -96,7 +96,7 @@
             <!-- android:resource="@xml/device_filter" /> -->
         </activity>
         <activity
-            android:name="ObjectBrowser"
+            android:name="ObjectBrowserActivity"
             android:label="@string/object_browser_name" />
         <!-- <activity
             android:name="PfdActivity"
@@ -112,7 +112,11 @@
             android:label="System Alarms" />
         <activity
             android:name="TuningActivity"
-            android:label="Tuning" />      
+            android:label="Tuning" />
+        <activity
+            android:name="ObjectEditor"
+            android:label="ObjectEditor"
+            android:theme="@android:style/Theme.Dialog" />
         <activity
             android:name="Logger"
             android:label="Logger"
@@ -129,9 +133,7 @@
         <activity
             android:name="UAVLocation"
             android:label="@string/location_name" />
-		<activity android:name="ObjectEditor" android:label="ObjectEditor"
-		    android:windowSoftInputMode="stateHidden"
-			android:theme="@android:style/Theme.Dialog" />
+
         <receiver android:name="TelemetryWidget" >
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />

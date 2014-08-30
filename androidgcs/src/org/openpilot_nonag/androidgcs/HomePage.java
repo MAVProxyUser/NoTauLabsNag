@@ -61,7 +61,7 @@ public class HomePage extends ObjectManagerActivity {
 		objectBrowser.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
-				startActivity(new Intent(HomePage.this, ObjectBrowser.class));
+				startActivity(new Intent(HomePage.this, ObjectBrowserActivity.class));
 			}
 		});
 
