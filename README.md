@@ -13,6 +13,8 @@ set/export ANDROID_HOME environmental variable, point to Android SDK folder
 
 This only the Makefile and Android GCS directory. You need to place this inside an OpenPilot source tree
 
+Shout out to http://www.technotalkative.com/android-gridview-example/ for the Custom Gridview.
+
 Orignal code by "James Cotton of OpenPilot" before it was changed to ownership of "James Cotton of TauLabs"
 
 Although "Tau Labs prides itself on being open and transparent" and claims to "compassionately support OP 

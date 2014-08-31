@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:columnWidth="132dp"
+    
     android:keepScreenOn="true"
     android:numColumns="4"
     android:verticalSpacing="10dp"
