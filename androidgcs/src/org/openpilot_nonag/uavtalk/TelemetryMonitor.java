@@ -35,7 +35,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import org.openpilot_nonag.androidgcs.telemetry.OPTelemetryService;
-import org.openpilot_nonag.uavtalk.UAVObject.TransactionResult;
 
 import android.util.Log;
 
@@ -69,8 +68,6 @@ public class TelemetryMonitor extends Observable {
 	private OPTelemetryService telemService;
 	private boolean connected = false;
 	private boolean objects_updated = false;
-	
-	private int gcsTransactionFailCount = 0;
 
 	public boolean getConnected() {
 		return connected;
@@ -102,21 +99,6 @@ public class TelemetryMonitor extends Observable {
 		// The first update of the firmwareIapObj will trigger registering the objects
 		firmwareIapObj.addUpdatedObserver(firmwareIapUpdated);
 
-		firmwareIapObj.addTransactionCompleted(new Observer() {
-			@Override
-			public void update(Observable observable, Object data) {
-				TransactionResult transaction = (TransactionResult) data;
-				if (transaction != null) {
-					if (transaction.success == false) {
-						if (DEBUG) Log.d(TAG, "Firmware IAP transaction failed.  Retrying");
-						firmwareIapObj.updateRequested();
-					} else {
-						if (DEBUG) Log.d(TAG, "Firmware IAP transaction Succeeded");
-					}
-				}
-			}
-		});
-		
 		flightStatsObj.addUpdatedObserver(new Observer() {
 			@Override
 			public void update(Observable observable, Object data) {
@@ -132,21 +114,6 @@ public class TelemetryMonitor extends Observable {
 			}
 		});
 
-		gcsStatsObj.addTransactionCompleted(new Observer() {
-
-			@Override
-			public void update(Observable observable, Object data) {
-				TransactionResult result = (TransactionResult) data;
-				if (DEBUG) Log.d(TAG, "Result: " + result.success + " count " + gcsTransactionFailCount);
-				if (result.success)
-					gcsTransactionFailCount = 0;
-				else
-					gcsTransactionFailCount = gcsTransactionFailCount + 1;
-			}
-
-		});
-
-		
 		// Start update timer
 		setPeriod(STATS_CONNECT_PERIOD_MS);
 	}
@@ -369,10 +336,8 @@ public class TelemetryMonitor extends Observable {
 					+ flightStatsObj.getField("Status").getValue());
 
 		if (oldStatus.compareTo("Disconnected") == 0) {
-			
 			// Request connection
 			statusField.setValue("HandshakeReq");
-			
 		} else if (oldStatus.compareTo("HandshakeReq") == 0) {
 			// Check for connection acknowledge
 			if (((String) flightStatsObj.getField("Status").getValue())
@@ -397,22 +362,6 @@ public class TelemetryMonitor extends Observable {
 		boolean gcsDisconnected = statusField.getValue().equals("Disconnected");
 		boolean flightConnected = flightStatsObj.getField("Status").equals(
 				"Connected");
-		
-		if (flightConnected && !gcsConnected && (gcsTransactionFailCount >= 3)) {
-			Log.d(TAG, "GCS was not connected but flight is.  GCS status: "
-					+ statusField.getValue());
-			// For the case of telemetry pass through in we force the local
-			// connection to be true.  We detect this because attempts to set
-			// GCSTelemetryStatus to handshake requested fail multiple times
-			// and the flight controller thinks a connection is already
-			// estabilished
-
-			statusField.setValue("Connected");
-			gcsStatsObj.updated();
-			gcsConnected = true;
-			gcsDisconnected = false;
-		}
-
 
 		if (!gcsConnected || !flightConnected) {
 			if (DEBUG)
