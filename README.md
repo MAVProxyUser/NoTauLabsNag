@@ -1,7 +1,12 @@
 NoTauLabsNag
 ============
 
-(NoTauLabsNag) OpenPilot GCS
+## Dev Setup
+
+set/export ANDROID_HOME environmental variable, point to Android SDK folder
+
+
+## (NoTauLabsNag) OpenPilot GCS
 |
 -> *Original* code based on DroidPlanner v1 - https://github.com/arthurbenemann/droidplanner
    https://lh6.ggpht.com/sveD_QnMVCcbY90uEmIOO3LhAWSa2QuN69FFe-TkjavvWSL0gTW-7L_OdHUHL1ZI-w=h900

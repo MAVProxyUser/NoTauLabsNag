@@ -17,7 +17,7 @@ package org.openpilot_nonag.androidgcs;
 
 import org.openpilot_nonag.androidgcs.R;
 import org.openpilot_nonag.androidgcs.util.SmartSave;
-import org.openpilot_nonag.androidgcs.views.DropdownBoxView;
+//import org.openpilot_nonag.androidgcs.views.DropdownBoxView;
 import org.openpilot_nonag.uavtalk.UAVDataObject;
 
 import android.os.Bundle;

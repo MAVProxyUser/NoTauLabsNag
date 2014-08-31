@@ -29,6 +29,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.Toast;
 import android.content.res.Configuration;
@@ -50,8 +51,11 @@ public class HomePage extends ObjectManagerActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
 		setContentView(R.layout.gcs_home);
-
+		
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+				
 		Button objectBrowser = (Button) findViewById(R.id.launch_object_browser);
 		objectBrowser.setOnClickListener(new OnClickListener() {
 			@Override

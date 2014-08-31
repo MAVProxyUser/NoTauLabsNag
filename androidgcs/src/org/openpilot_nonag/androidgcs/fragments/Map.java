@@ -24,7 +24,9 @@ package org.openpilot_nonag.androidgcs.fragments;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
 
+import org.openpilot_nonag.androidgcs.ObjectEditView;
 import org.openpilot_nonag.androidgcs.R;
 import org.openpilot_nonag.androidgcs.util.SmartSave;
 import org.openpilot_nonag.uavtalk.UAVDataObject;
@@ -41,6 +43,9 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -51,6 +56,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -107,31 +114,31 @@ public class Map extends ObjectManagerFragment implements
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		
+		//disable the screen from turning off
 		Log.d(TAG, "*** onCreateView");
 
-		// disable
 		this.getActivity().getWindow()
 				.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
 		// inflate and return the layout
 		View v = inflater.inflate(R.layout.map_fragment, container, false);
-
-		final Button buttonApply = (Button) v.findViewById(R.id.applyBtn);
-		buttonApply.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-            	updateObject("HomeLocation");
-            }
-        });
-		buttonApply.setEnabled(false);
-		
-		final Button buttonSave = (Button) v.findViewById(R.id.saveBtn);
-		buttonSave.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-            	saveObject("HomeLocation");
-            }
-        });
-		buttonSave.setEnabled(false);
         
+//		final Button buttonApply = (Button) v.findViewById(R.id.applyBtn);
+//		buttonApply.setOnClickListener(new View.OnClickListener() {
+//            public void onClick(View v) {
+//            	updateObject(homeLocationObject.getObjID(),homeLocationObject.getInstID());
+//            }
+//        });
+//		buttonApply.setEnabled(false);
+//		
+//		final Button buttonSave = (Button) v.findViewById(R.id.saveBtn);
+//		buttonSave.setOnClickListener(new View.OnClickListener() {
+//            public void onClick(View v) {
+//            	saveObject(homeLocationObject);
+//            }
+//        });
+//		buttonSave.setEnabled(false);
+		
 		mapView = (MapView) v.findViewById(R.id.map_view_fragment);
 		mapView.onCreate(savedInstanceState);
 
@@ -210,38 +217,19 @@ public class Map extends ObjectManagerFragment implements
 				}
 			});
 			
-			if (savedInstanceState != null) {
-				if (mMap != null) {
-					if (DEBUG) Log.d(TAG, "Initializing location from bundle");
-
-					CameraPosition camPos = mMap.getCameraPosition();
-
-					// Use current location as defaults in case not found
-					LocationManager locationManager =
-							(LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
-					Location tabletLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-					if (tabletLocation == null) {
-						tabletLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-					}
-					LatLng lla = new LatLng(0,0);
-					if (tabletLocation != null) {
-						lla = new LatLng(tabletLocation.getLatitude(), tabletLocation.getLongitude());
-					}
-					
-					// Get the position from bundle
-					double map_lat = savedInstanceState.getDouble("org.openpilot.map_lat", lla.latitude);
-					double map_lon = savedInstanceState.getDouble("org.openpilot.map_lon", lla.longitude);
-					
-					// Start with default and see if one is stored
-					float zoom = 17;
-					zoom = (float) savedInstanceState.getDouble("org.openpilot.cam_zoom", zoom);
-					
-					// Move there
-					lla = new LatLng(map_lat, map_lon);
-					if (DEBUG) Log.d(TAG, "Init location: " + lla);
-					mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(lla, zoom));
-				}
-			} 
+			LocationManager locationManager =
+					(LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+			Location currentLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+			if (currentLocation == null) {
+				currentLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+			}
+			LatLng currentLatLng = new LatLng(0,0);
+			if (currentLocation != null) {
+				currentLatLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
+			}
+			// zoom to cuurent location
+			mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 17));
+			
 			
 		} else {
 			Toast.makeText(getActivity(),
@@ -271,57 +259,6 @@ public class Map extends ObjectManagerFragment implements
 		mapView.onLowMemory();
 	}
 	
-	/**
-	 * Fetch the data back from the view and then send it to the UAV
-	 */
-	private boolean updateObject(String uavoName) {
-		
-		if(objMngr != null){
-			UAVDataObject dataObj = (UAVDataObject)objMngr.getObject(uavoName);
-			long objectID = dataObj.getObjID();
-			long instID = dataObj.getInstID();
-			
-			UAVObject obj = objMngr.getObject(objectID, instID);
-			if (obj == null)
-				return false;
-	
-			Log.d(TAG, "Updating object id " + obj.getObjID());
-			obj.updated();
-					
-			return true;
-		}
-	
-		return false;
-	}
-	/**
-	 * Fetch the data back from the view and then send it to the UAV
-	 */
-	private void saveObject(String uavoName) {
-
-		if(objMngr != null){
-			UAVObject objPer = objMngr.getObject("ObjectPersistence");
-	
-			if( !updateObject(uavoName)  || objPer == null) {
-				Toast.makeText(getActivity(), "Save failed", Toast.LENGTH_LONG).show();
-				return;
-			}
-		
-			UAVDataObject obj = (UAVDataObject)objMngr.getObject(uavoName);
-			long objectID = obj.getObjID();
-			long instID = obj.getInstID();
-			
-			long thisId = objectID < 0 ? 0x100000000l + objectID : objectID;
-			objPer.getField("Operation").setValue("Save");
-			objPer.getField("Selection").setValue("SingleObject");
-			Log.d(TAG,"Saving with object id: " + objectID + " swapped to " + thisId);
-			objPer.getField("ObjectID").setValue(thisId);
-			objPer.getField("InstanceID").setValue(instID);
-			objPer.updated();
-	
-			Toast.makeText(getActivity(), "Save succeeded", Toast.LENGTH_LONG).show();
-		}
-	}
-
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v,
 			ContextMenuInfo menuInfo) {
@@ -334,8 +271,7 @@ public class Map extends ObjectManagerFragment implements
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
 
-		switch (item.getItemId()) {
-		case R.id.map_action_jump_to_uav:
+		if(item.getItemId() == R.id.map_action_jump_to_uav){
 			uavLocation = getUavLocation(); // null pointer somewhere around
 											// here.
 			if (uavLocation != null) {
@@ -343,60 +279,77 @@ public class Map extends ObjectManagerFragment implements
 						uavLocation.latitude, uavLocation.longitude)));
 			}
 			return true;
-		case R.id.map_action_clear_uav_path:
+		}
+		else if(item.getItemId() == R.id.map_action_clear_uav_path){
 			UAVpathPoints.clear();
 			UAVpathLine.setPoints(UAVpathPoints);
 			return true;
-		case R.id.map_action_clear_NEDuav_path:
+		}
+		else if(item.getItemId() == R.id.map_action_clear_NEDuav_path){
 			NEDUAVpathPoints.clear();
 			NEDUAVpathLine.setPoints(NEDUAVpathPoints);
 			return true;
-		case R.id.map_action_clear_tablet_path:
+		}
+		else if(item.getItemId() == R.id.map_action_clear_tablet_path){
 			TabletpathPoints.clear();
 			TabletpathLine.setPoints(TabletpathPoints);
 			return true;
-		case R.id.map_action_set_home:
+		}
+		else if(item.getItemId() == R.id.map_action_set_home){
 			if (DEBUG) Log.d(TAG, "Touch point location is currently lat / lon pair "
 					+ touchLocation.latitude + " " + touchLocation.longitude);
 
 			if (objMngr != null) {
-				UAVObject obj = objMngr.getObject("HomeLocation");
-				if (obj != null) {
+				UAVDataObject home = (UAVDataObject) objMngr.getObject("HomeLocation");
+				if (home != null) {
 
 					// LatLng is in degrees, Latitude and Longitude is stored as "deg * 10e6"
 					int lat = (int) (touchLocation.latitude * 10e6);
 					int lon = (int) (touchLocation.longitude * 10e6);
 					
-					if (DEBUG) Log.d(TAG, "setting home lat / lon pair "
-							+ lat + " " + lon);
-
-					
-					UAVObjectField latField = obj.getField("Latitude");
-					latField.setInt(lat);
-					
-					UAVObjectField longField = obj.getField("Longitude");
-					longField.setInt(lon);
-					 
-					obj.updated();
-					obj.updateRequested();
-					
-					Toast.makeText(getActivity(), "Setting Home Location",
-							Toast.LENGTH_SHORT).show();
-
-					// TODO: altitude
-					// UAVObjectField altField = obj.getField("Altitude");
-					// altField.setDouble(alt);
-
-					if (DEBUG) Log.d(TAG, "Home location will be set to lat / long pair "
-							+ lat + " " + lon);
-
+					if(lat != 0.0 && lon != 0.0){
+						if (DEBUG) Log.d(TAG, "setting home lat / lon pair "
+								+ lat + " " + lon);
+	
+						
+						UAVObjectField latField = home.getField("Latitude");
+						latField.setInt(lat);
+						
+						UAVObjectField longField = home.getField("Longitude");
+						longField.setInt(lon);
+						
+						UAVObjectField setField = home.getField("Set");
+						setField.setValue("TRUE");
+						 
+						home.updated();
+						
+						Toast.makeText(getActivity(), "Setting Home Location",
+								Toast.LENGTH_SHORT).show();
+	
+						// persist to flash
+						saveObject(home);
+						
+						
+						// TODO: altitude
+						// UAVObjectField altField = obj.getField("Altitude");
+						// altField.setDouble(alt);
+	
+						if (DEBUG) Log.d(TAG, "Home location will be set to lat / long pair "
+								+ lat + " " + lon);
+					}else{
+						if (DEBUG) Log.d(TAG, "Invalid Home location, will not be set. values: "
+								+ lat + " " + lon);
+					}
+				
 				}
 			}
 
 			return true;
-		default:
+		}
+		else{
 			return super.onContextItemSelected(item);
 		}
+		
 
 	}
 
@@ -419,22 +372,22 @@ public class Map extends ObjectManagerFragment implements
 	@Override
 	public void onOPConnected(UAVObjectManager objMngr) {
 		super.onOPConnected(objMngr);
-
-		final Button buttonSave = (Button) getView().findViewById(R.id.saveBtn);
-		buttonSave.setEnabled(true);
-		final Button buttonApply = (Button) getView().findViewById(R.id.applyBtn);
-		buttonApply.setEnabled(true);
+		
+		Log.d(TAG, "******* onOPConnected");
+		
+		this.objMngr = objMngr;
 		
 		UAVDataObject obj = (UAVDataObject) objMngr.getObject("HomeLocation");
 		if (obj != null) {
 			
-			smartSave = new SmartSave(objMngr, obj,
-				(Button) getView().findViewById(R.id.saveBtn),
-				(Button) getView().findViewById(R.id.applyBtn));
+			// will load HomeLocation if stored in flash
+			loadObject(obj);
 			
-			obj.updateRequested(); // Make sure this is correct and been
 			registerObjectUpdates(obj);
 			objectUpdated(obj);
+			obj.updateRequested(); // Make sure this is correct and been
+			
+			
 		} else {
 			Log.d(TAG, "HomeLocation is null");
 		}
@@ -456,8 +409,10 @@ public class Map extends ObjectManagerFragment implements
 		} else {
 			Log.d(TAG, "GPSPositionSensor is null");
 		}
+		
+		
 	}
-
+	
 	private LatLng getUavLocation() {
 		// Original code was reliant upon the following behavior:
 		//
@@ -549,8 +504,12 @@ public class Map extends ObjectManagerFragment implements
 			Double lon = obj.getField("Longitude").getInt() * .0000001;
 			
 			Log.d(TAG, "objUpdated ** HomeLocation is at lat / lon pair " + lat + " " + lon);
-
+			
 			if (lat != 0 && lon != 0) {
+				
+				Toast.makeText(getActivity(),
+						"HomeLocation was updated, lat: " + lat +", long: " + lon, Toast.LENGTH_SHORT).show();
+				
 				homeLocation = new LatLng(lat, lon);
 				if (mHomeMarker == null) {
 					Log.d(TAG, "home marker is null so creating it");
@@ -644,5 +603,71 @@ public class Map extends ObjectManagerFragment implements
 			
 		}
 	}
+	
+	private void loadObject(UAVObject obj){
+		if(obj == null)
+			return;
+		
+		long objectID = obj.getObjID() ;
+		long instID = obj.getInstID();
+		
+		UAVObject objPer = objMngr.getObject("ObjectPersistence");
+		if( !updateObject(objectID, instID)  || objPer == null) {
+			Toast.makeText(getActivity(), "Load failed", Toast.LENGTH_LONG).show();
+			return;
+		}
+
+		long thisId = objectID < 0 ? 0x100000000l + objectID : objectID;
+		objPer.getField("Operation").setValue("Load");
+		objPer.getField("Selection").setValue("SingleObject");
+		
+		Log.d(TAG,"Reading object id: " + objectID + " swapped to " + thisId);
+		objPer.getField("ObjectID").setValue(thisId);
+		objPer.getField("InstanceID").setValue(instID);
+		objPer.updated();
+		Toast.makeText(getActivity(), "Load succeeded", Toast.LENGTH_LONG).show();
+	}
+	/**
+	 * Fetch the data back from the view and then send it to the UAV
+	 */
+	private void saveObject(UAVObject obj) {
+		if(obj == null)
+			return;
+
+		long objectID = obj.getObjID() ;
+		long instID = obj.getInstID();
+		
+		UAVObject objPer = objMngr.getObject("ObjectPersistence");
+		if( !updateObject(objectID, instID)  || objPer == null) {
+			Toast.makeText(getActivity(), "Save failed", Toast.LENGTH_LONG).show();
+			return;
+		}
+
+		long thisId = objectID < 0 ? 0x100000000l + objectID : objectID;
+		objPer.getField("Operation").setValue("Save");
+		objPer.getField("Selection").setValue("SingleObject");
+		
+		Log.d(TAG,"Saving with object id: " + objectID + " swapped to " + thisId);
+		objPer.getField("ObjectID").setValue(thisId);
+		objPer.getField("InstanceID").setValue(instID);
+		objPer.updated();
+		Toast.makeText(getActivity(), "Save succeeded", Toast.LENGTH_LONG).show();
+	}
+
+	/**
+	 * Fetch the data back from the view and then send it to the UAV
+	 */
+	private boolean updateObject(long objectID, long instID) {
+		UAVObject obj = objMngr.getObject(objectID, instID);
+		if (obj == null)
+			return false;
+
+		Log.d(TAG, "Updating object id " + obj.getObjID());
+		obj.updated();
+
+		return true;
+	}
+
+	
 	
 }

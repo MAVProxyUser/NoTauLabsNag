@@ -515,20 +515,23 @@ public abstract class ObjectManagerActivity extends FragmentActivity {
 			Log.e(TAG, "Unable to connect to service");
 			return super.onOptionsItemSelected(item);
 		}
-		switch(item.getItemId()) {
-		case R.id.menu_connect:
+		
+		if(item.getItemId() == R.id.menu_connect){
 			binder.openConnection();
 			return true;
-		case R.id.menu_disconnect:
+		}
+		else if(item.getItemId() == R.id.menu_disconnect){
 			binder.stopConnection();
 			return true;
-		case R.id.menu_settings:
+		}
+		else if(item.getItemId() == R.id.menu_settings){
 			startActivity(new Intent(this, Preferences.class));
 			return true;
-		case R.id.menu_manage_logs:
+		}
+		else if(item.getItemId() == R.id.menu_manage_logs){
 			 startActivity(new Intent(this, LogManagerActivty.class));
 			 return true;
-		default:
+		}else{
 			return super.onOptionsItemSelected(item);
 		}
 
