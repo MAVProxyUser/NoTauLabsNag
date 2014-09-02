@@ -25,7 +25,10 @@ package org.openpilot_nonag.androidgcs;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+
+import org.apache.commons.io.comparator.LastModifiedFileComparator;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -111,11 +114,7 @@ public class LogManagerActivty extends Activity{
 			return logsList;
 
 		// Reverse the list so more recent files are first
-		for (int i = 0; i < logsList.length / 2; i++) {
-			File temp = logsList[i];
-			logsList[i] = logsList[logsList.length - i - 1];
-			logsList[logsList.length - i - 1] = temp;
-		}
+		Arrays.sort(logsList,LastModifiedFileComparator.LASTMODIFIED_REVERSE );
 		
 		return logsList;
 	}
