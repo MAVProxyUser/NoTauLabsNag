@@ -118,7 +118,7 @@ public class ControlCenterActivity extends ObjectManagerActivity {
 		}else if(alarmName.equals("CPUOverload")){
 			alarmsView.setAlarmStatus(Alarm.CPU, level);
 		}else{
-			Log.d(TAG, "Don't know what " + alarmName + " is.");
+			Log.d(TAG, "Don't know what alarm [" + alarmName + "] is.");
 		}
 	}
 
