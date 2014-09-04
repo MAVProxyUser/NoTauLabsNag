@@ -244,7 +244,7 @@
                 android:layout_gravity="left"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="TELEMTRY"
+                android:text="TELEM"
                 android:textColor="@color/background_color"
                 android:textSize="@dimen/alarm_text" >
             </TextView>
