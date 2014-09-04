@@ -475,9 +475,7 @@ public class UAVTalk {
 				} else {
 	                if (rxObj != null) {
 						rxLength = rxObj.getNumBytes();
-					} else {
-						rxLength = packetSize - rxPacketLength;
-					}
+					} 
 				}
 				
 				// Check length
