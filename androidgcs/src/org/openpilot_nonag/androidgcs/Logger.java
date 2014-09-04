@@ -26,11 +26,11 @@ package org.openpilot_nonag.androidgcs;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.openpilot_nonag.androidgcs.R;
 import org.openpilot_nonag.uavtalk.UAVObject;
 import org.openpilot_nonag.uavtalk.UAVTalk;
 
@@ -38,7 +38,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
 import android.widget.TextView;
-import java.io.FilenameFilter;
 
 
 public class Logger extends ObjectManagerActivity {
@@ -56,6 +55,8 @@ public class Logger extends ObjectManagerActivity {
 
 	private int writtenBytes;
 	private int writtenObjects;
+	
+	private Long timestamp;
 
 	/** Called when the activity is first created. */
 	@Override
@@ -68,6 +69,7 @@ public class Logger extends ObjectManagerActivity {
 
 		File root = Environment.getExternalStorageDirectory();
 
+		timestamp = System.currentTimeMillis();
 		// Make the directory if it doesn't exist
 		File logDirectory = new File(root, LOGGER_DIR);
 		logDirectory.mkdirs();
@@ -158,13 +160,14 @@ public class Logger extends ObjectManagerActivity {
 		if (logging) {
 			if (VERBOSE) Log.v(TAG,"Updated: " + obj.toString());
 			try {
-				long time = System.currentTimeMillis();
-				fileStream.write((byte)(time & 0xff));
-				fileStream.write((byte)((time & 0x0000ff00) >> 8));
-				fileStream.write((byte)((time & 0x00ff0000) >> 16));
-				fileStream.write((byte)((time & 0xff000000) >> 24));
+				int elapsed = (int)( System.currentTimeMillis() - timestamp);
 
-				long size = obj.getNumBytes();
+                fileStream.write((byte)(elapsed &  0xff));
+                fileStream.write((byte)((elapsed & 0x0000ff00) >> 8));
+                fileStream.write((byte)((elapsed & 0x00ff0000) >> 16));
+                fileStream.write((byte)((elapsed & 0xff000000) >> 24));
+				
+				long size = obj.getNumBytes() + 10 + 1;
 				fileStream.write((byte)(size & 0x00000000000000ffl) >> 0);
 				fileStream.write((byte)(size & 0x000000000000ff00l) >> 8);
 				fileStream.write((byte)(size & 0x0000000000ff0000l) >> 16);
@@ -175,6 +178,8 @@ public class Logger extends ObjectManagerActivity {
 				fileStream.write((byte)(size & 0xff00000000000000l) >> 56);
 
 				uavTalk.sendObject(obj, false, false);
+				
+				
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
