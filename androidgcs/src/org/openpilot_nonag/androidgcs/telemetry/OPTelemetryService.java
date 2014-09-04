@@ -35,7 +35,6 @@ import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-//import org.openpilot_nonag.androidgcs.telemetry.tasks.LoggingTask;
 import org.openpilot_nonag.uavtalk.UAVObjectManager;
 
 import android.app.Service;
@@ -379,7 +378,6 @@ public class OPTelemetryService extends Service {
 	 */
 	public interface TelemTask {
 		public UAVObjectManager getObjectManager();
-//		public LoggingTask getLoggingTask();
 	};
 
 

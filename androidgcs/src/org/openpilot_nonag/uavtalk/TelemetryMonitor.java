@@ -261,7 +261,7 @@ public class TelemetryMonitor extends Observable {
 			Log.d(TAG, "Flight Status: "
 					+ flightStatsObj.getField("Status").getValue());
 		if (((String) gcsStatsObj.getField("Status").getValue())
-				.compareTo("Connected") == 0
+				.compareTo("Connected") != 0
 				|| ((String) flightStatsObj.getField("Status").getValue())
 						.compareTo("Connected") == 0) {
 			processStatsUpdates();
@@ -356,6 +356,7 @@ public class TelemetryMonitor extends Observable {
 		}
 
 		// Force telemetry update if not yet connected
+		
 		boolean gcsStatusChanged = !oldStatus.equals(statusField.getValue());
 
 		boolean gcsConnected = statusField.getValue().equals("Connected");

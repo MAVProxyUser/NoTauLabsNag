@@ -81,7 +81,7 @@ public abstract class TelemetryTask implements Runnable {
 
 	//! Generate audio alerts based on object updates
 	private final AudioTask audioTask = new AudioTask();
-
+	
 	TelemetryTask(OPTelemetryService s) {
 		telemService = s;
 		shutdown = false;
@@ -121,7 +121,7 @@ public abstract class TelemetryTask implements Runnable {
 
 		// Connect the audio alerts
 		audioTask.connect(objMngr, telemService);
-
+		
 		// Create a new thread that processes the input bytes
 		startInputProcessing();
 
@@ -137,7 +137,7 @@ public abstract class TelemetryTask implements Runnable {
 	void disconnect() {
 		// Make the default input procesing loop stop
 		shutdown = true;
-
+		
 		// Shut down all the attached
 		if (mon != null) {
 			mon.stopMonitor();

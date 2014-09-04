@@ -39,10 +39,15 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+/**
+ * http://developer.android.com/guide/topics/connectivity/bluetooth.html
+ * 
+ *
+ */
 public class BluetoothUAVTalk extends TelemetryTask {
 
 	private final String TAG = "BluetoothUAVTalk";
-	public static final int LOGLEVEL = 4;
+	public static final int LOGLEVEL = 0;
 	public static final boolean DEBUG = LOGLEVEL > 2;
 	public static final boolean WARN = LOGLEVEL > 1;
 	public static final boolean ERROR = LOGLEVEL > 0;
