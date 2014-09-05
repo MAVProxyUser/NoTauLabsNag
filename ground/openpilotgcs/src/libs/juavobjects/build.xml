@@ -10,7 +10,7 @@
   <target name="compile" depends="clean">
     <mkdir dir="${build.dir}" />
     <mkdir dir="${classes.dir}" />
-    <javac srcdir="${src.dir}" destdir="${classes.dir}" classpath="${build.dir}/juavtalk/juavtalk.jar" debug="true"> 
+    <javac srcdir="${src.dir}" destdir="${classes.dir}" classpath="${build.dir}/juavtalk/juavtalk.jar" debug="false"> 
 	<compilerarg value="-Xlint:unchecked" />
     </javac>
   </target>
