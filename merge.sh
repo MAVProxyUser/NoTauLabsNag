@@ -1,3 +1,7 @@
+if [ -z "$ANDROID_HOME" ]; then
+	export ANDROID_HOME=~/adt-bundle-linux-x86_64-20140702/sdk/
+fi
+
 WD=`pwd`
 if [ ! -d "../OpenPilot/" ]; then
 	git clone git://git.openpilot.org/OpenPilot.git ../OpenPilot

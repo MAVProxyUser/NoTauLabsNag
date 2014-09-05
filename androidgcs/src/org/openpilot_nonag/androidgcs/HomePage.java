@@ -36,7 +36,7 @@ import android.content.res.Configuration;
 
 public class HomePage extends ObjectManagerActivity {
 	@Override
-	public void onConfigurationChanged(Configuration newConfig) {
+	public void onConfigurationChanged(Configuration newConfig) { // This is not getting called any more? http://stackoverflow.com/questions/5620033/onconfigurationchanged-not-getting-called
 	    super.onConfigurationChanged(newConfig);
 
 	    // Checks the orientation of the screen
