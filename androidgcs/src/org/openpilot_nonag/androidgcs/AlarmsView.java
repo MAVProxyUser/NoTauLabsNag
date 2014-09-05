@@ -100,6 +100,8 @@ public class AlarmsView  extends LinearLayout  {
 	    mTvEvent = (TextView) findViewById(R.id.tvEVENT);
 	    mTvCpu = (TextView) findViewById(R.id.tvCPU);
 	    mTvMan = (TextView) findViewById(R.id.tvMANUAL);
+	    
+	    clearAlarms();
 	  
 	}
 	
@@ -211,6 +213,15 @@ public class AlarmsView  extends LinearLayout  {
 		
 		return AlarmState.NONE;
 		
+	}
+
+	public void clearAlarms() {
+		// TODO Auto-generated method stub
+		for(Alarms e : Alarms.values()){
+            
+			setAlarmStatus(e.toString(), "NONE");
+
+        }
 	}
 
 }

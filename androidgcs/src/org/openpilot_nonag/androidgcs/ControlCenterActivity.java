@@ -45,6 +45,13 @@ public class ControlCenterActivity extends ObjectManagerActivity {
 			registerObjectUpdates(obj);
 		objectUpdated(obj);
 	}
+	
+	@Override
+	void onOPDisconnected() {
+		super.onOPDisconnected();
+		
+		alarmsView.clearAlarms();
+	}
 
 	/**
 	 * Called whenever any objects subscribed to via registerObjects
