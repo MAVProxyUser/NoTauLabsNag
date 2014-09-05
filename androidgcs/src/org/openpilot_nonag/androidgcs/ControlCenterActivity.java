@@ -73,68 +73,16 @@ public class ControlCenterActivity extends ObjectManagerActivity {
     }
 
 
+    /**
+     * Pass alarm details to View for processing
+     * @param alarmName
+     * @param alarmValue
+     */
 	private void processAlarm(String alarmName, String alarmValue) {
-    	
-		AlarmState level = getAlarmValue(alarmValue);
+
+		alarmsView.setAlarmStatus(alarmName, alarmValue);
 		
-		if(alarmName.equals("Attitude")){
-			alarmsView.setAlarmStatus(Alarm.ATTI, level);
-		}else if(alarmName.equals("Stabilization")){
-			alarmsView.setAlarmStatus(Alarm.STAB, level);
-		}else if(alarmName.equals("Guidance")){
-			alarmsView.setAlarmStatus(Alarm.PATH, level);
-		}else if(alarmName.equals("PathPlan")){
-			alarmsView.setAlarmStatus(Alarm.PLAN, level);
-		}else if(alarmName.equals("GPS")){
-			alarmsView.setAlarmStatus(Alarm.GPS, level);
-		}else if(alarmName.equals("Sensors")){
-			alarmsView.setAlarmStatus(Alarm.SENSOR, level);
-		}else if(alarmName.equals("Airspeed")){
-			alarmsView.setAlarmStatus(Alarm.AIRSPD, level);
-		}else if(alarmName.equals("Magnetometer")){
-			alarmsView.setAlarmStatus(Alarm.MAG, level);
-		}else if(alarmName.equals("Receiver")){
-			alarmsView.setAlarmStatus(Alarm.INPUT, level);
-		}else if(alarmName.equals("Actuator")){
-			alarmsView.setAlarmStatus(Alarm.OUTPUT, level);
-		}else if(alarmName.equals("I2C")){
-			alarmsView.setAlarmStatus(Alarm.I2C, level);
-		}else if(alarmName.equals("Telemetry")){
-			alarmsView.setAlarmStatus(Alarm.TELEM, level);
-		}else if(alarmName.equals("Battery")){
-			alarmsView.setAlarmStatus(Alarm.BATT, level);
-		}else if(alarmName.equals("FlightTime")){
-			alarmsView.setAlarmStatus(Alarm.TIME, level);
-		}else if(alarmName.equals("SystemConfiguration")){
-			alarmsView.setAlarmStatus(Alarm.CONFIG, level);
-		}else if(alarmName.equals("BootFault")){
-			alarmsView.setAlarmStatus(Alarm.BOOT, level);
-		}else if(alarmName.equals("OutOfMemory")){
-			alarmsView.setAlarmStatus(Alarm.MEM, level);
-		}else if(alarmName.equals("StackOverflow")){
-			alarmsView.setAlarmStatus(Alarm.STACK, level);
-		}else if(alarmName.equals("EventSystem")){
-			alarmsView.setAlarmStatus(Alarm.EVENT, level);
-		}else if(alarmName.equals("CPUOverload")){
-			alarmsView.setAlarmStatus(Alarm.CPU, level);
-		}else{
-			Log.d(TAG, "Don't know what alarm [" + alarmName + "] is.");
-		}
 	}
 
-	private AlarmState getAlarmValue(String alarmValue) {
-		if(alarmValue.equals("Uninitialised"))
-			return AlarmState.UNINIT;
-		else if(alarmValue.equals("OK"))
-			return AlarmState.OK;
-		else if(alarmValue.equals("Warning"))
-			return AlarmState.WARNING;
-		else if(alarmValue.equals("Critical"))
-			return AlarmState.CRITICAL;
-		else if(alarmValue.equals("Error"))
-			return AlarmState.CRITICAL;
-		
-		return AlarmState.NONE;
-		
-	}
+	
 }

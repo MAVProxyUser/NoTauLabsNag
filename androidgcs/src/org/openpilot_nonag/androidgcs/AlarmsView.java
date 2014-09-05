@@ -3,7 +3,6 @@ package org.openpilot_nonag.androidgcs;
 import android.content.Context;
 import android.graphics.Color;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -52,11 +51,14 @@ public class AlarmsView  extends LinearLayout  {
 	private TextView mTvCpu;
 
 	private TextView mTvConfig;
+
+	private TextView mTvMan;
 	
 	
 	public static enum Alarm {
-	    ATTI, STAB, PATH, PLAN, GPS, SENSOR, AIRSPD, MAG, INPUT, OUTPUT, I2C, TELEM, BATT,
-	    TIME, CONFIG, BOOT, MEM, STACK, EVENT, CPU
+	    ATTI,
+	    STAB, PATH, PLAN, GPS, SENSOR, AIRSPD, MAG, INPUT, OUTPUT, I2C, TELEM, BATT,
+	    TIME, CONFIG, BOOT, MEM, STACK, EVENT, CPU, MANUAL
 	}
 	
 	public static enum AlarmState {
@@ -97,13 +99,17 @@ public class AlarmsView  extends LinearLayout  {
 	    mTvStack = (TextView) findViewById(R.id.tvSTACK);
 	    mTvEvent = (TextView) findViewById(R.id.tvEVENT);
 	    mTvCpu = (TextView) findViewById(R.id.tvCPU);
+	    mTvMan = (TextView) findViewById(R.id.tvMANUAL);
 	  
-	    
 	}
 	
-	public void setAlarmStatus( Alarm alarm, AlarmState level){
+	public void setAlarmStatus( String alarmText, String alarmLevel){
 		
-		switch(alarm){
+		Alarms alarms = Alarms.getEnumByString(alarmText);
+		
+		AlarmState level = getAlarmValue(alarmLevel); 
+		
+		switch(alarms){
 			case ATTI:
 				mTvAtti.setBackgroundColor(getColor(level));
 				break;
@@ -119,7 +125,6 @@ public class AlarmsView  extends LinearLayout  {
 			case GPS:
 				mTvGPS.setBackgroundColor(getColor(level));
 				break;
-				
 			case SENSOR: 
 				mTvSensor.setBackgroundColor(getColor(level));
 				break;
@@ -165,6 +170,9 @@ public class AlarmsView  extends LinearLayout  {
 			case CPU:
 				mTvCpu.setBackgroundColor(getColor(level));
 				break;
+			case MANUAL:
+				mTvMan.setBackgroundColor(getColor(level));
+				break;
 				
 		}
 		invalidate();
@@ -188,9 +196,21 @@ public class AlarmsView  extends LinearLayout  {
 			return Color.LTGRAY;
 		}
 	}
-	
-	
-	
 
+	private AlarmState getAlarmValue(String alarmValue) {
+		if(alarmValue.equals("Uninitialised"))
+			return AlarmState.UNINIT;
+		else if(alarmValue.equals("OK"))
+			return AlarmState.OK;
+		else if(alarmValue.equals("Warning"))
+			return AlarmState.WARNING;
+		else if(alarmValue.equals("Critical"))
+			return AlarmState.CRITICAL;
+		else if(alarmValue.equals("Error"))
+			return AlarmState.CRITICAL;
+		
+		return AlarmState.NONE;
+		
+	}
 
 }
