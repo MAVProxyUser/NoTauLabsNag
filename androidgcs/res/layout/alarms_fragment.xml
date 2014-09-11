@@ -1,0 +1,433 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:orientation="vertical" >
+
+        <!-- Auto -->
+
+        <TextView
+            android:id="@+id/tvAutoLabel"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="AUTO"
+            android:textStyle="bold" >
+        </TextView>
+
+        <LinearLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            android:background="@drawable/alarm_border"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:id="@+id/tvATTI"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="left"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="ATTI"
+                android:textColor="@color/background_color"
+                android:textSize="@dimen/alarm_text" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/tvSTAB"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="right"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="STAB"
+                android:textColor="@color/background_color"
+                android:textSize="@dimen/alarm_text" >
+            </TextView>
+        </LinearLayout>
+
+        <LinearLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            android:background="@drawable/alarm_border"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:id="@+id/tvPATH"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="left"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="PATH"
+                android:textColor="@color/background_color"
+                android:textSize="@dimen/alarm_text" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/tvPLAN"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="right"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="PLAN"
+                android:textColor="@color/background_color"
+                android:textSize="@dimen/alarm_text" >
+            </TextView>
+        </LinearLayout>
+
+        <!-- Sensor -->
+
+        <TextView
+            android:id="@+id/tvSensorLabel"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="SENSOR"
+            android:textStyle="bold" >
+        </TextView>
+
+        <LinearLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            android:background="@drawable/alarm_border"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:id="@+id/tvGPS"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="left"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="GPS"
+                android:textColor="@color/background_color"
+                android:textSize="@dimen/alarm_text" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/tvSENSR"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="right"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="SENSR"
+                android:textColor="@color/background_color"
+                android:textSize="@dimen/alarm_text" >
+            </TextView>
+        </LinearLayout>
+
+        <LinearLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            android:background="@drawable/alarm_border"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:id="@+id/tvAIRSPD"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="left"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="AIRSPD"
+                android:textColor="@color/background_color"
+                android:textSize="@dimen/alarm_text" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/tvMAG"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="right"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="MAG"
+                android:textColor="@color/background_color"
+                android:textSize="@dimen/alarm_text" >
+            </TextView>
+        </LinearLayout>
+
+        <!-- I/O -->
+
+        <TextView
+            android:id="@+id/tvSensorLabel"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="I/O"
+            android:textStyle="bold" >
+        </TextView>
+
+        <LinearLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            android:background="@drawable/alarm_border"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:id="@+id/tvINPUT"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="left"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="INPUT"
+                android:textColor="@color/background_color"
+                android:textSize="@dimen/alarm_text" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/tvOUTPUT"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="right"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="OUTPUT"
+                android:textColor="@color/background_color"
+                android:textSize="@dimen/alarm_text" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/tvI2C"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="right"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="I2C"
+                android:textColor="@color/background_color"
+                android:textSize="@dimen/alarm_text" >
+            </TextView>
+        </LinearLayout>
+
+        <!-- Link/Pwr -->
+        
+        <TextView
+            android:id="@+id/tvSensorLabel"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="LINK/PWR"
+            android:textStyle="bold" >
+        </TextView>
+        <LinearLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            android:background="@drawable/alarm_border"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:id="@+id/tvTELEMETRY"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="left"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="TELEM"
+                android:textColor="@color/background_color"
+                android:textSize="@dimen/alarm_text" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/tvBATT"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="right"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="BATT"
+                android:textColor="@color/background_color"
+                android:textSize="@dimen/alarm_text" >
+            </TextView>
+            
+            <TextView
+                android:id="@+id/tvTIME"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="right"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="TIME"
+                android:textColor="@color/background_color"
+                android:textSize="@dimen/alarm_text" >
+            </TextView>
+        </LinearLayout>
+        
+        <!-- Misc -->
+        
+        <TextView
+            android:id="@+id/tvSensorLabel"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="MISC"
+            android:textStyle="bold" >
+        </TextView>
+        <LinearLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            android:background="@drawable/alarm_border"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:id="@+id/tvCONFIG"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="left"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="CONFIG"
+                android:textColor="@color/background_color"
+                android:textSize="@dimen/alarm_text" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/tvMANUAL"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="right"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="MANUAL"
+                android:textColor="@color/background_color"
+                android:textSize="@dimen/alarm_text" >
+            </TextView>
+            
+            <TextView
+                android:id="@+id/tvOther2"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="right"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text=""
+                android:textColor="@color/background_color"
+                android:textSize="@dimen/alarm_text" >
+            </TextView>
+        </LinearLayout>
+
+                <!-- SYS -->
+        
+        <TextView
+            android:id="@+id/tvSensorLabel"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="SYS"
+            android:textStyle="bold" >
+        </TextView>
+        <LinearLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            android:background="@drawable/alarm_border"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:id="@+id/tvBOOT"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="left"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="BOOT"
+                android:textColor="@color/background_color"
+                android:textSize="@dimen/alarm_text" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/tvMEM"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="right"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="MEM"
+                android:textColor="@color/background_color"
+                android:textSize="@dimen/alarm_text" >
+            </TextView>
+            
+            <TextView
+                android:id="@+id/tvSTACK"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="right"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="STACK"
+                android:textColor="@color/background_color"
+                android:textSize="@dimen/alarm_text" >
+            </TextView>
+        </LinearLayout>
+        <LinearLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            android:background="@drawable/alarm_border"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:id="@+id/tvEVENT"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="left"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="EVENT"
+                android:textColor="@color/background_color"
+                android:textSize="@dimen/alarm_text" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/tvCPU"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="right"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="CPU"
+                android:textColor="@color/background_color"
+                android:textSize="@dimen/alarm_text" >
+            </TextView>
+            
+            <TextView
+                android:id="@+id/tvOther3"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="right"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text=""
+                android:textColor="@color/background_color"
+                android:textSize="@dimen/alarm_text" >
+            </TextView>
+        </LinearLayout>
+        
+        
+    </LinearLayout>
+</ScrollView>

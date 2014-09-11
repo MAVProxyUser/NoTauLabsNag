@@ -7,6 +7,7 @@ import java.util.Observable;
 import java.util.Observer;
 
 import org.openpilot_nonag.androidgcs.telemetry.tasks.AudioTask;
+import org.openpilot_nonag.androidgcs.telemetry.tasks.LoggerTask;
 import org.openpilot_nonag.uavtalk.Telemetry;
 import org.openpilot_nonag.uavtalk.TelemetryMonitor;
 import org.openpilot_nonag.uavtalk.UAVObjectManager;
@@ -81,7 +82,8 @@ public abstract class TelemetryTask implements Runnable {
 
 	//! Generate audio alerts based on object updates
 	private final AudioTask audioTask = new AudioTask();
-
+	private final LoggerTask loggerTask = new LoggerTask();
+	
 	TelemetryTask(OPTelemetryService s) {
 		telemService = s;
 		shutdown = false;
@@ -121,7 +123,8 @@ public abstract class TelemetryTask implements Runnable {
 
 		// Connect the audio alerts
 		audioTask.connect(objMngr, telemService);
-
+		loggerTask.connect(objMngr, telemService);
+		
 		// Create a new thread that processes the input bytes
 		startInputProcessing();
 
@@ -137,7 +140,7 @@ public abstract class TelemetryTask implements Runnable {
 	void disconnect() {
 		// Make the default input procesing loop stop
 		shutdown = true;
-
+		
 		// Shut down all the attached
 		if (mon != null) {
 			mon.stopMonitor();
@@ -171,6 +174,8 @@ public abstract class TelemetryTask implements Runnable {
 
 		if(audioTask != null)
 			audioTask.disconnect();
+		if(loggerTask != null)
+			loggerTask.disconnect();
 
 		// TODO: Make sure the input and output stream is closed
 

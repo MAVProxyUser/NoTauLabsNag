@@ -23,18 +23,27 @@
  */
 package org.openpilot_nonag.androidgcs;
 
-import org.openpilot_nonag.androidgcs.R;
+import java.util.ArrayList;
+
+import org.openpilot_nonag.androidgcs.grid.ImageAdapter;
 
 import android.content.Intent;
-import android.os.Bundle;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.WindowManager;
-import android.widget.Button;
-import android.widget.Toast;
 import android.content.res.Configuration;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.GridView;
+import android.widget.Toast;
 
 public class HomePage extends ObjectManagerActivity {
+	
+	protected static final String TAG = HomePage.class.getSimpleName();
+	
+	private ArrayList<Integer> listMenuItems;
+	private ArrayList<Integer> listMenuIcons;
+	
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) { // This is not getting called any more? http://stackoverflow.com/questions/5620033/onconfigurationchanged-not-getting-called
 	    super.onConfigurationChanged(newConfig);
@@ -51,83 +60,66 @@ public class HomePage extends ObjectManagerActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
 		setContentView(R.layout.gcs_home);
 		
-		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-				
-		Button objectBrowser = (Button) findViewById(R.id.launch_object_browser);
-		objectBrowser.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View arg0) {
-				startActivity(new Intent(HomePage.this, ObjectBrowser.class));
-			}
-		});
-
-		Button pfd = (Button) findViewById(R.id.launch_pfd);
-		pfd.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View arg0) {
-				startActivity(new Intent(HomePage.this, PfdActivity.class));
-			}
-		});
-
-		Button tfr = (Button) findViewById(R.id.launch_tfr);
-		tfr.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View arg0) {
-				startActivity(new Intent(HomePage.this, TfrActivity.class));
-			}
-		});
-
-                Button location = (Button) findViewById(R.id.launch_location);
-                location.setOnClickListener(new OnClickListener() {
-                        @Override
-                        public void onClick(View arg0) {
-                                startActivity(new Intent(HomePage.this, UAVLocation.class));
-                        }
-                });
-
-        	Button command_center = (Button) findViewById(R.id.launch_cc);
-        	command_center.setOnClickListener(new OnClickListener() {
-                	@Override
-                	public void onClick(View arg0) {
-                	        startActivity(new Intent(HomePage.this, ControlCenterActivity.class));
-                	}
-        	});
-
-		Button wizard = (Button) findViewById(R.id.launch_wizard);
-		wizard.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View arg0) {
-				startActivity(new Intent(HomePage.this, Wizard.class));
-			}
-		});
-
-		Button logger = (Button) findViewById(R.id.launch_logger);
-		logger.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View arg0) {
-				startActivity(new Intent(HomePage.this, Logger.class));
-			}
-		});
-
-		Button alarms = (Button) findViewById(R.id.launch_alarms);
-		alarms.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View arg0) {
-				startActivity(new Intent(HomePage.this, SystemAlarmActivity.class));
-			}
-		});
-
-		Button tuning = (Button) findViewById(R.id.launch_tuning);
-		tuning.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View arg0) {
-				startActivity(new Intent(HomePage.this, TuningActivity.class));
-			}
-		});
+		prepareMenuItems();
+		
+		GridView gridview = (GridView) findViewById(R.id.gridview);
+	    gridview.setAdapter(new ImageAdapter(this,listMenuItems,listMenuIcons));
+		
+	    gridview.setOnItemClickListener(new OnItemClickListener() {
+	        public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
+	            
+	            int menuPos = listMenuIcons.get(position);
+	            
+	            if(menuPos == R.drawable.ic_browser){
+	            	startActivity(new Intent(HomePage.this, ObjectBrowser.class));
+	            }else if(menuPos == R.drawable.ic_pfd){
+	            	startActivity(new Intent(HomePage.this, PfdActivity.class));
+	            }else if(menuPos == R.drawable.ic_logging){
+	            	startActivity(new Intent(HomePage.this, Logger.class));
+	            }else if(menuPos == R.drawable.ic_alarms){
+	            	startActivity(new Intent(HomePage.this, SystemAlarmActivity.class));
+	            }else if(menuPos == R.drawable.ic_tuning){
+	            	startActivity(new Intent(HomePage.this, TuningActivity.class));
+	            }else if(menuPos == R.drawable.ic_map){
+	            	startActivity(new Intent(HomePage.this, UAVLocation.class));
+	            }else if(menuPos == R.drawable.ic_tfr){
+	            	startActivity(new Intent(HomePage.this, TfrActivity.class));
+	            }else if(menuPos == R.drawable.ic_cc){
+	            	startActivity(new Intent(HomePage.this, ControlCenterActivity.class));
+	            }else{
+	            	Log.e(TAG, "invalid menu selection!");
+	            }
+	            
+	        }
+	    });
 
 	}
+	
+	public void prepareMenuItems()
+    {
+		listMenuItems = new ArrayList<Integer>();
+ 
+		listMenuItems.add(R.string.object_browser_name);
+		listMenuItems.add(R.string.pfd_name);
+		listMenuItems.add(R.string.logger_name);
+		listMenuItems.add(R.string.alarms);
+		listMenuItems.add(R.string.tuning);
+		listMenuItems.add(R.string.location_name);
+		listMenuItems.add(R.string.tfr_name);
+		listMenuItems.add(R.string.cc_name);
+ 
+		listMenuIcons = new ArrayList<Integer>();
+		listMenuIcons.add(R.drawable.ic_browser);
+		listMenuIcons.add(R.drawable.ic_pfd);
+		listMenuIcons.add(R.drawable.ic_logging); 
+		listMenuIcons.add(R.drawable.ic_alarms);
+		listMenuIcons.add(R.drawable.ic_tuning); 
+		listMenuIcons.add(R.drawable.ic_map);
+		listMenuIcons.add(R.drawable.ic_tfr); 
+		listMenuIcons.add(R.drawable.ic_cc);
+          
+    }
 
 }
